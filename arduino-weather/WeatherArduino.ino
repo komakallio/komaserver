@@ -31,7 +31,7 @@ void setup() {
     Serial.begin(57600);
     FreqCount.begin(1000);
 
-    hasInteriorSensor = bme.begin();
+    hasInteriorSensor = bme.begin(0x76);
     dallasTemperature.begin();
     hasEnclosureSensor = (dallasTemperature.getDeviceCount() > 0);
 }
