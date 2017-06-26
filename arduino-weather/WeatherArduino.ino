@@ -24,11 +24,6 @@ static NMEASerial nmeaSerial(NULL);
 static bool lastRainState = false;
 static unsigned long lastReportTime = 0;
 
-static float interiorTemp;
-static float interiorHumidity;
-static float interiorPressure;
-static bool haveInteriorData = false;
-
 void setup() {
     pinMode(PIN_DRD11A_RAIN, INPUT);
     pinMode(PIN_DRD11A_INTENSITY, INPUT);
@@ -61,37 +56,33 @@ void loop() {
     bool rain = (digitalRead(PIN_DRD11A_RAIN) == LOW);
     int rainIntensity = analogRead(PIN_DRD11A_INTENSITY);
 
-    String msg = "RAIN=";
-    msg += rain ? 1 : 0;
-    msg += ",FREQ=";
-    msg += rainFrequency;
-    msg += ",INTENSITY=";
-    msg += rainIntensity;
-
-    if (hasEnclosureSensor) {
-        dallasTemperature.requestTemperatures();
-        float enclosureTemp = dallasTemperature.getTempCByIndex(0);
-        msg += ",ENCLOSURETEMP=";
-        msg += enclosureTemp;
-    }
-    if (hasInteriorSensor) {
-        if (!haveInteriorData && timeSinceLastReport > 8000) {
-            interiorTemp = bme.readTemperature();
-            interiorHumidity = bme.readHumidity();
-            interiorPressure = bme.readPressure();
-            haveInteriorData = true;
-        }
-        msg += ",INTERIORTEMP=";
-        msg += interiorTemp;
-        msg += ",INTERIORHUMIDITY=";
-        msg += interiorHumidity;
-        msg += ",INTERIORPRESSURE=";
-        msg += interiorPressure;
-    }
-
     if ((lastRainState == false && rain) || timeSinceLastReport > 10000) {
+        String msg = "RAIN=";
+        msg += rain ? 1 : 0;
+        msg += ",FREQ=";
+        msg += rainFrequency;
+        msg += ",INTENSITY=";
+        msg += rainIntensity;
+
+        if (hasEnclosureSensor) {
+            dallasTemperature.requestTemperatures();
+            float enclosureTemp = dallasTemperature.getTempCByIndex(0);
+            msg += ",ENCLOSURETEMP=";
+            msg += enclosureTemp;
+        }
+        if (hasInteriorSensor) {
+            float interiorTemp = bme.readTemperature();
+            float interiorHumidity = bme.readHumidity();
+            float interiorPressure = bme.readPressure();
+            msg += ",INTERIORTEMP=";
+            msg += interiorTemp;
+            msg += ",INTERIORHUMIDITY=";
+            msg += interiorHumidity;
+            msg += ",INTERIORPRESSURE=";
+            msg += interiorPressure;
+        }
+
         lastReportTime = currentTime;
-        haveInteriorData = false;
         nmeaSerial.print(msg);
     }
     lastRainState = rain;
