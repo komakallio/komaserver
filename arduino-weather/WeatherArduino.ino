@@ -24,6 +24,11 @@ static NMEASerial nmeaSerial(NULL);
 static bool lastRainState = false;
 static unsigned long lastReportTime = 0;
 
+static float interiorTemp;
+static float interiorHumidity;
+static float interiorPressure;
+static bool haveInteriorData = false;
+
 void setup() {
     pinMode(PIN_DRD11A_RAIN, INPUT);
     pinMode(PIN_DRD11A_INTENSITY, INPUT);
@@ -34,9 +39,22 @@ void setup() {
     hasInteriorSensor = bme.begin(0x76);
     dallasTemperature.begin();
     hasEnclosureSensor = (dallasTemperature.getDeviceCount() > 0);
+
+    if (hasInteriorSensor) {
+        bme.setSampling(
+            Adafruit_BME280::MODE_NORMAL,
+            Adafruit_BME280::SAMPLING_X16,
+            Adafruit_BME280::SAMPLING_X16,
+            Adafruit_BME280::SAMPLING_X16,
+            Adafruit_BME280::FILTER_OFF,
+            Adafruit_BME280::STANDBY_MS_1000);
+    }
 }
 
 void loop() {
+    unsigned long currentTime = millis();
+    unsigned long timeSinceLastReport = currentTime - lastReportTime;
+
     if (FreqCount.available()) {
         rainFrequency = FreqCount.read();
     }
@@ -57,9 +75,12 @@ void loop() {
         msg += enclosureTemp;
     }
     if (hasInteriorSensor) {
-        float interiorTemp = bme.readTemperature();
-        float interiorHumidity = bme.readHumidity();
-        float interiorPressure = bme.readPressure();
+        if (!haveInteriorData && timeSinceLastReport > 8000) {
+            interiorTemp = bme.readTemperature();
+            interiorHumidity = bme.readHumidity();
+            interiorPressure = bme.readPressure();
+            haveInteriorData = true;
+        }
         msg += ",INTERIORTEMP=";
         msg += interiorTemp;
         msg += ",INTERIORHUMIDITY=";
@@ -68,10 +89,9 @@ void loop() {
         msg += interiorPressure;
     }
 
-    unsigned long currentTime = millis();
-    unsigned long timeSinceLastReport = currentTime - lastReportTime;
     if ((lastRainState == false && rain) || timeSinceLastReport > 10000) {
         lastReportTime = currentTime;
+        haveInteriorData = false;
         nmeaSerial.print(msg);
     }
     lastRainState = rain;
