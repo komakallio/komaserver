@@ -77,10 +77,47 @@ function roofCallback(state) {
         case "CLOSING": break;
         case "STOPPING": break;
         case "ERROR": break;
+        case "LOCKING": break;
+        case "UNLOCKING": break;
+        case "LOCKED": break;
         break;
     }
 
     roofState = state;
+}
+
+function batteryReporter() {
+    var status = roofMotor.status();
+    var data = {
+        'Type': 'Battery',
+        'Data': {
+            'Voltage': [ status['BATTERYVOLTAGE'], 'V' ],
+            'Temperature': [ status['TEMP1'] , 'C' ]
+        }
+    };
+
+    request.post({
+        url: 'http://localhost:9001/battery',
+        body: data,
+        json: true
+    });
+}
+
+function roofReporter() {
+    var status = roofMotor.status();
+    var data = {
+        'Type': 'Roof',
+        'Data': {
+            'State': status['ROOF'],
+            'Encoder' : status['ENCODER']
+        }
+    };
+
+    request.post({
+        url: 'http://localhost:9001/roof',
+        body: data,
+        json: true
+    });
 }
 
 app.param('user', function(req, res, next, user) {
