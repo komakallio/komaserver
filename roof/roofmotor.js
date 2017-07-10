@@ -34,7 +34,8 @@ var power = [];
 for (var i = 0; i < 120; i++) {
     power.push(0);
 }
-var status = "";
+var statusline = "";
+var status = {};
 var loglines = ['', '', ''];
 var stateCallback;
 
@@ -58,8 +59,11 @@ module.exports = {
         return power;
     },
     statusline: () => {
-        return status;
+        return statusline;
     },
+    status: () => {
+        return status;
+    }
     loglines: () => {
         return loglines;
     }
@@ -80,13 +84,14 @@ port.on('data', function (data) {
             }
         },
         STATUS:function(args) {
-            status = args;
+            statusline = args;
             var data = args.split(',')
                 .map((arg) => arg.split('='))
                 .reduce((ob, p) => { ob[p[0]] = p[1], ob }, {});
             if (currentState != data['ROOF'] && stateCallback) {
                 stateCallback(data['ROOF']);
             }
+            status = data;
             currentState = data['ROOF'];
         },
         LOG:function(args) {
