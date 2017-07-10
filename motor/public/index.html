@@ -25,9 +25,11 @@
         </div>
         <div class="row" style="margin-top:30px;">
             <div class="col-xs-4 col-xs-offset-4 text-center">
+                <button id="lock" class="btn btn-lg btn-primary">Lock</button>
                 <button id="close" class="btn btn-lg btn-primary">Close</button>
                 <button id="stop" class="btn btn-lg btn-danger">Stop</button>
                 <button id="open" class="btn btn-lg btn-primary">Open</button>
+                <button id="unlock" class="btn btn-lg btn-primary">Unlock</button>
             </div>
         </div>
         <div class="row" style="margin-top:30px;">
@@ -50,6 +52,12 @@
             });
             $("#stop").click(function() {
                 $.post('/stop');
+            });
+            $("#lock").click(function() {
+                $.post('/lock');
+            });
+            $("#unlock").click(function() {
+                $.post('/unlock');
             });
             $("#setspeed").click(function() {
                 $.post('/setspeed/' + $('#speed').val());

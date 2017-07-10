@@ -63,6 +63,16 @@ app.post('/close', function(req, res) {
     res.json({success:true});
 });
 
+app.post('/lock', function(req, res) {
+    port.write('$LOCK*0B\r\n');
+    res.json({success:true});
+});
+
+app.post('/unlock', function(req, res) {
+    port.write('$UNLOCK*10\r\n');
+    res.json({success:true});
+});
+
 app.post('/stop', function(req, res) {
     port.write('$STOP*18\r\n');
     res.json({success:true});
@@ -89,7 +99,6 @@ port.on('open', function() {
 port.on('data', function (data) {
     var handlers = {
         POWER:function(args) {
-            logger.info(args);
             var data = args.split(',');
             for (var i = 0; i < data.length; i++) {
                 power.shift();
