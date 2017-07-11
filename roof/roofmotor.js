@@ -38,6 +38,7 @@ var statusline = "";
 var status = {};
 var loglines = ['', '', ''];
 var stateCallback;
+var currentState = '';
 
 module.exports = {
     open: () => {
@@ -82,7 +83,6 @@ port.on('open', function() {
 port.on('data', function (data) {
     var handlers = {
         POWER:function(args) {
-            logger.info(args);
             var data = args.split(',');
             for (var i = 0; i < data.length; i++) {
                 power.shift();
