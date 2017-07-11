@@ -99,7 +99,7 @@ function dewpoint(humidity, temperature) {
 
     var sdd = 6.1078 * Math.pow(10, (a * temperature) / (b + temperature));
     var dd = sdd * (humidity / 100);
-    v = Math.log(dd / 6.1078) / Math.log(10);
+    var v = Math.log(dd / 6.1078) / Math.log(10);
     return (b * v) / (a - v);
 }
 

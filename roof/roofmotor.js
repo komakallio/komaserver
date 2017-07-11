@@ -93,7 +93,7 @@ port.on('data', function (data) {
             statusline = args;
             var data = args.split(',')
                 .map((arg) => arg.split('='))
-                .reduce((ob, p) => { ob[p[0]] = p[1], ob }, {});
+                .reduce((ob, p) => { ob[p[0]] = p[1]; return ob; }, {});
             if (currentState != data['ROOF'] && stateCallback) {
                 stateCallback(data['ROOF']);
             }
