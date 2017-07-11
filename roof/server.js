@@ -123,7 +123,7 @@ function roofReporter() {
         }
     };
 
-    if (_.isEqual(data, lastroofdata)) {
+    if (!_.isEqual(data, lastroofdata)) {
         request.post({
             url: 'http://localhost:9001/api',
             body: data,
