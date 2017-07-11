@@ -100,7 +100,7 @@ function batteryReporter() {
     };
 
     request.post({
-        url: 'http://localhost:9001/battery',
+        url: 'http://localhost:9001/api',
         body: data,
         json: true
     }, function (error, response) {
@@ -124,7 +124,7 @@ function roofReporter() {
 
     if (_.isEqual(data, lastroofdata)) {
         request.post({
-            url: 'http://localhost:9001/roof',
+            url: 'http://localhost:9001/api',
             body: data,
             json: true
         }, function (error, response) {

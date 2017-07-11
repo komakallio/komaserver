@@ -1,3 +1,27 @@
+/*
+ * Copyright (c) 2017 Jari Saukkonen
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+'use strict';
+
 const express = require('express');
 const expressLogging = require('express-logging');
 const logger = require('logops');
@@ -108,46 +132,21 @@ app.post('/api', function(req, res) {
         saveData('cloud', req, res);
     } else if (req.body.Type == 'CPU') {
         saveData('cpu', req, res);
+    } else if (req.body.Type == 'Battery') {
+        saveData('battery', req, res);
+    } else if (req.body.Type == 'Roof') {
+        saveData('roof', req, res);
     } else {
         res.sendStatus(400);
         return;
     }
 });
 
-app.get('/api/ptu', function(req, res) {
-    sendLatestData('ptu', req, res);
-});
-
-app.get('/api/wind', function(req, res) {
-    sendLatestData('wind', req, res);
-});
-
-app.get('/api/rain', function(req, res) {
-    sendLatestData('rain', req, res);
-});
-
-app.get('/api/raintrigger', function(req, res) {
-    sendLatestData('raintrigger', req, res);
-});
-
-app.get('/api/interior', function(req, res) {
-    sendLatestData('interior', req, res);
-});
-
-app.get('/api/status', function(req, res) {
-    sendLatestData('status', req, res);
-});
-
-app.get('/api/radar', function(req, res) {
-    sendLatestData('radar', req, res);
-});
-
-app.get('/api/cloud', function(req, res) {
-    sendLatestData('cloud', req, res);
-});
-
-app.get('/api/cpu', function(req, res) {
-    sendLatestData('cpu', req, res);
+const supportedQueryTypes = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof'];
+supportedQueryTypes.forEach(type => {
+    app.get('/api/' + type, function(req, res) {
+        sendLatestData(type, req, res);
+    });
 });
 
 app.get('/api/weather', function(req, res) {
