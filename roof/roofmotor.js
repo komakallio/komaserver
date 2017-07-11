@@ -49,12 +49,18 @@ module.exports = {
     stop: () => {
         port.write('$STOP*18\r\n');
     },
+    lock: () => {
+        port.write('$LOCK*0B\r\n');
+    },
+    unlock: () => {
+        port.write('$UNLOCK*10\r\n');
+    },
     state: () => {
         return currentState;
     },
     setStateCallback: (callback) => {
         stateCallback = callback;
-    }
+    },
     powerusage: () => {
         return power;
     },
@@ -63,7 +69,7 @@ module.exports = {
     },
     status: () => {
         return status;
-    }
+    },
     loglines: () => {
         return loglines;
     }
@@ -98,6 +104,9 @@ port.on('data', function (data) {
             loglines.shift();
             loglines.push(args);
             logger.info(args);
+        },
+        KOMAROOF:function(args) {
+            logger.info('Detected KomaRoof controller version ' + args.substring(args.indexOf('=')+1));
         }
     };
 
