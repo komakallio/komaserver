@@ -22,11 +22,15 @@
  */
 'use strict'
 
+const _ = require('underscore');
 const logger = require('logops');
 logger.setLevel('DEBUG');
 const request = require('request');
 const fs = require('fs');
 const exec = require('child_process').exec;
+
+let lastUpsData = {};
+let lastUpsUpdateTime = 0;
 
 function updateTemp() {
     fs.readFile('/sys/class/thermal/thermal_zone0/temp', (err, cpuStr) => {
@@ -36,7 +40,7 @@ function updateTemp() {
             let matcher = /temp=([0-9.]+)/g;
             let match = matcher.exec(gpuStr);
 
-            var data = {
+            let data = {
                 Type: 'CPU',
                 Data: {
                     CPU: [ parseInt(parseFloat(cpuStr)/100)/10.0, 'C' ],
@@ -50,6 +54,42 @@ function updateTemp() {
                 json: true
             });
         });
+    });
+    exec('apcaccess -u', (err, stdout, stderr) => {
+        if (err) throw err;
+
+        let ups = stdout
+            .split('\n')
+            .map(line => line.split(":").map(part => part.trim()))
+            .reduce((ob, p) => { ob[p[0]] = p[1]; return ob; }, {});
+
+        let upsdata = {
+            BCHARGE: [ parseFloat(ups.BCHARGE), '%'],
+            BATTV: [ parseFloat(ups.BATTV), 'V'],
+            TONBATT: [ parseInt(ups.TONBATT), 's']
+        }
+
+        let now = new Date().getTime();
+        if (!_.isEqual(lastUpsData, upsdata) || (now - lastUpsUpdateTime > 15*60*1000)) {
+            lastUpsUpdateTime = now;
+
+            upsdata.LOADPCT = [ parseFloat(ups.LOADPCT), '%' ];
+            upsdata.LINEV =[ parseFloat(ups.LINEV), 'V' ];
+            upsdata.TIMELEFT = [ parseFloat(ups.TIMELEFT), 'min'];
+
+            var data = {
+                Type: 'UPS',
+                Data: upsdata
+            };
+
+            console.log(JSON.stringify(data));
+
+            request.post({
+                url: 'http://localhost:9001/api',
+                body: data,
+                json: true
+            });
+        }
     });
     setTimeout(updateTemp, 10000);
 }
