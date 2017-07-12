@@ -31,6 +31,7 @@ const fs = require('fs');
 const redis = require('redis');
 const roofMotor = require('./roofmotor');
 const request = require('request');
+const roundTo = require('round-to');
 
 const app = express();
 app.use(expressLogging(logger));
@@ -95,8 +96,8 @@ function batteryReporter() {
     var data = {
         'Type': 'Battery',
         'Data': {
-            'Voltage': [ status['BATTERYVOLTAGE'], 'V' ],
-            'Temperature': [ status['TEMP1'] , 'C' ]
+            'Voltage': [ roundTo(parseFloat(status['BATTERYVOLTAGE']), 1), 'V' ],
+            'Temperature': [ roundTo(parseFloat(status['TEMP1']), 1) , 'C' ]
         }
     };
 
@@ -118,8 +119,7 @@ function roofReporter() {
     var data = {
         'Type': 'Roof',
         'Data': {
-            'State': status['ROOF'],
-            'Encoder' : status['ENCODER']
+            'State': status['ROOF']
         }
     };
 
