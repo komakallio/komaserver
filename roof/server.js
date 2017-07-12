@@ -132,6 +132,7 @@ function roofReporter() {
             if (!response || response.statusCode != 200) {
                 logger.warn(error);
             }
+            lastroofdata = data;
         });
     }
 
