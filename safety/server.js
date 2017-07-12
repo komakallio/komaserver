@@ -55,6 +55,7 @@ app.get('/safety', function(req, res) {
         redisClient.zrevrangeAsync('rain', 0, 0),
         redisClient.zrevrangeAsync('raintrigger', 0, 0),
         redisClient.zrevrangeAsync('radar', 0, 0),
+        redisClient.zrevrangeAsync('ups', 0, 0),
 
         function(...replies) {
             if (replies.find(reply => reply.length === 0)) {
@@ -66,15 +67,17 @@ app.get('/safety', function(req, res) {
             var ptu = JSON.parse(replies[0][0]),
                 rain = JSON.parse(replies[1][0]),
                 raintrigger = JSON.parse(replies[2][0]),
-                radar = JSON.parse(replies[3][0]);
+                radar = JSON.parse(replies[3][0]),
+                ups = JSON.parse(replies[4][0]);
 
             var btemp = ptu.Data.Temperature.Ambient[0] > -25;
             var brain = raintrigger.Data.RAIN == 0 && rain.Data.Rain.Intensity[0] == 0;
             var bradar = radar.Data["30km"] < 0.1;
             var bsun = SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI < -5;
+            var bupscharge = ups.Data.BCHARGE[0] >= 50;
 
             var data = {
-                safe: btemp && brain && bsun && bradar,
+                safe: btemp && brain && bsun && bradar && bupscharge,
                 details: {
                     temperature: ptu.Data.Temperature.Ambient[0],
                     rainintensity: rain.Data.Rain.Intensity[0],
@@ -82,7 +85,8 @@ app.get('/safety', function(req, res) {
                     rainradar30km: radar.Data["30km"],
                     rainradar50km: radar.Data["50km"],
                     sunaltitude: SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI,
-                    moonaltitude: SunCalc.getMoonPosition(new Date(), latitude, longitude).altitude*180/Math.PI
+                    moonaltitude: SunCalc.getMoonPosition(new Date(), latitude, longitude).altitude*180/Math.PI,
+                    upscharge: ups.Data.BCHARGE[0]
                 }
             };
             res.json(data);
