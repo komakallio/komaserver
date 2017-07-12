@@ -136,13 +136,15 @@ app.post('/api', function(req, res) {
         saveData('battery', req, res);
     } else if (req.body.Type == 'Roof') {
         saveData('roof', req, res);
+    } else if (req.body.Type == 'UPS') {
+        saveData('ups', req, res);
     } else {
         res.sendStatus(400);
         return;
     }
 });
 
-const supportedQueryTypes = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof'];
+const supportedQueryTypes = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups'];
 supportedQueryTypes.forEach(type => {
     app.get('/api/' + type, function(req, res) {
         sendLatestData(type, req, res);
