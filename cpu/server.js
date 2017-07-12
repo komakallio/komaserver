@@ -72,7 +72,7 @@ function updateTemp() {
         let now = new Date().getTime();
         if (!_.isEqual(lastUpsData, upsdata) || (now - lastUpsUpdateTime > 15*60*1000)) {
             lastUpsUpdateTime = now;
-            lastUpsData = upsdata;
+            lastUpsData = _.clone(upsdata);
 
             upsdata.LOADPCT = [ parseFloat(ups.LOADPCT), '%' ];
             upsdata.LINEV =[ parseFloat(ups.LINEV), 'V' ];
