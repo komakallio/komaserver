@@ -97,7 +97,7 @@
         var chart = new Chart(ctx, config);
 
         setInterval(function(){
-          $.get('/status', function(res) {
+          $.get('/motor/status', function(res) {
               for (var i = 0; i < res.power.length; i++) {
                   chart.chart.config.data.datasets[0].data[i+1] = res.power[i];
               }
