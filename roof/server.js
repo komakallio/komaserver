@@ -96,7 +96,7 @@ function batteryReporter() {
     var data = {
         'Type': 'Battery',
         'Data': {
-            'Voltage': [ roundTo(parseFloat(status['BATTERYVOLTAGE']), 1), 'V' ],
+            'Voltage': [ roundTo(parseFloat(status['BATTERYVOLTAGE']), 2), 'V' ],
             'Temperature': [ roundTo(parseFloat(status['TEMP1']), 1) , 'C' ]
         }
     };
