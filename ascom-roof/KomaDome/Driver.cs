@@ -86,6 +86,7 @@ namespace ASCOM.Komakallio
             utilities = new Util(); //Initialise util object
             astroUtilities = new AstroUtils(); // Initialise astro utilities object
 
+            UpdateRoofData(null); // Update roof status once before starting timer
             updateTimerDelegate = new TimerCallback(UpdateRoofData);
 
             tl.LogMessage("Dome", "Completed initialisation");
