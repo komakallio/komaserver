@@ -76,6 +76,10 @@ namespace ASCOM.Komakallio
             ReadProfile(); // Read device configuration from the ASCOM Profile store
 
             tl = new TraceLogger("", "Komakallio");
+#if DEBUG
+            // Enable trace logging in debug builds
+            tl.Enabled = true;
+#endif
             tl.LogMessage("Dome", "Starting initialisation");
 
             connectedState = false; // Initialise connected to false
