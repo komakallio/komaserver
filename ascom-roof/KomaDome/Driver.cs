@@ -188,7 +188,7 @@ namespace ASCOM.Komakallio
                     LogMessage("Connected Set", "Connecting to server {0}", serverAddress);
                     if (updateTimer == null)
                     {
-                        updateTimer = new System.Threading.Timer(updateTimerDelegate, null, 0, (10 * 1000));
+                        updateTimer = new System.Threading.Timer(updateTimerDelegate, null, 0, (5 * 1000));
                     }
                 }
                 else
