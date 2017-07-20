@@ -506,9 +506,22 @@ namespace ASCOM.Komakallio
                         json = reader.ReadToEnd();
 
                     Dictionary<string, string> values = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-                    domeOpening = Boolean.Parse(values["opening"]);
-                    domeClosing = Boolean.Parse(values["closing"]);
-                    domeShutterOpen = Boolean.Parse(values["open"]);
+
+                    domeOpening = false;
+                    domeClosing = false;
+                    domeShutterOpen = false;
+                    switch (values["state"])
+                    {
+                        case "OPEN":
+                            domeShutterOpen = true;
+                            break;
+                        case "OPENING":
+                            domeOpening = true;
+                            break;
+                        case "CLOSING":
+                            domeClosing = true;
+                            break;
+                    }
                     lastUpdate = DateTime.Now;
                 }
             } catch( Exception e)
