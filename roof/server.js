@@ -57,8 +57,10 @@ roofMotor.setStateCallback(function(state) {
                let roofstate = JSON.parse(result) || defaultRoofState;
                if (roofstate.openRequestedBy.length == 0) {
                    // we opened the roof but no-one is interested any more; close down
+/*
                    logger.info('close physical roof');
                    roofMotor.close();
+*/
                } else {
                    roofstate.openRequestedBy.forEach((user) => { roofstate.users[user] = true });
                    roofstate.openRequestedBy = [];
@@ -75,8 +77,10 @@ roofMotor.setStateCallback(function(state) {
 
                 if (roofstate.openRequestedBy.length != 0) {
                     // we have someone wanting the roof open; let's open it again
+/*
                     logger.info('open physical roof');
                     roofMotor.open();
+*/                    
                 }
             });
             break;
