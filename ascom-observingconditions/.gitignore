@@ -3,3 +3,4 @@ packages/
 KomaObservingConditions/bin/
 KomaObservingConditions/obj/
 *.suo
+*.user

@@ -3,3 +3,4 @@ packages/
 .suo
 KomaDome/bin/
 KomaDome/obj/
+*.user
