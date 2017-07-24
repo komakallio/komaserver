@@ -98,6 +98,10 @@ namespace ASCOM.Komakallio
         public ObservingConditions()
         {
             tl = new TraceLogger("", "Komakallio");
+#if DEBUG
+            // Enable logging in debug mode
+            tl.Enabled = true;
+#endif
             ReadProfile(); // Read device configuration from the ASCOM Profile store
 
             tl.LogMessage("ObservingConditions", "Starting initialisation");
@@ -116,7 +120,7 @@ namespace ASCOM.Komakallio
         // PUBLIC COM INTERFACE IObservingConditions IMPLEMENTATION
         //
 
-        #region Common properties and methods.
+#region Common properties and methods.
 
         /// <summary>
         /// Displays the Setup Dialog form.
@@ -275,9 +279,9 @@ namespace ASCOM.Komakallio
             }
         }
 
-        #endregion
+#endregion
 
-        #region IObservingConditions Implementation
+#region IObservingConditions Implementation
 
         /// <summary>
         /// Gets and sets the time period over which observations wil be averaged
@@ -593,9 +597,9 @@ namespace ASCOM.Komakallio
             }
         }
 
-        #endregion
+#endregion
 
-        #region private methods
+#region private methods
 
         private void UpdateObservingConditionsData(object state)
         {
@@ -647,13 +651,13 @@ namespace ASCOM.Komakallio
                 return Double.Parse(values[key], CultureInfo.InvariantCulture);
         }
 
-        #endregion
+#endregion
 
-        #region Private properties and methods
+#region Private properties and methods
         // here are some useful properties and methods that can be used as required
         // to help with driver development
 
-        #region ASCOM Registration
+#region ASCOM Registration
 
         // Register or unregister driver for ASCOM. This is harmless if already
         // registered or unregistered. 
@@ -725,7 +729,7 @@ namespace ASCOM.Komakallio
             RegUnregASCOM(false);
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Returns true if there is a valid connection to the driver hardware
@@ -786,6 +790,6 @@ namespace ASCOM.Komakallio
             var msg = string.Format(message, args);
             tl.LogMessage(identifier, msg);
         }
-        #endregion
+#endregion
     }
 }
