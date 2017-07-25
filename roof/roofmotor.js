@@ -40,6 +40,15 @@ var loglines = ['', '', ''];
 var stateCallback;
 var currentState = '';
 
+function tryToOpen() {
+    port.open(function(err) {
+        if (err) {
+            logger.warn('Error opening serial port, trying again in 5000ms');
+            setTimeout(tryToOpen, 5000);
+        }
+    }
+}
+
 module.exports = {
     open: () => {
         port.write('$OPEN*14\r\n');
@@ -78,6 +87,13 @@ module.exports = {
 
 port.on('open', function() {
     logger.info('serial port opened');
+});
+
+port.on('close', function(err) {
+    if (err && err.disconnected) {
+        logger.info('serial port lost; reopening');
+        tryToOpen();
+    }
 });
 
 port.on('data', function (data) {
