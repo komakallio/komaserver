@@ -46,7 +46,7 @@ function tryToOpen() {
             logger.warn('Error opening serial port, trying again in 5000ms');
             setTimeout(tryToOpen, 5000);
         }
-    }
+    });
 }
 
 module.exports = {
