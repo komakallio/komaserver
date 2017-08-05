@@ -89,7 +89,6 @@ roofMotor.setStateCallback(function(state) {
         case "CLOSING": break;
         case "STOPPING": break;
         case "ERROR": break;
-        break;
     }
 
     roofState = state;
@@ -99,7 +98,7 @@ function batteryReporter() {
     var status = roofMotor.status();
     var data = {
         'Type': 'Battery',
-        'Data': {
+        'Battery': {
             'Voltage': [ roundTo(parseFloat(status['BATTERYVOLTAGE']), 2), 'V' ],
             'Temperature': [ roundTo(parseFloat(status['TEMP1']), 1) , 'C' ]
         }
@@ -122,7 +121,7 @@ function roofReporter() {
     var status = roofMotor.status();
     var data = {
         'Type': 'Roof',
-        'Data': {
+        'Roof': {
             'State': status['ROOF']
         }
     };

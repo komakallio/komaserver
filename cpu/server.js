@@ -42,9 +42,11 @@ function updateTemp() {
 
             let data = {
                 Type: 'CPU',
-                Data: {
-                    CPU: [ parseInt(parseFloat(cpuStr)/100)/10.0, 'C' ],
-                    GPU: [ parseFloat(match[1]), 'C' ]
+                CPU: {
+                    Temperature: [ parseInt(parseFloat(cpuStr)/100)/10.0, 'C' ]
+                },
+                GPU: {
+                    Temperature: [ parseFloat(match[1]), 'C' ]
                 }
             };
             console.log(JSON.stringify(data));
@@ -80,7 +82,7 @@ function updateTemp() {
 
             var data = {
                 Type: 'UPS',
-                Data: upsdata
+                UPS: upsdata
             };
 
             console.log(JSON.stringify(data));

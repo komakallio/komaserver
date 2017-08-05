@@ -48,15 +48,15 @@ port.on('data', function (data) {
                 .map(p => p.split('='))
                 .reduce((o, p) => (o[p[0]] = p[1], o), {});
 
-            var raindata = { 'Type': 'RainTrigger', 'Data': {}};
-            raindata.Data.Rain = parseInt(data.RAIN);
-            raindata.Data.Intensity = parseInt(data.INTENSITY);
+            var raindata = { 'Type': 'RainTrigger', 'RainTrigger': {}};
+            raindata.RainTrigger.Rain = parseInt(data.RAIN);
+            raindata.RainTrigger.Intensity = parseInt(data.INTENSITY);
 
-            var interiordata = { 'Type': 'Interior', 'Data': {}};
-            interiordata.Data.EnclosureTemp = [ parseFloat(data.ENCLOSURETEMP), 'C' ];
-            interiordata.Data.InteriorTemp = [ parseFloat(data.INTERIORTEMP), 'C' ];
-            interiordata.Data.InteriorHumidity = [ parseFloat(data.INTERIORHUMIDITY), '%' ];
-            interiordata.Data.InteriorPressure = [ parseInt(data.INTERIORPRESSURE)/100.0, 'hPa' ];
+            var interiordata = { 'Type': 'Interior', 'Interior': {}};
+            interiordata.Interior.EnclosureTemp = [ parseFloat(data.ENCLOSURETEMP), 'C' ];
+            interiordata.Interior.InteriorTemp = [ parseFloat(data.INTERIORTEMP), 'C' ];
+            interiordata.Interior.InteriorHumidity = [ parseFloat(data.INTERIORHUMIDITY), '%' ];
+            interiordata.Interior.InteriorPressure = [ parseInt(data.INTERIORPRESSURE)/100.0, 'hPa' ];
 
             console.log(JSON.stringify(raindata));
             request.post({
