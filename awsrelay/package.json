@@ -1,0 +1,18 @@
+{
+  "name": "koma-awsrelay",
+  "version": "1.0.0",
+  "description": "",
+  "main": "awsrelay.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node awsrelay.js"
+  },
+  "author": "Jari Saukkonen",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.94.0",
+    "bluebird": "^3.5.0",
+    "logops": "^1.0.7",
+    "redis": "^2.7.1"
+  }
+}
