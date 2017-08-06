@@ -42,42 +42,63 @@ AWS.config.credentials = new AWS.CognitoIdentityCredentials({
 var dynamodb = new AWS.DynamoDB();
 var docClient = new AWS.DynamoDB.DocumentClient();
 
-Promise.join(
-    redisClient.zrevrangeAsync('ptu', 0 ,0),
-    redisClient.zrevrangeAsync('battery', 0 ,0),
+var updateTimestamps = {};
 
-    function(...replies) {
-        if (replies.find(reply => reply.length === 0)) {
-            logger.error('Reading Redis failed');
-            res.status(500).send('{"error":"Reading redis failed"}');
-            return;
-        }
+function updateTick() {
+    Promise.join(
+        redisClient.zrevrangeAsync('ptu', 0 ,0),
+        redisClient.zrevrangeAsync('battery', 0 ,0),
+        redisClient.zrevrangeAsync('wind', 0 ,0),
+        redisClient.zrevrangeAsync('rain', 0 ,0),
+        redisClient.zrevrangeAsync('raintrigger', 0 ,0),
+        redisClient.zrevrangeAsync('cpu', 0 ,0),
+        redisClient.zrevrangeAsync('ups', 0 ,0),
+        redisClient.zrevrangeAsync('roof', 0 ,0),
+        redisClient.zrevrangeAsync('interior', 0 ,0),
+        redisClient.zrevrangeAsync('radar', 0 ,0),
+        redisClient.zrevrangeAsync('cloud', 0 ,0),
+        redisClient.zrevrangeAsync('status', 0 ,0),
 
-        replies.forEach(reply => {
-            var data = JSON.parse(reply[0]);
-            var params = {
-                Key : { 'P':'1', 'Timestamp': data.Timestamp },
-                TableName : "Metrics",
-                UpdateExpression: 'SET #type = :data',
-                ExpressionAttributeNames: {
-                    "#type" : data.Type
-                },
-                ExpressionAttributeValues: {
-                    ":data" : data[data.Type]
+        function(...replies) {
+            if (replies.find(reply => reply.length === 0)) {
+                console.log('Reading Redis failed');
+                return;
+            }
+
+            replies.forEach(reply => {
+                var data = JSON.parse(reply[0]);
+
+                if (data.Timestamp == updateTimestamps[data.Type]) {
+                    return;
                 }
-            };
 
-            docClient.update(params, function(err, data) {
-                if (err) {
-                    console.log('Error in PutItem ' + JSON.stringify(err));
-                } else {
-	                console.log('Put ' + data.Type);
-                }
+                var params = {
+                    Key : { 'P':'1', 'Timestamp': data.Timestamp },
+                    TableName : "Metrics",
+                    UpdateExpression: 'SET #type = :data',
+                    ExpressionAttributeNames: {
+                        "#type" : data.Type
+                    },
+                    ExpressionAttributeValues: {
+                        ":data" : data[data.Type]
+                    }
+                };
+
+                docClient.update(params, function(err, d) {
+                    if (err) {
+                        console.log('Error in PutItem ' + JSON.stringify(err));
+                    } else {
+                        console.log('Put ' + data.Timestamp + ' ' + data.Type);
+                        updateTimestamps[data.Type] = data.Timestamp;
+                    }
+                });
             });
-        });
-    }
-).catch(function(err) {
-    logger.error('Reading Redis failed', err);
-    res.status(500).send('{"error":"Reading redis failed: ' + err + '"}');
-});
+        }
+    ).catch(function(err) {
+        console.log('Reading Redis failed', err);
+    });
+    setTimeout(updateTick, 5000);
+}
+
+setTimeout(updateTick, 5000);
 
