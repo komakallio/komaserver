@@ -171,16 +171,16 @@ app.get('/api/weather', function(req, res) {
                 cloud = JSON.parse(replies[3][0]);
 
             var data = {
-                temperature: ptu.Data.Temperature.Ambient[0],
-                humidity: ptu.Data.Humidity[0],
-                dewpoint: parseInt(dewpoint(ptu.Data.Humidity[0], ptu.Data.Temperature.Ambient[0])*100)/100,
-                pressure: ptu.Data.Pressure[0],
-                windspeed: wind.Data.Speed.average[0],
-                windgust: wind.Data.Speed.limits[1][0],
-                winddir: wind.Data.Direction.average[0],
-                rainrate: rain.Data.Rain.Intensity[0],
-                cloudcover: cloudcover(cloud.Data.Sky, ptu.Data.Temperature.Ambient[0]),
-                skytemperature: cloud.Data.Sky,
+                temperature: ptu.PTU.Temperature.Ambient[0],
+                humidity: ptu.PTU.Humidity[0],
+                dewpoint: parseInt(dewpoint(ptu.PTU.Humidity[0], ptu.PTU.Temperature.Ambient[0])*100)/100,
+                pressure: ptu.PTU.Pressure[0],
+                windspeed: wind.Wind.Speed.average[0],
+                windgust: wind.Wind.Speed.limits[1][0],
+                winddir: wind.Wind.Direction.average[0],
+                rainrate: rain.Rain.Rain.Intensity[0],
+                cloudcover: cloudcover(cloud.Cloud.Sky, ptu.PTU.Temperature.Ambient[0]),
+                skytemperature: cloud.Cloud.Sky,
                 skyquality: 0
             };
             res.json(data);
