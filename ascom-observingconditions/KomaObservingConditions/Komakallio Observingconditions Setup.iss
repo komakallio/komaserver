@@ -34,8 +34,8 @@ Name: "{cf}\ASCOM\Uninstall\ObservingConditions\Komakallio"
 ; TODO: Add subfolders below {app} as needed (e.g. Name: "{app}\MyFolder")
 
 [Files]
-Source: "C:\Users\jsaukkon\Documents\Visual Studio 2013\Projects\KomaObservingConditions\KomaObservingConditions\bin\Release\ASCOM.Komakallio.ObservingConditions.dll"; DestDir: "{app}"
-Source: "C:\Users\jsaukkon\Documents\Visual Studio 2013\Projects\KomaObservingConditions\KomaObservingConditions\bin\Release\Newtonsoft.Json.dll"; DestDir: "{app}"
+Source: "bin\Release\ASCOM.Komakallio.ObservingConditions.dll"; DestDir: "{app}"
+Source: "bin\Release\Newtonsoft.Json.dll"; DestDir: "{app}"
 ; Require a read-me HTML to appear after installation, maybe driver's Help doc
 ;Source: "C:\Users\jsaukkon\Documents\Visual Studio 2013\Projects\KomaObservingConditions\KomaObservingConditions\ReadMe.htm"; DestDir: "{app}"; Flags: isreadme
 ; TODO: Add other files needed by your driver here (add subfolders above)
