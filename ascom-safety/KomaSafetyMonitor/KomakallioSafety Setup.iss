@@ -34,9 +34,9 @@ Name: "{cf}\ASCOM\Uninstall\SafetyMonitor\KomakallioSafety"
 ; TODO: Add subfolders below {app} as needed (e.g. Name: "{app}\MyFolder")
 
 [Files]
-Source: "C:\Users\jsaukkon\Documents\komaserver\safety\KomaSafetyMonitor\bin\Release\ASCOM.KomaObservatory.SafetyMonitor.dll"; DestDir: "{app}"
+Source: "bin\Release\ASCOM.KomaObservatory.SafetyMonitor.dll"; DestDir: "{app}"
 ; Require a read-me HTML to appear after installation, maybe driver's Help doc
-Source: "C:\Users\jsaukkon\Documents\komaserver\safety\KomaSafetyMonitor\ReadMe.htm"; DestDir: "{app}"; Flags: isreadme
+Source: "ReadMe.htm"; DestDir: "{app}"; Flags: isreadme
 ; TODO: Add other files needed by your driver here (add subfolders above)
 
 
