@@ -70,23 +70,23 @@ app.get('/safety', function(req, res) {
                 radar = JSON.parse(replies[3][0]),
                 ups = JSON.parse(replies[4][0]);
 
-            var btemp = ptu.Data.Temperature.Ambient[0] > -25;
-            var brain = raintrigger.Data.RAIN == 0 && rain.Data.Rain.Intensity[0] == 0;
-            var bradar = radar.Data["30km"] < 0.1;
+            var btemp = ptu.PTU.Temperature.Ambient[0] > -25;
+            var brain = raintrigger.Rain.RAIN == 0 && rain.Rain.Rain.Intensity[0] == 0;
+            var bradar = radar.Radar["30km"] < 0.1;
             var bsun = SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI < -5;
-            var bupscharge = ups.Data.BCHARGE[0] >= 50;
+            var bupscharge = ups.UPS.BCHARGE[0] >= 50;
 
             var data = {
                 safe: btemp && brain && bsun && bradar && bupscharge,
                 details: {
-                    temperature: ptu.Data.Temperature.Ambient[0],
-                    rainintensity: rain.Data.Rain.Intensity[0],
-                    raintrigger: raintrigger.Data.RAIN,
-                    rainradar30km: radar.Data["30km"],
-                    rainradar50km: radar.Data["50km"],
+                    temperature: ptu.PTU.Temperature.Ambient[0],
+                    rainintensity: rain.Rain.Rain.Intensity[0],
+                    raintrigger: raintrigger.RainTrigger.RAIN,
+                    rainradar30km: radar.Radar["30km"],
+                    rainradar50km: radar.Radar["50km"],
                     sunaltitude: SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI,
                     moonaltitude: SunCalc.getMoonPosition(new Date(), latitude, longitude).altitude*180/Math.PI,
-                    upscharge: ups.Data.BCHARGE[0]
+                    upscharge: ups.UPS.BCHARGE[0]
                 }
             };
             res.json(data);
