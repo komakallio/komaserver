@@ -71,7 +71,7 @@ app.get('/safety', function(req, res) {
                 ups = JSON.parse(replies[4][0]);
 
             var btemp = ptu.PTU.Temperature.Ambient[0] > -25;
-            var brain = raintrigger.Rain.RAIN == 0 && rain.Rain.Rain.Intensity[0] == 0;
+            var brain = raintrigger.RainTrigger.Rain == 0 && rain.Rain.Rain.Intensity[0] == 0;
             var bradar = radar.Radar["30km"] < 0.1;
             var bsun = SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI < -5;
             var bupscharge = ups.UPS.BCHARGE[0] >= 50;
@@ -81,7 +81,7 @@ app.get('/safety', function(req, res) {
                 details: {
                     temperature: ptu.PTU.Temperature.Ambient[0],
                     rainintensity: rain.Rain.Rain.Intensity[0],
-                    raintrigger: raintrigger.RainTrigger.RAIN,
+                    raintrigger: raintrigger.RainTrigger.Rain,
                     rainradar30km: radar.Radar["30km"],
                     rainradar50km: radar.Radar["50km"],
                     sunaltitude: SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI,
