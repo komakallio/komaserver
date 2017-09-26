@@ -16,6 +16,7 @@
     "express-logging": "^1.1.1",
     "logops": "^1.0.7",
     "redis": "^2.7.1",
+    "round-to": "^2.0.0",
     "suncalc": "git://github.com/mourner/suncalc.git#master"
   }
 }

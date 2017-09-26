@@ -31,6 +31,7 @@ const redis = require('redis');
 const Promise = require('bluebird');
 const REDIS_PORT = process.env.REDIS_PORT || 6379;
 const SunCalc = require('suncalc');
+const roundTo = require('round-to');
 
 const latitude = 60.172867;
 const longitude = 24.388552;
@@ -84,8 +85,8 @@ app.get('/safety', function(req, res) {
                     raintrigger: raintrigger.RainTrigger.Rain,
                     rainradar30km: radar.Radar["30km"],
                     rainradar50km: radar.Radar["50km"],
-                    sunaltitude: SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI,
-                    moonaltitude: SunCalc.getMoonPosition(new Date(), latitude, longitude).altitude*180/Math.PI,
+                    sunaltitude: roundTo(SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2),
+                    moonaltitude: roundTo(SunCalc.getMoonPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2),
                     upscharge: ups.UPS.BCHARGE[0]
                 }
             };
