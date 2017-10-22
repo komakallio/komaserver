@@ -73,7 +73,7 @@ app.get('/safety', function(req, res) {
 
             var btemp = ptu.PTU.Temperature.Ambient[0] > -25;
             var brain = raintrigger.RainTrigger.Rain == 0 && rain.Rain.Rain.Intensity[0] == 0;
-            var bradar = radar.Radar["30km"] < 0.1;
+            var bradar = radar.Radar["30km"][0] < 0.1;
             var bsun = SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI < -5;
             var bupscharge = ups.UPS.BCHARGE[0] >= 50;
 
@@ -83,8 +83,8 @@ app.get('/safety', function(req, res) {
                     temperature: ptu.PTU.Temperature.Ambient[0],
                     rainintensity: rain.Rain.Rain.Intensity[0],
                     raintrigger: raintrigger.RainTrigger.Rain,
-                    rainradar30km: radar.Radar["30km"],
-                    rainradar50km: radar.Radar["50km"],
+                    rainradar30km: radar.Radar["30km"][0],
+                    rainradar50km: radar.Radar["50km"][0],
                     sunaltitude: roundTo(SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2),
                     moonaltitude: roundTo(SunCalc.getMoonPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2),
                     upscharge: ups.UPS.BCHARGE[0]
