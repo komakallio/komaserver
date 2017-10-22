@@ -266,6 +266,7 @@ namespace ASCOM.Komakallio
 
         public void AbortSlew()
         {
+            // TODO: Implement stopping the roof once API supports it.
         }
 
         public double Altitude
