@@ -48,6 +48,11 @@ namespace ASCOM.Komakallio
         private System.Threading.Timer updateTimer;
 
         /// <summary>
+        /// Private variable to hold the current roof state
+        /// </summary>
+        private ShutterState roofState;
+
+        /// <summary>
         /// Private variable to hold the connected state
         /// </summary>
         private bool connectedState;
@@ -259,10 +264,6 @@ namespace ASCOM.Komakallio
 
         #region IDome Implementation
 
-        private bool domeShutterOpen = false;
-        private bool domeOpening = false;
-        private bool domeClosing = false;
-
         public void AbortSlew()
         {
         }
@@ -389,7 +390,6 @@ namespace ASCOM.Komakallio
                 }
             }
             UpdateRoofData(null);
-
             tl.LogMessage("CloseShutter", "Shutter has been closed");
         }
 
@@ -431,18 +431,8 @@ namespace ASCOM.Komakallio
         {
             get
             {
-                tl.LogMessage("ShutterStatus Get", domeShutterOpen.ToString());
-                ShutterState shutterState = ShutterState.shutterError;
-                if (domeClosing)
-                    shutterState = ShutterState.shutterClosing;
-                else if (domeOpening)
-                    shutterState = ShutterState.shutterOpening;
-                else if (domeShutterOpen)
-                    shutterState = ShutterState.shutterOpen;
-                else if (!domeShutterOpen)
-                    shutterState = ShutterState.shutterClosed;
-                tl.LogMessage("ShutterStatus", shutterState.ToString());
-                return shutterState;
+                tl.LogMessage("ShutterStatus Get", roofState.ToString());
+                return roofState;
             }
         }
 
@@ -476,8 +466,8 @@ namespace ASCOM.Komakallio
         {
             get
             {
-                tl.LogMessage("Slewing Get", domeOpening.ToString() + " " + domeClosing.ToString());
-                return domeClosing || domeOpening;
+                tl.LogMessage("Slewing Get", roofState.ToString());
+                return (roofState == ShutterState.shutterClosing) || (roofState == ShutterState.shutterOpening);
             }
         }
 
@@ -516,25 +506,20 @@ namespace ASCOM.Komakallio
 
                     Dictionary<string, string> values = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
 
-                    domeOpening = false;
-                    domeClosing = false;
-                    domeShutterOpen = false;
-                    switch (values["state"])
+                    Dictionary<string, ShutterState> shutterStateMapping = new Dictionary<string, ShutterState>()
                     {
-                        case "OPEN":
-                            domeShutterOpen = true;
-                            break;
-                        case "OPENING":
-                            domeOpening = true;
-                            break;
-                        case "CLOSING":
-                            domeClosing = true;
-                            break;
-                    }
+                        { "OPEN", ShutterState.shutterOpen },
+                        { "CLOSED", ShutterState.shutterClosed },
+                        { "OPENING", ShutterState.shutterOpening },
+                        { "CLOSING", ShutterState.shutterClosing },
+                        { "STOPPED", ShutterState.shutterError },
+                        { "ERROR", ShutterState.shutterError }
+                    };
+
+                    roofState = shutterStateMapping[values["state"]];
                     lastUpdate = DateTime.Now;
                 }
-            } catch( Exception e)
-            {
+            } catch( Exception e) {
                 LogMessage("Update", "Error: " + e.Message);
             }
         }
