@@ -1,0 +1,6 @@
+packages/
+.vs/
+.suo
+KomaSafetyMonitor/bin/
+KomaSafetyMonitor/obj/
+*.user
