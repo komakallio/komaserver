@@ -16,6 +16,7 @@ using System.Threading;
 using System.Net;
 using System.IO;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ASCOM.Komakallio
 {
@@ -293,21 +294,27 @@ namespace ASCOM.Komakallio
 
                     string json;
                     using (var responseStream = response.GetResponseStream())
-                    using (var reader = new StreamReader(responseStream, System.Text.Encoding.UTF8))
-                        json = reader.ReadToEnd();
+                    {
+                        using (var reader = new StreamReader(responseStream, System.Text.Encoding.UTF8))
+                        {
+                            json = reader.ReadToEnd();
+                        }
+                    }
 
-                    Dictionary<string, string> values = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-                    safe = Boolean.Parse(values["safe"]);
+                    tl.LogMessage("UpdateSafetyMonitorData", "Received JSON: " + json);
+                    JObject values = JObject.Parse(json);
+                    safe = Boolean.Parse(values["safe"].ToString());
+                    tl.LogMessage("UpdateSafetyMonitorData", "Parsed safety status: " + safe);
                     lastUpdate = DateTime.Now;
                     errorCount = 0;
                 }
             } catch( Exception e) {
                 if (++errorCount > 5)
                 {
-                    tl.LogMessage("UnSafe", "Too many communication errors, declaring system unsafe");
+                    tl.LogMessage("UpdateSafetyMonitorData", "Too many communication errors, declaring system unsafe");
                     safe = false;
                 }
-                tl.LogMessage("Update", "Error" + e.Message);
+                tl.LogMessage("UpdateSafetyMonitorData", "Error" + e.Message);
             }
         }
 
