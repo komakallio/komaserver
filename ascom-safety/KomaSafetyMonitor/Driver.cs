@@ -188,6 +188,8 @@ namespace ASCOM.Komakallio
                     connectedState = true;
                     LogMessage("Connected Set", "Connecting to server {0}", serverAddress);
 
+                    UpdateSafetyMonitorData(null);
+
                     if (updateTimer == null)
                     {
                         updateTimer = new System.Threading.Timer(updateTimerDelegate, null, 0, (10 * 1000));
