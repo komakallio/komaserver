@@ -35,6 +35,7 @@ Name: "{cf}\ASCOM\Uninstall\Dome\KomakallioRoof"
 
 [Files]
 Source: "bin\Release\ASCOM.Komakallio.Dome.dll"; DestDir: "{app}"
+Source: "bin\Release\Newtonsoft.Json.dll"; DestDir: "{app}"
 ; Require a read-me HTML to appear after installation, maybe driver's Help doc
 Source: "Komakallio_Dome_ReadMe.htm"; DestDir: "{app}"; Flags: isreadme
 ; TODO: Add other files needed by your driver here (add subfolders above)
