@@ -297,14 +297,13 @@ namespace ASCOM.Komakallio
                     lastUpdate = DateTime.Now;
                     errorCount = 0;
                 }
-            } catch( Exception e)
-            {
+            } catch( Exception e) {
                 if (++errorCount > 5)
                 {
                     tl.LogMessage("UnSafe", "Too many communication errors, declaring system unsafe");
                     safe = false;
                 }
-                LogMessage("Update", "Error: " + e.Message);
+                tl.LogMessage("Update", "Error" + e.Message);
             }
         }
 
