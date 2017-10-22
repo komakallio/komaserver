@@ -129,6 +129,9 @@ port.on('data', function (data) {
             status = data;
             currentState = data['ROOF'];
         },
+        ENCODER:function(args) {
+            status.ENCODER = args;
+        },
         LOG:function(args) {
             loglines.shift();
             loglines.push(args);
