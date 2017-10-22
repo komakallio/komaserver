@@ -617,8 +617,12 @@ namespace ASCOM.Komakallio
 
                     string json;
                     using (var responseStream = response.GetResponseStream())
-                    using (var reader = new StreamReader(responseStream, System.Text.Encoding.UTF8))
-                        json = reader.ReadToEnd();
+                    {
+                        using (var reader = new StreamReader(responseStream, System.Text.Encoding.UTF8))
+                        {
+                            json = reader.ReadToEnd();
+                        }
+                    }
 
                     Dictionary<string, string> values = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
                     temperature = parseValue(values, "temperature");
