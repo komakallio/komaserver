@@ -247,7 +247,13 @@ app.post('/roof/:user/close', function(req, res) {
     res.status(200).json({message:"OK"});
 });
 
-
+app.post('/roof/:user/stop', function(req, res) {
+    roofMotor.stop();
+    req.roofstate.openRequestedBy = [];
+    req.roofstate.users = {};
+    res.status(200).json({message:"OK"});
+});
+    
 app.get('/motor/status', function(req, res) {
     res.json({
         power: roofMotor.powerusage(),
