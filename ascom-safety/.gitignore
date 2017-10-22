@@ -4,3 +4,4 @@ packages/
 KomaSafetyMonitor/bin/
 KomaSafetyMonitor/obj/
 *.user
+*.exe

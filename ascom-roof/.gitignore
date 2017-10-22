@@ -4,3 +4,4 @@ packages/
 KomaDome/bin/
 KomaDome/obj/
 *.user
+*.exe
