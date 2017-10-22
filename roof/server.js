@@ -251,6 +251,7 @@ app.post('/roof/:user/close', function(req, res) {
 app.get('/motor/status', function(req, res) {
     res.json({
         power: roofMotor.powerusage(),
+        lockpower: roofMotor.lockpowerusage(),
         status: roofMotor.statusline(),
         log: roofMotor.loglines()
     });

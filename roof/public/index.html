@@ -45,11 +45,13 @@
         });
         var l = []
         var d = []
+        var d2 = []
         var count = 0;
         for (var i = 0; i < 121; i++) {
             count++;
             l.push((-121+count)/10 + "s");
             d.push(0);
+            d2.push(0);
         }
 
         var canvas = document.getElementById('myChart');
@@ -66,6 +68,15 @@
                     pointBorderColor: "#fff",
                     pointHitRadius: 3,
                     data: d
+                },
+                {
+                    backgroundColor: "rgba(205,187,151,0.2)",
+                    borderColor: "rgba(205,187,151,1)",
+                    borderWidth: 2,
+                    pointBackgroundColor: "rgba(205,187,151,1)",
+                    pointBorderColor: "#fff",
+                    pointHitRadius: 3,
+                    data: d2
                 }]
             },
             options: {
@@ -102,6 +113,10 @@
                   chart.chart.config.data.datasets[0].data[i+1] = res.power[i];
               }
               chart.chart.config.data.datasets[0].data[0] = chart.chart.config.data.datasets[0].data[1];
+              for (var i = 0; i < res.lockpower.length; i++) {
+                  chart.chart.config.data.datasets[1].data[i+1] = res.lockpower[i];
+              }
+              chart.chart.config.data.datasets[1].data[0] = chart.chart.config.data.datasets[1].data[1];
               chart.update();
 
               $('#status').html(res.status);

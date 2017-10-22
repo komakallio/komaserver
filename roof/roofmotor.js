@@ -31,8 +31,10 @@ const nmea0183 = require('./nmea0183');
 const parser = nmea0183();
 
 var power = [];
+var lockpower = [];
 for (var i = 0; i < 120; i++) {
     power.push(0);
+    lockpower.push(0);
 }
 var statusline = "";
 var status = {};
@@ -74,6 +76,9 @@ module.exports = {
     powerusage: () => {
         return power;
     },
+    lockpowerusage: () => {
+        return lockpower;
+    },
     statusline: () => {
         return statusline;
     },
@@ -103,6 +108,13 @@ port.on('data', function (data) {
             for (var i = 0; i < data.length; i++) {
                 power.shift();
                 power.push(parseInt(data[i]));
+            }
+        },
+        LOCKPOWER:function(args) {
+            var data = args.split(',');
+            for (var i = 0; i < data.length; i++) {
+                lockpower.shift();
+                lockpower.push(parseInt(data[i]));
             }
         },
         STATUS:function(args) {
