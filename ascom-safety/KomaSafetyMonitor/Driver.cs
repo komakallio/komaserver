@@ -38,7 +38,7 @@ namespace ASCOM.Komakallio
         private static string driverDescription = "Komakallio SafetyMonitor Driver";
 
         internal static string serverAddressProfileName = "Server Address"; // Constants used for Profile persistence
-        internal static string serverAddressDefault = "http://192.168.0.110:9000/safety";
+        internal static string serverAddressDefault = "http://192.168.0.110:9002/safety";
         internal static string serverAddress;
 
         // Data
