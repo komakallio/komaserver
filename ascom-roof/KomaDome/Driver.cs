@@ -266,7 +266,24 @@ namespace ASCOM.Komakallio
 
         public void AbortSlew()
         {
-            // TODO: Implement stopping the roof once API supports it.
+            if (roofState == ShutterState.shutterOpen || roofState == ShutterState.shutterClosed || roofState == ShutterState.shutterError)
+            {
+                return;
+            }
+
+            var request = WebRequest.Create(serverAddress + "/stop") as HttpWebRequest;
+            request.Method = "POST";
+            using (var response = request.GetResponse() as HttpWebResponse)
+            {
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    throw new Exception(String.Format("Server error (HTTP {0}: {1}).",
+                        response.StatusCode,
+                        response.StatusDescription));
+                }
+            }
+            UpdateRoofData(null);
+            tl.LogMessage("AbortSlew", "Roof has been stopped.");
         }
 
         public double Altitude
