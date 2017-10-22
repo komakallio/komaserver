@@ -222,6 +222,7 @@ namespace ASCOM.Komakallio
         {
             get
             {
+                tl.LogMessage("DriverInfo Get", "Finding driver information...");
                 Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
                 string driverInfo = "Information about the driver itself. Version: " + String.Format(CultureInfo.InvariantCulture, "{0}.{1}", version.Major, version.Minor);
                 tl.LogMessage("DriverInfo Get", driverInfo);
@@ -233,6 +234,7 @@ namespace ASCOM.Komakallio
         {
             get
             {
+                tl.LogMessage("DriverVersion Get", "Finding driver version...");
                 Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
                 string driverVersion = String.Format(CultureInfo.InvariantCulture, "{0}.{1}", version.Major, version.Minor);
                 tl.LogMessage("DriverVersion Get", driverVersion);
