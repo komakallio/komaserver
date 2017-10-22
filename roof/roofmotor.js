@@ -102,7 +102,7 @@ port.on('close', function(err) {
 });
 
 port.on('data', function (data) {
-    logger.info('DEBUG: received data: ' + data);
+//    logger.info('DEBUG: received data: ' + data);
     var handlers = {
         POWER:function(args) {
             var data = args.split(',');
@@ -148,7 +148,7 @@ port.on('data', function (data) {
         if (result.complete && result.success) {
             var cmd = result.message.substring(0, result.message.indexOf(','));
             if (handlers[cmd]) {
-                logger.info('DEBUG: CMD ' + cmd + ' ARGS ' + result.message.substring(result.message.indexOf(',')+1));
+//                logger.info('DEBUG: CMD ' + cmd + ' ARGS ' + result.message.substring(result.message.indexOf(',')+1));
                 handlers[cmd](result.message.substring(result.message.indexOf(',')+1));
             }
             else
