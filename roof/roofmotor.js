@@ -102,6 +102,7 @@ port.on('close', function(err) {
 });
 
 port.on('data', function (data) {
+    logger.info('DEBUG: received data: ' + data);
     var handlers = {
         POWER:function(args) {
             var data = args.split(',');
@@ -143,8 +144,10 @@ port.on('data', function (data) {
         var result = parser.consume(data.charAt(i));
         if (result.complete && result.success) {
             var cmd = result.message.substring(0, result.message.indexOf(','));
-            if (handlers[cmd])
+            if (handlers[cmd]) {
+                logger.info('DEBUG: CMD ' + cmd + ' ARGS ' + result.message.substring(result.message.indexOf(',')+1));
                 handlers[cmd](result.message.substring(result.message.indexOf(',')+1));
+            }
             else
                 logger.info('unknown command ' + result.message);
         }
