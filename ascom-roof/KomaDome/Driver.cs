@@ -530,6 +530,7 @@ namespace ASCOM.Komakallio
                         { "CLOSED", ShutterState.shutterClosed },
                         { "OPENING", ShutterState.shutterOpening },
                         { "CLOSING", ShutterState.shutterClosing },
+                        { "STOPPING", ShutterState.shutterError },
                         { "STOPPED", ShutterState.shutterError },
                         { "ERROR", ShutterState.shutterError }
                     };

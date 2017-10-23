@@ -165,7 +165,7 @@ app.all('/roof/*', function(req, res, next) {
 
 app.get('/roof/:user', function(req, res) {
     var state;
-    if (roofState == "OPENING" || roofState == "CLOSING" || roofState == "ERROR" || roofState == "STOPPED") {
+    if (roofState == "OPENING" || roofState == "CLOSING" || roofState == "ERROR" || roofState == "STOPPING" || roofState == "STOPPED") {
         state = roofState;
     } else {
         state = req.roofstate.users[req.user] ? "OPEN" : "CLOSED";
