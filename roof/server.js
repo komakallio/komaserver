@@ -80,7 +80,7 @@ roofMotor.setStateCallback(function(state) {
 /*
                     logger.info('open physical roof');
                     roofMotor.open();
-*/                    
+*/
                 }
             });
             break;
@@ -165,7 +165,7 @@ app.all('/roof/*', function(req, res, next) {
 
 app.get('/roof/:user', function(req, res) {
     var state;
-    if (roofState == "OPENING" || roofState == "CLOSING" || roofState == "ERROR") {
+    if (roofState == "OPENING" || roofState == "CLOSING" || roofState == "ERROR" || roofState == "STOPPED") {
         state = roofState;
     } else {
         state = req.roofstate.users[req.user] ? "OPEN" : "CLOSED";
@@ -253,7 +253,7 @@ app.post('/roof/:user/stop', function(req, res) {
     req.roofstate.users = {};
     res.status(200).json({message:"OK"});
 });
-    
+
 app.get('/motor/status', function(req, res) {
     res.json({
         power: roofMotor.powerusage(),
