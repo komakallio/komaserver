@@ -282,6 +282,11 @@ namespace ASCOM.Komakallio
                         response.StatusDescription));
                 }
             }
+
+            // Small delay to let roof status update in API
+            // TODO: Remove delay once API is fixed
+            System.Threading.Thread.Sleep(1100);
+
             UpdateRoofData(null);
             tl.LogMessage("AbortSlew", "Roof has been stopped.");
         }
@@ -407,6 +412,11 @@ namespace ASCOM.Komakallio
                         response.StatusDescription));
                 }
             }
+
+            // Small delay to let roof status update in API
+            // TODO: Remove delay once API is fixed
+            System.Threading.Thread.Sleep(1100);
+
             UpdateRoofData(null);
             tl.LogMessage("CloseShutter", "Shutter has been closed");
         }
@@ -430,6 +440,10 @@ namespace ASCOM.Komakallio
                         response.StatusDescription));
                 }
             }
+            // Small delay to let roof status update in API
+            // TODO: Remove delay once API is fixed
+            System.Threading.Thread.Sleep(1100);
+
             UpdateRoofData(null);
         }
 
