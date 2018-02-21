@@ -57,6 +57,7 @@ app.get('/safety', function(req, res) {
         redisClient.zrevrangeAsync('raintrigger', 0, 0),
         redisClient.zrevrangeAsync('radar', 0, 0),
         redisClient.zrevrangeAsync('ups', 0, 0),
+        redisClient.zrevrangeAsync('interior', 0, 0),
 
         function(...replies) {
             if (replies.find(reply => reply.length === 0)) {
@@ -69,25 +70,29 @@ app.get('/safety', function(req, res) {
                 rain = JSON.parse(replies[1][0]),
                 raintrigger = JSON.parse(replies[2][0]),
                 radar = JSON.parse(replies[3][0]),
-                ups = JSON.parse(replies[4][0]);
+                ups = JSON.parse(replies[4][0]),
+                interior = JSON.parse(replies[5][0]);
 
-            var btemp = ptu.PTU.Temperature.Ambient[0] > -25;
-            var brain = raintrigger.RainTrigger.Rain == 0 && rain.Rain.Rain.Intensity[0] == 0;
+            var btemp = ptu.PTU.Temperature.Ambient[0] > -20;
+            var braintrigger = raintrigger.RainTrigger.Rain == 0;
+	    var brainintensity = rain.Rain.Rain.Intensity[0] == 0;
             var bradar = radar.Radar["30km"][0] < 0.1;
             var bsun = SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI < -5;
             var bupscharge = ups.UPS.BCHARGE[0] >= 50;
+	    var benclosuretemp = interior.EnclosureTemp[0] > -15;
 
             var data = {
-                safe: btemp && brain && bsun && bradar && bupscharge,
+                safe: btemp && braintrigger && brainintensity && bsun && bradar && bupscharge && benclosuretemp,
                 details: {
-                    temperature: ptu.PTU.Temperature.Ambient[0],
-                    rainintensity: rain.Rain.Rain.Intensity[0],
-                    raintrigger: raintrigger.RainTrigger.Rain,
-                    rainradar30km: radar.Radar["30km"][0],
-                    rainradar50km: radar.Radar["50km"][0],
-                    sunaltitude: roundTo(SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2),
-                    moonaltitude: roundTo(SunCalc.getMoonPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2),
-                    upscharge: ups.UPS.BCHARGE[0]
+                    temperature: { value: ptu.PTU.Temperature.Ambient[0], safe: btemp },
+                    rainintensity: { value: rain.Rain.Rain.Intensity[0], safe: braintrigger },
+                    raintrigger: { value: raintrigger.RainTrigger.Rain, safe: brainintensity },
+                    rainradar30km: { value: radar.Radar["30km"][0], safe: bradar },
+                    rainradar50km: { value: radar.Radar["50km"][0], safe: true },
+                    sunaltitude: { value: roundTo(SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2), safe: bsun },
+                    moonaltitude: { value: roundTo(SunCalc.getMoonPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2), safe: true },
+                    upscharge: { value: ups.UPS.BCHARGE[0], safe: bupscharge },
+		    enclosuretemp: { value: interior.EnclosureTemp[0], safe: benclosuretemp }
                 }
             };
             res.json(data);
