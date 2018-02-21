@@ -79,7 +79,7 @@ app.get('/safety', function(req, res) {
             var bradar = radar.Radar["30km"][0] < 0.1;
             var bsun = SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI < -5;
             var bupscharge = ups.UPS.BCHARGE[0] >= 50;
-	    var benclosuretemp = interior.EnclosureTemp[0] > -15;
+	    var benclosuretemp = interior.Interior.EnclosureTemp[0] > -15;
 
             var data = {
                 safe: btemp && braintrigger && brainintensity && bsun && bradar && bupscharge && benclosuretemp,
