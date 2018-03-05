@@ -283,6 +283,16 @@ app.post('/motor/lock', function(req, res) {
     res.json({success:true});
 });
 
+app.post('/motor/lockcurrent', function(req, res) {
+    roofMotor.setlockcurrent(req.param.milliamps);
+    res.json({success:true});
+});
+
+app.post('/motor/roofcurrent', function(req, res) {
+    roofMotor.setroofcurrent(req.param.milliamps);
+    res.json({success:true});
+});
+
 app.post('/motor/stop', function(req, res) {
     roofMotor.stop();
     res.json({success:true});
