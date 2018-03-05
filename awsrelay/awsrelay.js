@@ -74,7 +74,7 @@ function updateTick() {
 
                 var params = {
                     Key : { 'P':'1', 'Timestamp': data.Timestamp },
-                    TableName : "Metrics",
+                    TableName : data.Type,
                     UpdateExpression: 'SET #type = :data',
                     ExpressionAttributeNames: {
                         "#type" : data.Type
