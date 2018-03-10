@@ -154,7 +154,6 @@ port.on('data', function (data) {
         if (result.complete && result.success) {
             var cmd = result.message.substring(0, result.message.indexOf(','));
             if (handlers[cmd]) {
-//                logger.info('DEBUG: CMD ' + cmd + ' ARGS ' + result.message.substring(result.message.indexOf(',')+1));
                 handlers[cmd](result.message.substring(result.message.indexOf(',')+1));
             }
             else

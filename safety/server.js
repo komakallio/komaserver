@@ -92,7 +92,7 @@ app.get('/safety', function(req, res) {
                     sunaltitude: { value: roundTo(SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2), safe: bsun },
                     moonaltitude: { value: roundTo(SunCalc.getMoonPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2), safe: true },
                     upscharge: { value: ups.UPS.BCHARGE[0], safe: bupscharge },
-		    enclosuretemp: { value: interior.EnclosureTemp[0], safe: benclosuretemp }
+		    enclosuretemp: { value: interior.Interior.EnclosureTemp[0], safe: benclosuretemp }
                 }
             };
             res.json(data);
