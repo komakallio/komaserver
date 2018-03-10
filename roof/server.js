@@ -48,6 +48,10 @@ redisClient.on("error", function(err) {
     console.log("Redis error: " + err);
 });
 
+roofMotor.setEncoderCallback(function(encoder) {
+    redisClient.publish('roof-encoder', encoder);
+});
+
 roofMotor.setStateCallback(function(state) {
     logger.info('roof is ' + state);
     switch (state) {

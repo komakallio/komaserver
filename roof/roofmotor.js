@@ -39,7 +39,7 @@ for (var i = 0; i < 120; i++) {
 var statusline = "";
 var status = {};
 var loglines = ['', '', ''];
-var stateCallback;
+var stateCallback, encoderCallback;
 var currentState = '';
 
 function tryToOpen() {
@@ -72,6 +72,9 @@ module.exports = {
     },
     setStateCallback: (callback) => {
         stateCallback = callback;
+    },
+    setEncoderCallback: (callback) => {
+        encoderCallback = callback;
     },
     powerusage: () => {
         return power;
@@ -131,6 +134,9 @@ port.on('data', function (data) {
         },
         ENCODER:function(args) {
             status.ENCODER = args;
+	    if (encoderCallback) {
+	        encoderCallback(args);
+            }
         },
         LOG:function(args) {
             loglines.shift();
