@@ -52,6 +52,10 @@ roofMotor.setEncoderCallback(function(encoder) {
     redisClient.publish('roof-encoder', encoder);
 });
 
+roofMotor.setCurrentCallback(function(roofcurrent, lockcurrent) {
+    redisClient.publish('roof-current', JSON.stringify({ 'roof':roofpower, 'lock':lockpower }));
+});
+
 roofMotor.setStateCallback(function(state) {
     logger.info('roof is ' + state);
     switch (state) {

@@ -79,6 +79,15 @@
                 return { complete:true, success:(result.length > 0), message:result };
             }
         }
+
+        this.encode = function(input) {
+            let sum = 0;
+            for (let i = 0; i < input.length; i++) {
+                sum = sum ^ input.charCodeAt(i);
+            }
+            let checksum = (sum < 10 ? "0" : "") + sum.toString(16).toUpperCase();
+            return '$' + input + '*' + checksum + '\r\n';
+        }
         return this;
     };
 

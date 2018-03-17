@@ -39,7 +39,7 @@ for (var i = 0; i < 120; i++) {
 var statusline = "";
 var status = {};
 var loglines = ['', '', ''];
-var stateCallback, encoderCallback;
+var stateCallback, encoderCallback, currentCallback;
 var currentState = '';
 
 function tryToOpen() {
@@ -53,19 +53,25 @@ function tryToOpen() {
 
 module.exports = {
     open: () => {
-        port.write('$OPEN*14\r\n');
+        port.write(parser.encode('OPEN'));
     },
     close: () => {
-        port.write('$CLOSE*56\r\n');
+        port.write(parser.encode('CLOSE'));
     },
     stop: () => {
-        port.write('$STOP*18\r\n');
+        port.write(parser.encode('STOP'));
     },
     lock: () => {
-        port.write('$LOCK*0B\r\n');
+        port.write(parser.encode('LOCK'));
     },
     unlock: () => {
-        port.write('$UNLOCK*10\r\n');
+        port.write(parser.encode('UNLOCK'));
+    },
+    setlockcurrent: (milliamps) => {
+        port.write(parser.encode('LOCKLIMIT,' + milliamps));
+    },
+    setroofcurrent: (milliamps) => {
+        port.write(parser.encode('MOTORLIMIT,' + milliamps));
     },
     state: () => {
         return currentState;
@@ -75,6 +81,9 @@ module.exports = {
     },
     setEncoderCallback: (callback) => {
         encoderCallback = callback;
+    },
+    setCurrentCallback: (callback) => {
+        currentCallback = callback;
     },
     powerusage: () => {
         return power;
@@ -132,10 +141,16 @@ port.on('data', function (data) {
             status = data;
             currentState = data['ROOF'];
         },
-        ENCODER:function(args) {
+        E:function(args) {
             status.ENCODER = args;
-	    if (encoderCallback) {
-	        encoderCallback(args);
+            if (encoderCallback) {
+                encoderCallback(args);
+            }
+        },
+        C:function(args) {
+            if (currentCallback) {
+                let p = args.split(',');
+                currentCallback(p[0], p[1]);
             }
         },
         LOG:function(args) {
@@ -154,6 +169,7 @@ port.on('data', function (data) {
         if (result.complete && result.success) {
             var cmd = result.message.substring(0, result.message.indexOf(','));
             if (handlers[cmd]) {
+//                logger.info('DEBUG: CMD ' + cmd + ' ARGS ' + result.message.substring(result.message.indexOf(',')+1));
                 handlers[cmd](result.message.substring(result.message.indexOf(',')+1));
             }
             else
