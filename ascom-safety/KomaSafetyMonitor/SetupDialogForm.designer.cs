@@ -102,7 +102,7 @@ namespace ASCOM.Komakallio
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(231, 25);
             this.label1.TabIndex = 7;
-            this.label1.Text = "Komakallio Roof Driver";
+            this.label1.Text = "Komakallio Safety Monitor";
             // 
             // SetupDialogForm
             // 
