@@ -62,12 +62,11 @@ namespace ASCOM.Komakallio
             {
                 detailsListView.Clear();
                 refreshDetailsButton.Enabled = false;
-                var serverAddress = serverAddressTextBox.Text;
-                JObject values = getServerResponse(serverAddress);
+                var status = new SafetyServer(serverAddressTextBox.Text).Status;
 
-                foreach (JProperty item in values["details"])
+                foreach (var detail in status.Details.Keys)
                 {
-                    detailsListView.Items.Add(item.Name);
+                    detailsListView.Items.Add(detail);
                     detailsListView.Items[detailsListView.Items.Count - 1].Checked = true;
                 }
             }
@@ -75,39 +74,11 @@ namespace ASCOM.Komakallio
             {
                 detailsListView.Clear();
                 MessageBox.Show("Could not connect to server!", "Connection error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            } finally
+            }
+            finally
             {
                 refreshDetailsButton.Enabled = true;
             }
-        }
-
-        private static JObject getServerResponse(string serverAddress)
-        {
-            JObject values;
-            var request = WebRequest.Create(serverAddress) as HttpWebRequest;
-            request.Timeout = 1000;
-            using (var response = request.GetResponse() as HttpWebResponse)
-            {
-                if (response.StatusCode != HttpStatusCode.OK)
-                {
-                    throw new Exception(String.Format("Server error (HTTP {0}: {1}).",
-                        response.StatusCode,
-                        response.StatusDescription));
-                }
-
-                string jsonResponse;
-                using (var responseStream = response.GetResponseStream())
-                {
-                    using (var reader = new StreamReader(responseStream, System.Text.Encoding.UTF8))
-                    {
-                        jsonResponse = reader.ReadToEnd();
-                    }
-                }
-
-                values = JObject.Parse(jsonResponse);
-            }
-
-            return values;
         }
     }
 }

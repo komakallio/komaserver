@@ -17,6 +17,8 @@ using System.Net;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
+using System.Timers;
 
 namespace ASCOM.Komakallio
 {
@@ -46,8 +48,7 @@ namespace ASCOM.Komakallio
         private bool safe = false;
         private int errorCount = 0;
         private DateTime lastUpdate;
-        private TimerCallback updateTimerDelegate;
-        private System.Threading.Timer updateTimer;
+        private System.Timers.Timer updateTimer;
 
         /// <summary>
         /// Private variable to hold the connected state
@@ -89,9 +90,7 @@ namespace ASCOM.Komakallio
             connectedState = false; // Initialise connected to false
             utilities = new Util(); //Initialise util object
             astroUtilities = new AstroUtils(); // Initialise astro utilities object
-
-            updateTimerDelegate = new TimerCallback(UpdateSafetyMonitorData);
-
+            
             tl.LogMessage("SafetyMonitor", "Completed initialisation");
         }
 
@@ -189,11 +188,12 @@ namespace ASCOM.Komakallio
                     connectedState = true;
                     LogMessage("Connected Set", "Connecting to server {0}", serverAddress);
 
-                    UpdateSafetyMonitorData(null);
+                    UpdateSafetyMonitorData(null, null);
 
                     if (updateTimer == null)
                     {
-                        updateTimer = new System.Threading.Timer(updateTimerDelegate, null, 0, (10 * 1000));
+                        updateTimer = new System.Timers.Timer(10 * 1000);
+                        updateTimer.Elapsed += UpdateSafetyMonitorData;
                     }
                 }
                 else
@@ -278,43 +278,23 @@ namespace ASCOM.Komakallio
 
         #region Private methods
 
-        private void UpdateSafetyMonitorData(object state)
+        private void UpdateSafetyMonitorData(Object source, ElapsedEventArgs e)
         {
-            var request = WebRequest.Create(serverAddress) as HttpWebRequest;
             try
             {
-                using (var response = request.GetResponse() as HttpWebResponse)
-                {
-                    if (response.StatusCode != HttpStatusCode.OK)
-                    {
-                        throw new Exception(String.Format("Server error (HTTP {0}: {1}).",
-                            response.StatusCode,
-                            response.StatusDescription));
-                    }
-
-                    string json;
-                    using (var responseStream = response.GetResponseStream())
-                    {
-                        using (var reader = new StreamReader(responseStream, System.Text.Encoding.UTF8))
-                        {
-                            json = reader.ReadToEnd();
-                        }
-                    }
-
-                    tl.LogMessage("UpdateSafetyMonitorData", "Received JSON: " + json);
-                    JObject values = JObject.Parse(json);
-                    safe = Boolean.Parse(values["safe"].ToString());
-                    tl.LogMessage("UpdateSafetyMonitorData", "Parsed safety status: " + safe);
-                    lastUpdate = DateTime.Now;
-                    errorCount = 0;
-                }
-            } catch( Exception e) {
+                var status = new SafetyServer(serverAddress).Status;
+                safe = status.IsSafe;
+                lastUpdate = DateTime.Now;
+                errorCount = 0;
+                tl.LogMessage("UpdateSafetyMonitorData", "Received safety status: " + safe);
+                // TODO: Get safety detail filters from setup and use them
+            } catch(Exception except) {
                 if (++errorCount > 5)
                 {
                     tl.LogMessage("UpdateSafetyMonitorData", "Too many communication errors, declaring system unsafe");
                     safe = false;
                 }
-                tl.LogMessage("UpdateSafetyMonitorData", "Error" + e.Message);
+                tl.LogMessage("UpdateSafetyMonitorData", "Error" + except.Message);
             }
         }
 
