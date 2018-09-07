@@ -41,6 +41,8 @@ Promise.promisifyAll(redis.RedisClient.prototype);
 const app = express();
 const redisClient = redis.createClient(REDIS_PORT);
 
+var lastSafe = true;
+
 redisClient.on("error", function (err) {
     console.log("Redis error " + err);
 });
@@ -75,25 +77,33 @@ app.get('/safety', function(req, res) {
 
             var btemp = ptu.PTU.Temperature.Ambient[0] > -20;
             var braintrigger = raintrigger.RainTrigger.Rain == 0;
-	    var brainintensity = rain.Rain.Rain.Intensity[0] == 0;
-            var bradar = radar.Radar["30km"][0] < 0.1;
+            var brainintensity = rain.Rain.Rain.Intensity[0] == 0;
+            var bradar = radar.Radar["30km"][0] < 0.7;
             var bsun = SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI < -5;
             var bupscharge = ups.UPS.BCHARGE[0] >= 50;
-	    var benclosuretemp = interior.Interior.EnclosureTemp[0] > -15;
+            var benclosuretemp = interior.Interior.EnclosureTemp[0] > -15;
+
+            var safe = btemp && braintrigger && brainintensity && bsun && bradar && bupscharge && benclosuretemp;
+            var safetyDetails = {
+                temperature: { value: ptu.PTU.Temperature.Ambient[0], safe: btemp },
+                rainintensity: { value: rain.Rain.Rain.Intensity[0], safe: braintrigger },
+                raintrigger: { value: raintrigger.RainTrigger.Rain, safe: brainintensity },
+                rainradar30km: { value: radar.Radar["30km"][0], safe: bradar },
+                rainradar50km: { value: radar.Radar["50km"][0], safe: true },
+                sunaltitude: { value: roundTo(SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2), safe: bsun },
+                moonaltitude: { value: roundTo(SunCalc.getMoonPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2), safe: true },
+                upscharge: { value: ups.UPS.BCHARGE[0], safe: bupscharge },
+                enclosuretemp: { value: interior.Interior.EnclosureTemp[0], safe: benclosuretemp }
+            };
+
+            if (!safe && lastSafe) {
+                logger.info('Condition now unsafe: ' + JSON.stringify(safetyDetails));
+            }
+            lastSafe = safe;
 
             var data = {
-                safe: btemp && braintrigger && brainintensity && bsun && bradar && bupscharge && benclosuretemp,
-                details: {
-                    temperature: { value: ptu.PTU.Temperature.Ambient[0], safe: btemp },
-                    rainintensity: { value: rain.Rain.Rain.Intensity[0], safe: braintrigger },
-                    raintrigger: { value: raintrigger.RainTrigger.Rain, safe: brainintensity },
-                    rainradar30km: { value: radar.Radar["30km"][0], safe: bradar },
-                    rainradar50km: { value: radar.Radar["50km"][0], safe: true },
-                    sunaltitude: { value: roundTo(SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2), safe: bsun },
-                    moonaltitude: { value: roundTo(SunCalc.getMoonPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2), safe: true },
-                    upscharge: { value: ups.UPS.BCHARGE[0], safe: bupscharge },
-		    enclosuretemp: { value: interior.Interior.EnclosureTemp[0], safe: benclosuretemp }
-                }
+                safe: safe,
+                details: safetyDetails
             };
             res.json(data);
         }
