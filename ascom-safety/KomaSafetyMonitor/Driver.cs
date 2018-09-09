@@ -12,6 +12,7 @@ using ASCOM.Utilities;
 using ASCOM.DeviceInterface;
 using System.Globalization;
 using System.Collections;
+using System.Linq;
 using System.Threading;
 using System.Net;
 using System.IO;
@@ -34,15 +35,18 @@ namespace ASCOM.Komakallio
         /// The DeviceID is used by ASCOM applications to load the driver at runtime.
         /// </summary>
         internal static string driverID = "ASCOM.Komakallio.SafetyMonitor";
-        // TODO Change the descriptive string for your driver then remove this line
+
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
         private static string driverDescription = "Komakallio SafetyMonitor Driver";
 
-        internal static string serverAddressProfileName = "Server Address"; // Constants used for Profile persistence
-        internal static string serverAddressDefault = "http://192.168.0.110:9002/safety";
+        private const string serverAddressProfileName = "Server Address"; // Constants used for Profile persistence
+        private const string serverAddressDefault = "http://192.168.0.110:9002/safety";
         internal static string serverAddress;
+
+        private const string filtersSubKey = "Filters";
+        internal static List<Filter> filters = new List<Filter>();
 
         // Data
         private bool safe = false;
@@ -287,7 +291,6 @@ namespace ASCOM.Komakallio
                 lastUpdate = DateTime.Now;
                 errorCount = 0;
                 tl.LogMessage("UpdateSafetyMonitorData", "Received safety status: " + safe);
-                // TODO: Get safety detail filters from setup and use them
             } catch(Exception except) {
                 if (++errorCount > 5)
                 {
@@ -405,6 +408,24 @@ namespace ASCOM.Komakallio
             {
                 driverProfile.DeviceType = "SafetyMonitor";
                 serverAddress = driverProfile.GetValue(driverID, serverAddressProfileName, string.Empty, serverAddressDefault);
+
+                filters.Clear();
+                ArrayList filterValues;
+                try
+                {
+                    filterValues = driverProfile.Values(driverID, filtersSubKey);
+                } catch (NullReferenceException) {
+                    filterValues = new ArrayList();
+                }
+
+                foreach (KeyValuePair filterValue in filterValues)
+                {
+                    filters.Add(new Filter()
+                    {
+                        Name = filterValue.Key,
+                        Checked = bool.Parse(filterValue.Value)
+                    });
+                }
             }
         }
 
@@ -417,6 +438,12 @@ namespace ASCOM.Komakallio
             {
                 driverProfile.DeviceType = "SafetyMonitor";
                 driverProfile.WriteValue(driverID, serverAddressProfileName, serverAddress.ToString());
+
+                driverProfile.DeleteSubKey(driverID, filtersSubKey);
+                foreach (var filter in filters)
+                {
+                    driverProfile.WriteValue(driverID, filter.Name, filter.Checked.ToString(), filtersSubKey);
+                }
             }
         }
 

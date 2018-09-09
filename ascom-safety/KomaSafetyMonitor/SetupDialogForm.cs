@@ -9,6 +9,7 @@ using System.Text;
 using System.Windows.Forms;
 using ASCOM.Utilities;
 using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace ASCOM.Komakallio
 {
@@ -27,6 +28,14 @@ namespace ASCOM.Komakallio
             // Place any validation constraint checks here
             // Update the state variables with results from the dialogue
             SafetyMonitor.serverAddress = (string)serverAddressTextBox.Text;
+            SafetyMonitor.filters = detailsListView.Items
+                .Cast<ListViewItem>()
+                .Select(x => new Filter()
+                {
+                    Name = x.Text,
+                    Checked = x.Checked,
+                })
+                .ToList();
         }
 
         private void cmdCancel_Click(object sender, EventArgs e) // Cancel button event handler
@@ -54,6 +63,11 @@ namespace ASCOM.Komakallio
         private void InitUI()
         {
             serverAddressTextBox.Text = SafetyMonitor.serverAddress;
+            foreach (var filter in SafetyMonitor.filters)
+            {
+                detailsListView.Items.Add(filter.Name);
+                detailsListView.Items[detailsListView.Items.Count - 1].Checked = filter.Checked;
+            }
         }
 
         private void refreshDetailsButton_Click(object sender, EventArgs e)
