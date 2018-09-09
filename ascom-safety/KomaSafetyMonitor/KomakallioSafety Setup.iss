@@ -5,8 +5,8 @@
 [Setup]
 AppID={{c7e0bee6-1441-4e9f-9314-31138c971c0b}
 AppName=ASCOM KomakallioSafety SafetyMonitor Driver
-AppVerName=ASCOM KomakallioSafety SafetyMonitor Driver 1.0
-AppVersion=1.0
+AppVerName=ASCOM KomakallioSafety SafetyMonitor Driver 1.1
+AppVersion=1.1
 AppPublisher=Jari Saukkonen <jari.saukkonen@taika.fi>
 AppPublisherURL=mailto:jari.saukkonen@taika.fi
 AppSupportURL=http://tech.groups.yahoo.com/group/ASCOM-Talk/
@@ -34,7 +34,7 @@ Name: "{cf}\ASCOM\Uninstall\SafetyMonitor\KomakallioSafety"
 ; TODO: Add subfolders below {app} as needed (e.g. Name: "{app}\MyFolder")
 
 [Files]
-Source: "bin\Release\ASCOM.KomaObservatory.SafetyMonitor.dll"; DestDir: "{app}"
+Source: "bin\Release\ASCOM.Komakallio.SafetyMonitor.dll"; DestDir: "{app}"
 Source: "bin\Release\Newtonsoft.Json.dll"; DestDir: "{app}"
 ; Require a read-me HTML to appear after installation, maybe driver's Help doc
 ; Source: "KomaSafetyMonitor_ReadMe.htm"; DestDir: "{app}"; Flags: isreadme
@@ -44,8 +44,8 @@ Source: "bin\Release\Newtonsoft.Json.dll"; DestDir: "{app}"
 ; Only if driver is .NET
 [Run]
 ; Only for .NET assembly/in-proc drivers
-Filename: "{dotnet4032}\regasm.exe"; Parameters: "/codebase ""{app}\ASCOM.KomaObservatory.SafetyMonitor.dll"""; Flags: runhidden 32bit
-Filename: "{dotnet4064}\regasm.exe"; Parameters: "/codebase ""{app}\ASCOM.KomaObservatory.SafetyMonitor.dll"""; Flags: runhidden 64bit; Check: IsWin64
+Filename: "{dotnet4032}\regasm.exe"; Parameters: "/codebase ""{app}\ASCOM.Komakallio.SafetyMonitor.dll"""; Flags: runhidden 32bit
+Filename: "{dotnet4064}\regasm.exe"; Parameters: "/codebase ""{app}\ASCOM.Komakallio.SafetyMonitor.dll"""; Flags: runhidden 64bit; Check: IsWin64
 
 
 
@@ -53,10 +53,10 @@ Filename: "{dotnet4064}\regasm.exe"; Parameters: "/codebase ""{app}\ASCOM.KomaOb
 ; Only if driver is .NET
 [UninstallRun]
 ; Only for .NET assembly/in-proc drivers
-Filename: "{dotnet4032}\regasm.exe"; Parameters: "-u ""{app}\ASCOM.KomaObservatory.SafetyMonitor.dll"""; Flags: runhidden 32bit
+Filename: "{dotnet4032}\regasm.exe"; Parameters: "-u ""{app}\ASCOM.Komakallio.SafetyMonitor.dll"""; Flags: runhidden 32bit
 ; This helps to give a clean uninstall
-Filename: "{dotnet4064}\regasm.exe"; Parameters: "/codebase ""{app}\ASCOM.KomaObservatory.SafetyMonitor.dll"""; Flags: runhidden 64bit; Check: IsWin64
-Filename: "{dotnet4064}\regasm.exe"; Parameters: "-u ""{app}\ASCOM.KomaObservatory.SafetyMonitor.dll"""; Flags: runhidden 64bit; Check: IsWin64
+Filename: "{dotnet4064}\regasm.exe"; Parameters: "/codebase ""{app}\ASCOM.Komakallio.SafetyMonitor.dll"""; Flags: runhidden 64bit; Check: IsWin64
+Filename: "{dotnet4064}\regasm.exe"; Parameters: "-u ""{app}\ASCOM.Komakallio.SafetyMonitor.dll"""; Flags: runhidden 64bit; Check: IsWin64
 
 
 
