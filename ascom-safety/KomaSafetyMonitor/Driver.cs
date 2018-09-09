@@ -12,11 +12,14 @@ using ASCOM.Utilities;
 using ASCOM.DeviceInterface;
 using System.Globalization;
 using System.Collections;
+using System.Linq;
 using System.Threading;
 using System.Net;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
+using System.Timers;
 
 namespace ASCOM.Komakallio
 {
@@ -32,22 +35,24 @@ namespace ASCOM.Komakallio
         /// The DeviceID is used by ASCOM applications to load the driver at runtime.
         /// </summary>
         internal static string driverID = "ASCOM.Komakallio.SafetyMonitor";
-        // TODO Change the descriptive string for your driver then remove this line
+
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
         private static string driverDescription = "Komakallio SafetyMonitor Driver";
 
-        internal static string serverAddressProfileName = "Server Address"; // Constants used for Profile persistence
-        internal static string serverAddressDefault = "http://192.168.0.110:9002/safety";
+        private const string serverAddressProfileName = "Server Address"; // Constants used for Profile persistence
+        private const string serverAddressDefault = "http://192.168.0.110:9002/safety";
         internal static string serverAddress;
+
+        private const string filtersSubKey = "Filters";
+        internal static List<Filter> filters = new List<Filter>();
 
         // Data
         private bool safe = false;
         private int errorCount = 0;
         private DateTime lastUpdate;
-        private TimerCallback updateTimerDelegate;
-        private System.Threading.Timer updateTimer;
+        private System.Timers.Timer updateTimer;
 
         /// <summary>
         /// Private variable to hold the connected state
@@ -89,9 +94,7 @@ namespace ASCOM.Komakallio
             connectedState = false; // Initialise connected to false
             utilities = new Util(); //Initialise util object
             astroUtilities = new AstroUtils(); // Initialise astro utilities object
-
-            updateTimerDelegate = new TimerCallback(UpdateSafetyMonitorData);
-
+            
             tl.LogMessage("SafetyMonitor", "Completed initialisation");
         }
 
@@ -189,11 +192,12 @@ namespace ASCOM.Komakallio
                     connectedState = true;
                     LogMessage("Connected Set", "Connecting to server {0}", serverAddress);
 
-                    UpdateSafetyMonitorData(null);
+                    UpdateSafetyMonitorData(null, null);
 
                     if (updateTimer == null)
                     {
-                        updateTimer = new System.Threading.Timer(updateTimerDelegate, null, 0, (10 * 1000));
+                        updateTimer = new System.Timers.Timer(10 * 1000);
+                        updateTimer.Elapsed += UpdateSafetyMonitorData;
                     }
                 }
                 else
@@ -278,43 +282,30 @@ namespace ASCOM.Komakallio
 
         #region Private methods
 
-        private void UpdateSafetyMonitorData(object state)
+        private void UpdateSafetyMonitorData(Object source, ElapsedEventArgs e)
         {
-            var request = WebRequest.Create(serverAddress) as HttpWebRequest;
             try
             {
-                using (var response = request.GetResponse() as HttpWebResponse)
-                {
-                    if (response.StatusCode != HttpStatusCode.OK)
-                    {
-                        throw new Exception(String.Format("Server error (HTTP {0}: {1}).",
-                            response.StatusCode,
-                            response.StatusDescription));
-                    }
+                var status = new SafetyServer(serverAddress).Status;
 
-                    string json;
-                    using (var responseStream = response.GetResponseStream())
-                    {
-                        using (var reader = new StreamReader(responseStream, System.Text.Encoding.UTF8))
-                        {
-                            json = reader.ReadToEnd();
-                        }
-                    }
+                var activeFilters = filters
+                    .Where(x => x.Checked)
+                    .Select(x => x.Name);
 
-                    tl.LogMessage("UpdateSafetyMonitorData", "Received JSON: " + json);
-                    JObject values = JObject.Parse(json);
-                    safe = Boolean.Parse(values["safe"].ToString());
-                    tl.LogMessage("UpdateSafetyMonitorData", "Parsed safety status: " + safe);
-                    lastUpdate = DateTime.Now;
-                    errorCount = 0;
-                }
-            } catch( Exception e) {
+                safe = status.Details
+                    .Where(x => activeFilters.Contains(x.Key))
+                    .All(x => x.Value);
+
+                lastUpdate = DateTime.Now;
+                errorCount = 0;
+                tl.LogMessage("UpdateSafetyMonitorData", "Received safety status: " + safe);
+            } catch(Exception except) {
                 if (++errorCount > 5)
                 {
                     tl.LogMessage("UpdateSafetyMonitorData", "Too many communication errors, declaring system unsafe");
                     safe = false;
                 }
-                tl.LogMessage("UpdateSafetyMonitorData", "Error" + e.Message);
+                tl.LogMessage("UpdateSafetyMonitorData", "Error" + except.Message);
             }
         }
 
@@ -425,6 +416,24 @@ namespace ASCOM.Komakallio
             {
                 driverProfile.DeviceType = "SafetyMonitor";
                 serverAddress = driverProfile.GetValue(driverID, serverAddressProfileName, string.Empty, serverAddressDefault);
+
+                filters.Clear();
+                ArrayList filterValues;
+                try
+                {
+                    filterValues = driverProfile.Values(driverID, filtersSubKey);
+                } catch (NullReferenceException) {
+                    filterValues = new ArrayList();
+                }
+
+                foreach (KeyValuePair filterValue in filterValues)
+                {
+                    filters.Add(new Filter()
+                    {
+                        Name = filterValue.Key,
+                        Checked = bool.Parse(filterValue.Value)
+                    });
+                }
             }
         }
 
@@ -437,6 +446,12 @@ namespace ASCOM.Komakallio
             {
                 driverProfile.DeviceType = "SafetyMonitor";
                 driverProfile.WriteValue(driverID, serverAddressProfileName, serverAddress.ToString());
+
+                driverProfile.DeleteSubKey(driverID, filtersSubKey);
+                foreach (var filter in filters)
+                {
+                    driverProfile.WriteValue(driverID, filter.Name, filter.Checked.ToString(), filtersSubKey);
+                }
             }
         }
 
