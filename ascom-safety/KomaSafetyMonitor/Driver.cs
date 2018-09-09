@@ -49,7 +49,6 @@ namespace ASCOM.Komakallio
         internal static List<Filter> filters = new List<Filter>();
 
         // Data
-        private bool safe = false;
         private int errorCount = 0;
         private DateTime lastUpdate;
         private System.Timers.Timer updateTimer;
@@ -270,13 +269,7 @@ namespace ASCOM.Komakallio
         #endregion
 
         #region ISafetyMonitor Implementation
-        public bool IsSafe
-        {
-            get
-            {
-                return safe;
-            }
-        }
+        public bool IsSafe { get; private set; } = false;
 
         #endregion
 
@@ -292,18 +285,18 @@ namespace ASCOM.Komakallio
                     .Where(x => x.Checked)
                     .Select(x => x.Name);
 
-                safe = status.Details
+                IsSafe = status.Details
                     .Where(x => activeFilters.Contains(x.Key))
                     .All(x => x.Value);
 
                 lastUpdate = DateTime.Now;
                 errorCount = 0;
-                tl.LogMessage("UpdateSafetyMonitorData", "Received safety status: " + safe);
+                tl.LogMessage("UpdateSafetyMonitorData", "Received safety status: " + IsSafe);
             } catch(Exception except) {
                 if (++errorCount > 5)
                 {
                     tl.LogMessage("UpdateSafetyMonitorData", "Too many communication errors, declaring system unsafe");
-                    safe = false;
+                    IsSafe = false;
                 }
                 tl.LogMessage("UpdateSafetyMonitorData", "Error" + except.Message);
             }
