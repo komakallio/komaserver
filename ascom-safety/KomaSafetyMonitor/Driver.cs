@@ -41,11 +41,11 @@ namespace ASCOM.Komakallio
         /// </summary>
         private static string driverDescription = "Komakallio SafetyMonitor Driver";
 
-        private const string serverAddressProfileName = "Server Address"; // Constants used for Profile persistence
-        private const string serverAddressDefault = "http://192.168.0.110:9002/safety";
+        private const string ServerAddressProfileName = "Server Address"; // Constants used for Profile persistence
+        private const string ServerAddressDefault = "http://192.168.0.110:9002/safety";
         internal static string serverAddress;
 
-        private const string filtersSubKey = "Filters";
+        private const string FiltersSubKey = "Filters";
         internal static List<Filter> filters = new List<Filter>();
 
         // Data
@@ -408,13 +408,13 @@ namespace ASCOM.Komakallio
             using (Profile driverProfile = new Profile())
             {
                 driverProfile.DeviceType = "SafetyMonitor";
-                serverAddress = driverProfile.GetValue(driverID, serverAddressProfileName, string.Empty, serverAddressDefault);
+                serverAddress = driverProfile.GetValue(driverID, ServerAddressProfileName, string.Empty, ServerAddressDefault);
 
                 filters.Clear();
                 ArrayList filterValues;
                 try
                 {
-                    filterValues = driverProfile.Values(driverID, filtersSubKey);
+                    filterValues = driverProfile.Values(driverID, FiltersSubKey);
                 } catch (NullReferenceException) {
                     filterValues = new ArrayList();
                 }
@@ -438,12 +438,12 @@ namespace ASCOM.Komakallio
             using (Profile driverProfile = new Profile())
             {
                 driverProfile.DeviceType = "SafetyMonitor";
-                driverProfile.WriteValue(driverID, serverAddressProfileName, serverAddress.ToString());
+                driverProfile.WriteValue(driverID, ServerAddressProfileName, serverAddress.ToString());
 
-                driverProfile.DeleteSubKey(driverID, filtersSubKey);
+                driverProfile.DeleteSubKey(driverID, FiltersSubKey);
                 foreach (var filter in filters)
                 {
-                    driverProfile.WriteValue(driverID, filter.Name, filter.Checked.ToString(), filtersSubKey);
+                    driverProfile.WriteValue(driverID, filter.Name, filter.Checked.ToString(), FiltersSubKey);
                 }
             }
         }
