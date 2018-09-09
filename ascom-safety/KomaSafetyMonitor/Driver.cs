@@ -258,12 +258,12 @@ namespace ASCOM.Komakallio
                 mErrorCount = 0;
                 mLogger.LogMessage("UpdateSafetyMonitorData", "Received safety status: " + IsSafe);
             } catch(Exception except) {
+                mLogger.LogMessage("UpdateSafetyMonitorData", "Error" + except.Message);
                 if (++mErrorCount > 5)
                 {
                     mLogger.LogMessage("UpdateSafetyMonitorData", "Too many communication errors, declaring system unsafe");
                     IsSafe = false;
                 }
-                mLogger.LogMessage("UpdateSafetyMonitorData", "Error" + except.Message);
             }
         }
 

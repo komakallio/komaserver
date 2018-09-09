@@ -20,38 +20,56 @@ namespace ASCOM.Komakallio
             get
             {
                 JObject values;
-                var request = WebRequest.Create(mServerAddress) as HttpWebRequest;
+                var request = WebRequest.Create(mServerAddress);
                 request.Timeout = 1000;
                 using (var response = request.GetResponse() as HttpWebResponse)
                 {
-                    if (response.StatusCode != HttpStatusCode.OK)
-                    {
-                        throw new Exception(String.Format("Server error (HTTP {0}: {1}).",
-                            response.StatusCode,
-                            response.StatusDescription));
-                    }
-
-                    string jsonResponse;
-                    using (var responseStream = response.GetResponseStream())
-                    {
-                        using (var reader = new StreamReader(responseStream, System.Text.Encoding.UTF8))
-                        {
-                            jsonResponse = reader.ReadToEnd();
-                        }
-                    }
-
-                    values = JObject.Parse(jsonResponse);
+                    checkStatusCode(response);
+                    values = readJsonFrom(response);
                 }
 
-                Dictionary<string, bool> details = new Dictionary<string, bool>();
-                foreach (JProperty item in values["details"])
+                var overallSafety = Boolean.Parse(values["safe"].ToString());
+                var safetyDetails = parseSafetyFrom(values);
+
+
+                return new SafetyStatus(overallSafety, safetyDetails);
+            }
+        }
+
+        private static Dictionary<string, bool> parseSafetyFrom(JObject values)
+        {
+            Dictionary<string, bool> details = new Dictionary<string, bool>();
+            foreach (JProperty item in values["details"])
+            {
+                var name = item.Name;
+                var safe = Boolean.Parse(item.Value["safe"].ToString());
+                details[name] = safe;
+            }
+
+            return details;
+        }
+
+        private static JObject readJsonFrom(HttpWebResponse response)
+        {
+            string jsonResponse;
+            using (var responseStream = response.GetResponseStream())
+            {
+                using (var reader = new StreamReader(responseStream, System.Text.Encoding.UTF8))
                 {
-                    var name = item.Name;
-                    var safe = Boolean.Parse(item.Value["safe"].ToString());
-                    details[name] = safe;
+                    jsonResponse = reader.ReadToEnd();
                 }
+            }
 
-                return new SafetyStatus(Boolean.Parse(values["safe"].ToString()), details);
+            return JObject.Parse(jsonResponse);
+        }
+
+        private static void checkStatusCode(HttpWebResponse response)
+        {
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                throw new Exception(String.Format("Server error (HTTP {0}: {1}).",
+                    response.StatusCode,
+                    response.StatusDescription));
             }
         }
     }
