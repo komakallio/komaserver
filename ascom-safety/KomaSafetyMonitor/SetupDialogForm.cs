@@ -1,14 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.IO;
-using System.Net;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Windows.Forms;
-using ASCOM.Utilities;
-using Newtonsoft.Json.Linq;
 using System.Linq;
 
 namespace ASCOM.Komakallio

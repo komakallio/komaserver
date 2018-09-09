@@ -1,24 +1,11 @@
-//tabs=4
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 using System.Runtime.InteropServices;
-
-using ASCOM;
-using ASCOM.Astrometry;
-using ASCOM.Astrometry.AstroUtils;
 using ASCOM.Utilities;
 using ASCOM.DeviceInterface;
 using System.Globalization;
 using System.Collections;
 using System.Linq;
-using System.Threading;
-using System.Net;
-using System.IO;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Threading.Tasks;
 using System.Timers;
 
 namespace ASCOM.Komakallio
