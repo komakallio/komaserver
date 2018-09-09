@@ -12,17 +12,17 @@ namespace ASCOM.Komakallio
     {
         public SafetyServer(string address)
         {
-            this.serverAddress = address;
+            mServerAddress = address;
         }
 
-        private string serverAddress;
+        private string mServerAddress;
 
         public SafetyStatus Status
         {
             get
             {
                 JObject values;
-                var request = WebRequest.Create(serverAddress) as HttpWebRequest;
+                var request = WebRequest.Create(mServerAddress) as HttpWebRequest;
                 request.Timeout = 1000;
                 using (var response = request.GetResponse() as HttpWebResponse)
                 {

@@ -34,44 +34,30 @@ namespace ASCOM.Komakallio
         /// ASCOM DeviceID (COM ProgID) for this driver.
         /// The DeviceID is used by ASCOM applications to load the driver at runtime.
         /// </summary>
-        internal static string driverID = "ASCOM.Komakallio.SafetyMonitor";
+        internal const string DriverID = "ASCOM.Komakallio.SafetyMonitor";
 
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
-        private static string driverDescription = "Komakallio SafetyMonitor Driver";
+        private const string DriverDescription = "Komakallio SafetyMonitor Driver";
 
-        private const string ServerAddressProfileName = "Server Address"; // Constants used for Profile persistence
+        // Constants used for Profile persistence
+        private const string ServerAddressProfileName = "Server Address";
         private const string ServerAddressDefault = "http://192.168.0.110:9002/safety";
-        internal static string serverAddress;
-
         private const string FiltersSubKey = "Filters";
-        internal static List<Filter> filters = new List<Filter>();
+
+        internal static string ServerAddress { get; set; }
+        internal static List<Filter> Filters { get; set; } = new List<Filter>();
 
         // Data
-        private int errorCount = 0;
-        private DateTime lastUpdate;
-        private System.Timers.Timer updateTimer;
-
-        /// <summary>
-        /// Private variable to hold the connected state
-        /// </summary>
-        private bool connectedState;
-
-        /// <summary>
-        /// Private variable to hold an ASCOM Utilities object
-        /// </summary>
-        private Util utilities;
-
-        /// <summary>
-        /// Private variable to hold an ASCOM AstroUtilities object to provide the Range method
-        /// </summary>
-        private AstroUtils astroUtilities;
+        private int mErrorCount = 0;
+        private DateTime mLastUpdate;
+        private System.Timers.Timer mUpdateTimer;
 
         /// <summary>
         /// Private variable to hold the trace logger object (creates a diagnostic log file with information that you specify)
         /// </summary>
-        private TraceLogger tl;
+        private TraceLogger mLogger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Komakallio"/> class.
@@ -79,22 +65,16 @@ namespace ASCOM.Komakallio
         /// </summary>
         public SafetyMonitor()
         {
-            ReadProfile(); // Read device configuration from the ASCOM Profile store
-
-            tl = new TraceLogger("", "Komakallio");
+            
+            mLogger = new TraceLogger("", "Komakallio");
 
 #if DEBUG
             // Enable logging in debug mode
-            tl.Enabled = true;
+            mLogger.Enabled = true;
 #endif
 
-            tl.LogMessage("SafetyMonitor", "Starting initialisation");
-
-            connectedState = false; // Initialise connected to false
-            utilities = new Util(); //Initialise util object
-            astroUtilities = new AstroUtils(); // Initialise astro utilities object
-            
-            tl.LogMessage("SafetyMonitor", "Completed initialisation");
+            // Read device configuration from the ASCOM Profile store
+            ReadProfile();
         }
 
 
@@ -114,7 +94,7 @@ namespace ASCOM.Komakallio
         {
             // consider only showing the setup dialog if not connected
             // or call a different dialog if connected
-            if (IsConnected)
+            if (mConnected)
                 System.Windows.Forms.MessageBox.Show("Already connected, just press OK");
 
             using (SetupDialogForm F = new SetupDialogForm())
@@ -131,7 +111,7 @@ namespace ASCOM.Komakallio
         {
             get
             {
-                tl.LogMessage("SupportedActions Get", "Returning empty arraylist");
+                mLogger.LogMessage("SupportedActions Get", "Returning empty arraylist");
                 return new ArrayList();
             }
         }
@@ -161,53 +141,51 @@ namespace ASCOM.Komakallio
 
         public void Dispose()
         {
-            if (this.Connected)
-                this.Connected = false;
+            if (Connected)
+                Connected = false;
             // Clean up the tracelogger and util objects
-            tl.Enabled = false;
-            tl.Dispose();
-            tl = null;
-            utilities.Dispose();
-            utilities = null;
-            astroUtilities.Dispose();
-            astroUtilities = null;
+            mLogger.Enabled = false;
+            mLogger.Dispose();
+            mLogger = null;
         }
 
+
+        private bool mConnected = false;
         public bool Connected
         {
             get
             {
-                tl.LogMessage("Connected Get", IsConnected.ToString());
-                return IsConnected;
+                mLogger.LogMessage("Connected Get", mConnected.ToString());
+                return mConnected;
             }
             set
             {
-                tl.LogMessage("Connected Set", value.ToString());
-                if (value == IsConnected)
+                mLogger.LogMessage("Connected Set", value.ToString());
+                if (mConnected == value)
                     return;
 
                 if (value)
                 {
-                    connectedState = true;
-                    LogMessage("Connected Set", "Connecting to server {0}", serverAddress);
+                    mConnected = true;
+                    LogMessage("Connected Set", "Connecting to server {0}", ServerAddress);
 
                     UpdateSafetyMonitorData(null, null);
 
-                    if (updateTimer == null)
+                    if (mUpdateTimer == null)
                     {
-                        updateTimer = new System.Timers.Timer(10 * 1000);
-                        updateTimer.Elapsed += UpdateSafetyMonitorData;
+                        mUpdateTimer = new System.Timers.Timer(10 * 1000);
+                        mUpdateTimer.Elapsed += UpdateSafetyMonitorData;
                     }
                 }
                 else
                 {
-                    connectedState = false;
-                    LogMessage("Connected Set", "Disconnecting from server {0}", serverAddress);
+                    mConnected = false;
+                    LogMessage("Connected Set", "Disconnecting from server {0}", ServerAddress);
 
-                    if (updateTimer != null)
+                    if (mUpdateTimer != null)
                     {
-                        updateTimer.Dispose();
-                        updateTimer = null;
+                        mUpdateTimer.Dispose();
+                        mUpdateTimer = null;
                     }
                 }
             }
@@ -217,8 +195,8 @@ namespace ASCOM.Komakallio
         {
             get
             {
-                tl.LogMessage("Description Get", driverDescription);
-                return driverDescription;
+                mLogger.LogMessage("Description Get", DriverDescription);
+                return DriverDescription;
             }
         }
 
@@ -226,10 +204,10 @@ namespace ASCOM.Komakallio
         {
             get
             {
-                tl.LogMessage("DriverInfo Get", "Finding driver information...");
+                mLogger.LogMessage("DriverInfo Get", "Finding driver information...");
                 Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
                 string driverInfo = "Information about the driver itself. Version: " + String.Format(CultureInfo.InvariantCulture, "{0}.{1}", version.Major, version.Minor);
-                tl.LogMessage("DriverInfo Get", driverInfo);
+                mLogger.LogMessage("DriverInfo Get", driverInfo);
                 return driverInfo;
             }
         }
@@ -238,10 +216,10 @@ namespace ASCOM.Komakallio
         {
             get
             {
-                tl.LogMessage("DriverVersion Get", "Finding driver version...");
+                mLogger.LogMessage("DriverVersion Get", "Finding driver version...");
                 Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
                 string driverVersion = String.Format(CultureInfo.InvariantCulture, "{0}.{1}", version.Major, version.Minor);
-                tl.LogMessage("DriverVersion Get", driverVersion);
+                mLogger.LogMessage("DriverVersion Get", driverVersion);
                 return driverVersion;
             }
         }
@@ -251,7 +229,7 @@ namespace ASCOM.Komakallio
             // set by the driver wizard
             get
             {
-                tl.LogMessage("InterfaceVersion Get", "1");
+                mLogger.LogMessage("InterfaceVersion Get", "1");
                 return Convert.ToInt16("1");
             }
         }
@@ -261,7 +239,7 @@ namespace ASCOM.Komakallio
             get
             {
                 string name = "KomaSafetyMonitor";
-                tl.LogMessage("Name Get", name);
+                mLogger.LogMessage("Name Get", name);
                 return name;
             }
         }
@@ -279,9 +257,9 @@ namespace ASCOM.Komakallio
         {
             try
             {
-                var status = new SafetyServer(serverAddress).Status;
+                var status = new SafetyServer(ServerAddress).Status;
 
-                var activeFilters = filters
+                var activeFilters = Filters
                     .Where(x => x.Checked)
                     .Select(x => x.Name);
 
@@ -289,16 +267,16 @@ namespace ASCOM.Komakallio
                     .Where(x => activeFilters.Contains(x.Key))
                     .All(x => x.Value);
 
-                lastUpdate = DateTime.Now;
-                errorCount = 0;
-                tl.LogMessage("UpdateSafetyMonitorData", "Received safety status: " + IsSafe);
+                mLastUpdate = DateTime.Now;
+                mErrorCount = 0;
+                mLogger.LogMessage("UpdateSafetyMonitorData", "Received safety status: " + IsSafe);
             } catch(Exception except) {
-                if (++errorCount > 5)
+                if (++mErrorCount > 5)
                 {
-                    tl.LogMessage("UpdateSafetyMonitorData", "Too many communication errors, declaring system unsafe");
+                    mLogger.LogMessage("UpdateSafetyMonitorData", "Too many communication errors, declaring system unsafe");
                     IsSafe = false;
                 }
-                tl.LogMessage("UpdateSafetyMonitorData", "Error" + except.Message);
+                mLogger.LogMessage("UpdateSafetyMonitorData", "Error" + except.Message);
             }
         }
 
@@ -319,11 +297,11 @@ namespace ASCOM.Komakallio
                 P.DeviceType = "SafetyMonitor";
                 if (bRegister)
                 {
-                    P.Register(driverID, driverDescription);
+                    P.Register(DriverID, DriverDescription);
                 }
                 else
                 {
-                    P.Unregister(driverID);
+                    P.Unregister(DriverID);
                 }
             }
         }
@@ -377,24 +355,12 @@ namespace ASCOM.Komakallio
         #endregion
 
         /// <summary>
-        /// Returns true if there is a valid connection to the driver hardware
-        /// </summary>
-        private bool IsConnected
-        {
-            get
-            {
-                // TODO check that the driver hardware connection exists and is connected to the hardware
-                return connectedState;
-            }
-        }
-
-        /// <summary>
         /// Use this function to throw an exception if we aren't connected to the hardware
         /// </summary>
         /// <param name="message"></param>
         private void CheckConnected(string message)
         {
-            if (!IsConnected)
+            if (!mConnected)
             {
                 throw new ASCOM.NotConnectedException(message);
             }
@@ -408,20 +374,20 @@ namespace ASCOM.Komakallio
             using (Profile driverProfile = new Profile())
             {
                 driverProfile.DeviceType = "SafetyMonitor";
-                serverAddress = driverProfile.GetValue(driverID, ServerAddressProfileName, string.Empty, ServerAddressDefault);
+                ServerAddress = driverProfile.GetValue(DriverID, ServerAddressProfileName, string.Empty, ServerAddressDefault);
 
-                filters.Clear();
+                Filters.Clear();
                 ArrayList filterValues;
                 try
                 {
-                    filterValues = driverProfile.Values(driverID, FiltersSubKey);
+                    filterValues = driverProfile.Values(DriverID, FiltersSubKey);
                 } catch (NullReferenceException) {
                     filterValues = new ArrayList();
                 }
 
                 foreach (KeyValuePair filterValue in filterValues)
                 {
-                    filters.Add(new Filter()
+                    Filters.Add(new Filter()
                     {
                         Name = filterValue.Key,
                         Checked = bool.Parse(filterValue.Value)
@@ -438,12 +404,12 @@ namespace ASCOM.Komakallio
             using (Profile driverProfile = new Profile())
             {
                 driverProfile.DeviceType = "SafetyMonitor";
-                driverProfile.WriteValue(driverID, ServerAddressProfileName, serverAddress.ToString());
+                driverProfile.WriteValue(DriverID, ServerAddressProfileName, ServerAddress.ToString());
 
-                driverProfile.DeleteSubKey(driverID, FiltersSubKey);
-                foreach (var filter in filters)
+                driverProfile.DeleteSubKey(DriverID, FiltersSubKey);
+                foreach (var filter in Filters)
                 {
-                    driverProfile.WriteValue(driverID, filter.Name, filter.Checked.ToString(), FiltersSubKey);
+                    driverProfile.WriteValue(DriverID, filter.Name, filter.Checked.ToString(), FiltersSubKey);
                 }
             }
         }
@@ -457,7 +423,7 @@ namespace ASCOM.Komakallio
         internal void LogMessage(string identifier, string message, params object[] args)
         {
             var msg = string.Format(message, args);
-            tl.LogMessage(identifier, msg);
+            mLogger.LogMessage(identifier, msg);
         }
 
         #endregion

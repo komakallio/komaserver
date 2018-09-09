@@ -27,8 +27,8 @@ namespace ASCOM.Komakallio
         {
             // Place any validation constraint checks here
             // Update the state variables with results from the dialogue
-            SafetyMonitor.serverAddress = (string)serverAddressTextBox.Text;
-            SafetyMonitor.filters = detailsListView.Items
+            SafetyMonitor.ServerAddress = (string)serverAddressTextBox.Text;
+            SafetyMonitor.Filters = detailsListView.Items
                 .Cast<ListViewItem>()
                 .Select(x => new Filter()
                 {
@@ -62,8 +62,8 @@ namespace ASCOM.Komakallio
 
         private void InitUI()
         {
-            serverAddressTextBox.Text = SafetyMonitor.serverAddress;
-            foreach (var filter in SafetyMonitor.filters)
+            serverAddressTextBox.Text = SafetyMonitor.ServerAddress;
+            foreach (var filter in SafetyMonitor.Filters)
             {
                 detailsListView.Items.Add(filter.Name);
                 detailsListView.Items[detailsListView.Items.Count - 1].Checked = filter.Checked;
