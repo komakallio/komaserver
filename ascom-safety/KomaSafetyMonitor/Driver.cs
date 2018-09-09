@@ -287,7 +287,15 @@ namespace ASCOM.Komakallio
             try
             {
                 var status = new SafetyServer(serverAddress).Status;
-                safe = status.IsSafe;
+
+                var activeFilters = filters
+                    .Where(x => x.Checked)
+                    .Select(x => x.Name);
+
+                safe = status.Details
+                    .Where(x => activeFilters.Contains(x.Key))
+                    .All(x => x.Value);
+
                 lastUpdate = DateTime.Now;
                 errorCount = 0;
                 tl.LogMessage("UpdateSafetyMonitorData", "Received safety status: " + safe);
