@@ -1,8 +1,8 @@
 ﻿namespace ASCOM.Komakallio
 {
-    internal struct Filter
+    public struct Filter
     {
-        public bool Checked { get; set; }
+        public bool Active { get; set; }
         public string Name { get; set; }
     }
 }

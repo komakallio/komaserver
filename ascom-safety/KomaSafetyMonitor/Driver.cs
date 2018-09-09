@@ -246,13 +246,7 @@ namespace ASCOM.Komakallio
             {
                 var status = new SafetyServer(ServerAddress).Status;
 
-                var activeFilters = Filters
-                    .Where(x => x.Checked)
-                    .Select(x => x.Name);
-
-                IsSafe = status.Details
-                    .Where(x => activeFilters.Contains(x.Key))
-                    .All(x => x.Value);
+                IsSafe = status.IsSafeWithFilters(Filters);
 
                 mLastUpdate = DateTime.Now;
                 mErrorCount = 0;
@@ -377,7 +371,7 @@ namespace ASCOM.Komakallio
                     Filters.Add(new Filter()
                     {
                         Name = filterValue.Key,
-                        Checked = bool.Parse(filterValue.Value)
+                        Active = bool.Parse(filterValue.Value)
                     });
                 }
             }
@@ -396,7 +390,7 @@ namespace ASCOM.Komakallio
                 driverProfile.DeleteSubKey(DriverID, FiltersSubKey);
                 foreach (var filter in Filters)
                 {
-                    driverProfile.WriteValue(DriverID, filter.Name, filter.Checked.ToString(), FiltersSubKey);
+                    driverProfile.WriteValue(DriverID, filter.Name, filter.Active.ToString(), FiltersSubKey);
                 }
             }
         }

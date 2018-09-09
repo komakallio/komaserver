@@ -3,5 +3,7 @@ packages/
 .suo
 KomaSafetyMonitor/bin/
 KomaSafetyMonitor/obj/
+KomaSafetyMonitor.Tests/bin/
+KomaSafetyMonitor.Tests/obj/
 *.user
 *.exe

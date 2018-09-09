@@ -25,7 +25,7 @@ namespace ASCOM.Komakallio
                 .Select(x => new Filter()
                 {
                     Name = x.Text,
-                    Checked = x.Checked,
+                    Active = x.Checked,
                 })
                 .ToList();
         }
@@ -58,7 +58,7 @@ namespace ASCOM.Komakallio
             foreach (var filter in SafetyMonitor.Filters)
             {
                 detailsListView.Items.Add(filter.Name);
-                detailsListView.Items[detailsListView.Items.Count - 1].Checked = filter.Checked;
+                detailsListView.Items[detailsListView.Items.Count - 1].Checked = filter.Active;
             }
         }
 

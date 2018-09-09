@@ -73,15 +73,4 @@ namespace ASCOM.Komakallio
             }
         }
     }
-
-    internal struct SafetyStatus
-    {
-        public SafetyStatus(bool isSafe, Dictionary<string, bool> details)
-        {
-            IsSafe = isSafe;
-            Details = details;
-        }
-        public bool IsSafe { get; private set; }
-        public Dictionary<string, bool> Details { get; private set; }
-    }
 }
