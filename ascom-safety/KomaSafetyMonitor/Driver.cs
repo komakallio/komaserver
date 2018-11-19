@@ -162,6 +162,8 @@ namespace ASCOM.Komakallio
                     {
                         mUpdateTimer = new System.Timers.Timer(10 * 1000);
                         mUpdateTimer.Elapsed += UpdateSafetyMonitorData;
+                        mUpdateTimer.AutoReset = true;
+                        mUpdateTimer.Start();
                     }
                 }
                 else
