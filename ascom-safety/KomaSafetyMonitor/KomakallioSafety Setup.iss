@@ -5,8 +5,8 @@
 [Setup]
 AppID={{c7e0bee6-1441-4e9f-9314-31138c971c0b}
 AppName=ASCOM KomakallioSafety SafetyMonitor Driver
-AppVerName=ASCOM KomakallioSafety SafetyMonitor Driver 1.1
-AppVersion=1.1
+AppVerName=ASCOM KomakallioSafety SafetyMonitor Driver 1.2
+AppVersion=1.2
 AppPublisher=Jari Saukkonen <jari.saukkonen@taika.fi>
 AppPublisherURL=mailto:jari.saukkonen@taika.fi
 AppSupportURL=http://tech.groups.yahoo.com/group/ASCOM-Talk/
