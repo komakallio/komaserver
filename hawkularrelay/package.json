@@ -1,0 +1,19 @@
+{
+  "name": "koma-hawkularrelay",
+  "version": "1.0.0",
+  "description": "",
+  "main": "hawkularrelay.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node hawkularrelay.js"
+  },
+  "author": "Jari Saukkonen",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "2.94.0",
+    "bluebird": "^3.5.0",
+    "logops": "^1.0.7",
+    "redis": "^2.7.1",
+    "request": "^2.88.0"
+  }
+}
