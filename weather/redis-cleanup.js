@@ -33,15 +33,21 @@ module.exports = {
     cleanup: (type) => {
         const redisClient = redis.createClient(REDIS_PORT);
         const cleanupTimestamp = new Date().getTime() - 1000*60*60*24*7;
-        redisClient.zremrangebyscore(type, 0, cleanupTimestamp, function(err, reply) {
-            if (err) {
-                logger.error(err);
+        redisClient.zcount(type, cleanupTimestamp, new Date().getTime(), function(err, reply) {
+            if (reply > 0) {
+                redisClient.zremrangebyscore(type, 0, cleanupTimestamp, function(err, reply) {
+                    if (err) {
+                        logger.error(err);
+                    } else {
+                        logger.info('Cleaned up ' + reply + ' entries from ' + type);
+                    }
+                    redisClient.quit();
+                });
             } else {
-                logger.info('Cleaned up ' + reply + ' entries from ' + type);
+                logger.info('Did not clean ' + type + ' as there are no newer entries');
+                redisClient.quit();
             }
-            redisClient.quit();
-        });
-
+        }
     },
 
     cleanupAll: () => {
