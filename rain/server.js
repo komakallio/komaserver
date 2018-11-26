@@ -21,7 +21,6 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var COMPORT = '/dev/ttyUSB1';
 
 var logger = require('logops');
 logger.setLevel('DEBUG');
@@ -29,8 +28,9 @@ var SerialPort = require('serialport');
 var nmea0183 = require('./nmea0183');
 var request = require('request');
 var parser = nmea0183();
+var config = require('config.js');
 
-var port = new SerialPort(COMPORT, {
+var port = new SerialPort(config.COMPORT, {
   baudRate: 57600
 });
 

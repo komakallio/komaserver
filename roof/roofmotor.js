@@ -21,12 +21,11 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-const COMPORT = '/dev/ttyUSB0';
-
 const logger = require('logops');
 logger.setLevel('DEBUG');
 const SerialPort = require('serialport');
-const port = new SerialPort(COMPORT, { baudRate: 57600 });
+const config = require('config');
+const port = new SerialPort(config.COMPORT, { baudRate: 57600 });
 const nmea0183 = require('./nmea0183');
 const parser = nmea0183();
 
