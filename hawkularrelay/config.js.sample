@@ -1,0 +1,7 @@
+module.exports = {
+    endpoint: 'https://hawkular.komakallio.fi/hawkular/metrics',
+    tenant: 'Komakallio',
+    username: '',
+    password: '',
+    heightAboveSeaLevel: 61
+}
