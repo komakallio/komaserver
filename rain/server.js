@@ -28,7 +28,7 @@ var SerialPort = require('serialport');
 var nmea0183 = require('./nmea0183');
 var request = require('request');
 var parser = nmea0183();
-var config = require('config.js');
+var config = require('./config.js');
 
 var port = new SerialPort(config.COMPORT, {
   baudRate: 57600
