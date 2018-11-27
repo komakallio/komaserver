@@ -95,7 +95,8 @@ function convertGaugeDataForType(data) {
                 { 'id': 'weather.radar.30km', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.Radar['30km'][0] } ] },
                 { 'id': 'weather.radar.10km', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.Radar['10km'][0] } ] },
                 { 'id': 'weather.radar.3km', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.Radar['3km'][0] } ] },
-                { 'id': 'weather.radar.1km', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.Radar['1km'][0] } ] }
+                { 'id': 'weather.radar.1km', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.Radar['1km'][0] } ] },
+                { 'id': 'weather.radar.distance', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.Radar['rain_distance'][0] } ] }
             ];
         case 'Roof':
             var roofStateToValue = { 'CLOSED':0, 'CLOSING':1, 'OPENING':2, 'OPEN':3, 'ERROR':-1 };
