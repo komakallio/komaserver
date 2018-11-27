@@ -171,9 +171,9 @@ app.get('/api/weather', function(req, res) {
                 }
             });
 
-            if (data.humidity && data.ambient)
+            if (data.humidity !== undefined && data.ambient !== undefined)
                 data.dewpoint = parseInt(xdp.Calc(data.ambient, data.humidity).dp*100)/100;
-            if (data.skytemperature && data.temperature)
+            if (data.skytemperature !== undefined && data.temperature !== undefined)
                 data.cloudcover = cloudcover(data.skytemperature, data.temperature);
 
             res.json(data);
