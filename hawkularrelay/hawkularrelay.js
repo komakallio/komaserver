@@ -48,7 +48,7 @@ function convertGaugeDataForType(data) {
                 { 'id': 'wxt520.temperature', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.PTU.Temperature.Internal[0] } ] },
                 { 'id': 'weather.pressure', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.PTU.Pressure[0] } ] },
                 { 'id': 'weather.humidity', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.PTU.Humidity[0] } ] },
-                { 'id': 'weather.dewpoint', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': dewp } ] }
+                { 'id': 'weather.dewpoint', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': dewp ? parseInt(dewp*100)/100 : 0 } ] }
             ];
         case 'Interior':
             var dewp = xdp.Calc(data.Interior.InteriorTemp[0], data.Interior.InteriorHumidity[0]).dp;
@@ -57,7 +57,7 @@ function convertGaugeDataForType(data) {
                 { 'id': 'interior.temperature', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.Interior.InteriorTemp[0] } ] },
                 { 'id': 'interior.pressure', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.Interior.InteriorPressure[0] } ] },
                 { 'id': 'interior.humidity', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.Interior.InteriorHumidity[0] } ] },
-                { 'id': 'interior.dewpoint', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': dewp } ] }
+                { 'id': 'interior.dewpoint', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': dewp ? parseInt(dewp*100)/100 : 0 } ] }
             ];
         case 'Battery':
             return [
