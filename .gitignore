@@ -29,3 +29,6 @@ roof/KomaDome/bin/
 roof/KomaDome/obj/
 safety/KomaSafetyMonitor/bin/
 safety/KomaSafetyMonitor/obj/
+
+# local config files
+config.js
