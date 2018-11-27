@@ -30,7 +30,11 @@ logger.setLevel('DEBUG');
 const fs = require('fs');
 const redis = require('redis');
 const Promise = require('bluebird');
+const dewpoint = require('dewpoint');
+const config = require('./config');
 const REDIS_PORT = process.env.REDIS_PORT || 6379;
+
+var xdp = new dewpoint(config.heightAboveSeaLevel);
 
 Promise.promisifyAll(redis.RedisClient.prototype);
 
@@ -85,22 +89,6 @@ function sendLatestData(type, req, res) {
             }
         });
     }
-}
-
-function dewpoint(humidity, temperature) {
-    var a, b;
-    if (temperature >= 0) {
-        a = 7.5;
-        b = 237.3;
-    } else {
-        a = 7.6;
-        b = 240.7;
-    }
-
-    var sdd = 6.1078 * Math.pow(10, (a * temperature) / (b + temperature));
-    var dd = sdd * (humidity / 100);
-    var v = Math.log(dd / 6.1078) / Math.log(10);
-    return (b * v) / (a - v);
 }
 
 function cloudcover(sky, ambient) {
@@ -159,30 +147,35 @@ app.get('/api/weather', function(req, res) {
         redisClient.zrevrangeAsync('cloud', 0, 0),
 
         function(...replies) {
-            if (replies.find(reply => reply.length === 0)) {
-                logger.error('Reading Redis failed');
-                res.status(500).send('{"error":"Reading redis failed"}');
-                return;
-            }
+            var data = {};
 
-            var ptu = JSON.parse(replies[0][0]),
-                wind = JSON.parse(replies[1][0]),
-                rain = JSON.parse(replies[2][0]),
-                cloud = JSON.parse(replies[3][0]);
+            replies.filter(reply => reply.length > 0).forEach(reply => {
+                reply = JSON.parse(reply[0]);
+                switch (reply.Type) {
+                    case 'PTU':
+                        data.temperature = reply.PTU.Temperature.Ambient[0];
+                        data.humidity = reply.PTU.Humidity[0];
+                        data.pressure = reply.PTU.Pressure[0];
+                        break;
+                    case 'Wind':
+                        data.windspeed = reply.Wind.Speed.average[0];
+                        data.windgust = reply.Wind.Speed.limits[1][0];
+                        data.winddir = reply.Wind.Direction.average[0];
+                        break;
+                    case 'Rain':
+                        data.rainrate = reply.Rain.Rain.Intensity[0];
+                        break;
+                    case 'Cloud':
+                        data.skytemperature = reply.Cloud.Sky;
+                        break;
+                }
+            });
 
-            var data = {
-                temperature: ptu.PTU.Temperature.Ambient[0],
-                humidity: ptu.PTU.Humidity[0],
-                dewpoint: parseInt(dewpoint(ptu.PTU.Humidity[0], ptu.PTU.Temperature.Ambient[0])*100)/100,
-                pressure: ptu.PTU.Pressure[0],
-                windspeed: wind.Wind.Speed.average[0],
-                windgust: wind.Wind.Speed.limits[1][0],
-                winddir: wind.Wind.Direction.average[0],
-                rainrate: rain.Rain.Rain.Intensity[0],
-                cloudcover: cloudcover(cloud.Cloud.Sky, ptu.PTU.Temperature.Ambient[0]),
-                skytemperature: cloud.Cloud.Sky,
-                skyquality: 0
-            };
+            if (data.humidity && data.ambient)
+                data.dewpoint = parseInt(xdp.Calc(data.ambient, data.humidity).dp*100)/100;
+            if (data.skytemperature && data.temperature)
+                data.cloudcover = cloudcover(data.skytemperature, data.temperature);
+
             res.json(data);
         }
     ).catch(function(err) {
