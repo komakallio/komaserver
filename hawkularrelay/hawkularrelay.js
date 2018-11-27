@@ -97,6 +97,11 @@ function convertGaugeDataForType(data) {
                 { 'id': 'weather.radar.3km', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.Radar['3km'][0] } ] },
                 { 'id': 'weather.radar.1km', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.Radar['1km'][0] } ] }
             ];
+        case 'Roof':
+            var roofStateToValue = { 'CLOSED':0, 'CLOSING':1, 'OPENING':2, 'OPEN':3, 'ERROR':-1 };
+            return [
+                { 'id': 'roof.state', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': roofStateToValue[data.Roof.State] } ] }
+            ]
         case 'UPS':
             return [
                 { 'id': 'ups.battery.charge', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.UPS.BCHARGE[0] } ] },
@@ -174,8 +179,8 @@ function updateTick() {
             .reduce((flat, arr) => flat.concat(arr), []);
 
         postToHawkular('gauges', gaugedata);
-        postToHawkular('counters', counterdata);
-        postToHawkular('strings', stringdata);
+//        postToHawkular('counters', counterdata);
+//        postToHawkular('strings', stringdata);
 
         redisdata.forEach(data => {
             updateTimestamps[data.Type] = data.Timestamp;
