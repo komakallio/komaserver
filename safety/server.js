@@ -86,8 +86,8 @@ app.get('/safety', function(req, res) {
             var safe = btemp && braintrigger && brainintensity && bsun && bradar && bupscharge && benclosuretemp;
             var safetyDetails = {
                 temperature: { value: ptu.PTU.Temperature.Ambient[0], safe: btemp },
-                rainintensity: { value: rain.Rain.Rain.Intensity[0], safe: braintrigger },
-                raintrigger: { value: raintrigger.RainTrigger.Rain, safe: brainintensity },
+                rainintensity: { value: rain.Rain.Rain.Intensity[0], safe: brainintensity },
+                raintrigger: { value: raintrigger.RainTrigger.Rain, safe: braintrigger },
                 rainradar30km: { value: radar.Radar["30km"][0], safe: bradar },
                 rainradar50km: { value: radar.Radar["50km"][0], safe: true },
                 sunaltitude: { value: roundTo(SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2), safe: bsun },
