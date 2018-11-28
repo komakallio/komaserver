@@ -157,7 +157,7 @@ function postToHawkular(type, hawkulardata) {
         if (!error && response.statusCode == 200) {
             logger.info('Sent ' + hawkulardata.length + ' ' + type + ': ' + hawkulardata.reduce((l, r) => l + r.id + ' ', ''));
         } else {
-            logger.error('Error: ' + JSON.stringify(body));
+            logger.error('Error: ' + JSON.stringify(body) + ' data was ' + JSON.stringify(hawkulardata));
         }
     });
 }
