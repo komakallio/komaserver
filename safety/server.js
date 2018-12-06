@@ -78,7 +78,9 @@ app.get('/safety', function(req, res) {
             var btemp = ptu.PTU.Temperature.Ambient[0] > -20;
             var braintrigger = raintrigger.RainTrigger.Rain == 0;
             var brainintensity = rain.Rain.Rain.Intensity[0] == 0;
-            var bradar = radar.Radar["30km"][0] < 0.7;
+            var bradar10 = radar.Radar["10km"][0] < 0.5;
+            var bradar30 = radar.Radar["30km"][0] < 0.5;
+            var bradar50 = radar.Radar["50km"][0] < 0.5;
             var bsun = SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI < -5;
             var bupscharge = ups.UPS.BCHARGE[0] >= 50;
             var benclosuretemp = interior.Interior.EnclosureTemp[0] > -15;
@@ -88,8 +90,9 @@ app.get('/safety', function(req, res) {
                 temperature: { value: ptu.PTU.Temperature.Ambient[0], safe: btemp },
                 rainintensity: { value: rain.Rain.Rain.Intensity[0], safe: brainintensity },
                 raintrigger: { value: raintrigger.RainTrigger.Rain, safe: braintrigger },
-                rainradar30km: { value: radar.Radar["30km"][0], safe: bradar },
-                rainradar50km: { value: radar.Radar["50km"][0], safe: true },
+                rainradar10km: { value: radar.Radar["10km"][0], safe: bradar10 },
+                rainradar30km: { value: radar.Radar["30km"][0], safe: bradar30 },
+                rainradar50km: { value: radar.Radar["50km"][0], safe: bradar50 },
                 sunaltitude: { value: roundTo(SunCalc.getPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2), safe: bsun },
                 moonaltitude: { value: roundTo(SunCalc.getMoonPosition(new Date(), latitude, longitude).altitude*180/Math.PI, 2), safe: true },
                 upscharge: { value: ups.UPS.BCHARGE[0], safe: bupscharge },
