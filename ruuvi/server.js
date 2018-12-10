@@ -68,6 +68,7 @@ ruuvi.on('found', tag => {
     }
     logger.info('Found RuuviTag "' + name + '", id ' + tag.id);
     tag.on('updated', tagdata => {
+        tagdata.id = tag.id;
         let data = {
             Type: 'Ruuvi_' + name,
             Timestamp: Date.now()
