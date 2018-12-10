@@ -78,7 +78,7 @@ ruuvi.on('found', tag => {
             AtPark: isParked(tagdata),
             Voltage: [ parseInt(tagdata.battery*100/1000.0)/100.0, 'V' ],
             Temperature: [ tagdata.temperature, 'C' ],
-            Pressure: [ tagdata.pressure, 'hPa' ],
+            Pressure: [ tagdata.pressure/100.0, 'hPa' ],
             Humidity: [ tagdata.humidity, '%' ],
             Signal: [ tagdata.rssi, 'dBm']
         }
