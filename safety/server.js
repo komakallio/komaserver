@@ -85,7 +85,7 @@ app.get('/safety', function(req, res) {
             var bupscharge = ups.UPS.BCHARGE[0] >= 50;
             var benclosuretemp = interior.Interior.EnclosureTemp[0] > -15;
 
-            var safe = btemp && braintrigger && brainintensity && bsun && bradar && bupscharge && benclosuretemp;
+            var safe = btemp && braintrigger && brainintensity && bsun && bradar30 && bupscharge && benclosuretemp;
             var safetyDetails = {
                 temperature: { value: ptu.PTU.Temperature.Ambient[0], safe: btemp },
                 rainintensity: { value: rain.Rain.Rain.Intensity[0], safe: brainintensity },
