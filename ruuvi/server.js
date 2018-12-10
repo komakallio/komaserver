@@ -36,14 +36,14 @@ function dot(v1, v2) {
 }
 
 function angleBetween(v1, v2) {
-    return Math.acos(dot(v1, v2) / (Math.sqrt(Math.abs(dot(v1,v1))) * Math.sqrt(Math.abs(dot(v2, v2))));
+    return Math.acos(dot(v1, v2) / (Math.sqrt(Math.abs(dot(v1,v1))) * Math.sqrt(Math.abs(dot(v2, v2)))));
 }
 
 function isParked(tag) {
     let parkVector = config.parkPositions[tag.id];
     let tagVector = [tag.accelerationX, tag.accelerationY, tag.accelerationZ];
 
-    return angleBetween(parkVector, tagVector) < Math.radians(5);
+    return angleBetween(parkVector, tagVector) < (2 * Math.PI / 180.0);
 }
 
 function needToUpdate(tag, data) {
@@ -54,7 +54,7 @@ function needToUpdate(tag, data) {
         return true;
     }
     if (lastUpdateTimes[tag.id] !== undefined &&
-        data.Timestamp - lastUpdateTimes[tag.id] > 60*1000)
+        Date.now() - lastUpdateTimes[tag.id] > 60*1000) {
         return true;
     }
 
@@ -67,30 +67,30 @@ ruuvi.on('found', tag => {
         return;
     }
     logger.info('Found RuuviTag "' + name + '", id ' + tag.id);
-    tag.on('updated', data => {
-      let data = {
-          Type: 'Ruuvi_' + name,
-          Timestamp: Date.now(),
-          'Ruuvi_' + name: {
-              Name: name,
-              AtPark: isParked(tag),
-              Voltage: [ parseInt(tag.battery*100/1000.0)/100.0, 'V' ],
-              Temperature: [ tag.temperature, 'C' ],
-              Pressure: [ tag.pressure, 'hPa' ],
-              Humidity: [ tag.humidity, '%' ],
-              Signal: [ tag.rssi, 'dBm']
-          }
-      };
+    tag.on('updated', tagdata => {
+        let data = {
+            Type: 'Ruuvi_' + name,
+            Timestamp: Date.now()
+        };
+        data['Ruuvi_' + name] = {
+            Name: name,
+            AtPark: isParked(tagdata),
+            Voltage: [ parseInt(tagdata.battery*100/1000.0)/100.0, 'V' ],
+            Temperature: [ tagdata.temperature, 'C' ],
+            Pressure: [ tagdata.pressure, 'hPa' ],
+            Humidity: [ tagdata.humidity, '%' ],
+            Signal: [ tagdata.rssi, 'dBm']
+        }
 
-      if (needToUpdate(tag, data)) {
-          lastUpdateTimes[tag.id] = data.Timestamp;
-          lastData[tag.id] = data;
-          console.log(JSON.stringify(data));
-          request.post({
-              url: 'http://localhost:9001/api',
-              body: data,
-              json: true
-          });
-      }
-  });
+        if (needToUpdate(tagdata, data['Ruuvi_' + name])) {
+            lastUpdateTimes[tagdata.id] = Date.now();
+            lastData[tagdata.id] = data['Ruuvi_' + name];
+            console.log(JSON.stringify(data));
+            request.post({
+                url: 'http://localhost:9001/api',
+                body: data,
+                json: true
+            });
+        }
+    });
 });
