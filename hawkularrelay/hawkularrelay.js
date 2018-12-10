@@ -39,6 +39,10 @@ const gaugeTypes = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 
 const counterTypes = ['rain'];
 const stringTypes = ['roof', 'status'];
 
+function item(id, timestamp, value) {
+    return { 'id': id, 'dataPoints': [ { 'timestamp': timestamp, 'value': value } ] };
+}
+
 function convertGaugeDataForType(data) {
     switch(data.Type) {
         case 'PTU':
@@ -112,6 +116,17 @@ function convertGaugeDataForType(data) {
                 { 'id': 'ups.timeleft', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.UPS.TIMELEFT[0] } ] },
                 { 'id': 'ups.timeonbattery', 'dataPoints': [ { 'timestamp': data.Timestamp, 'value': data.UPS.TONBATT[0] } ] }
             ];
+        case 'Ruuvi_jari':
+        case 'Ruuvi_samuli':
+            let name = data.Type.substring(6);
+            return [
+                item('ruuvi.' + name + '.atpark', data.Timestamp, data[data.Type].AtPark ? 1 : 0),
+                item('ruuvi.' + name + '.signal', data.Timestamp, data[data.Type].Signal[0]),
+                item('ruuvi.' + name + '.temperature', data.Timestamp, data[data.Type].Temperature[0]),
+                item('ruuvi.' + name + '.humidity', data.Timestamp, data[data.Type].Humidity[0]),
+                item('ruuvi.' + name + '.pressure', data.Timestamp, data[data.Type].Pressure[0]),
+                item('ruuvi.' + name + '.voltage', data.Timestamp, data[data.Type].Voltage[0])
+            ]
         default:
             return []
     }
