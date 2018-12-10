@@ -35,7 +35,7 @@ const xdp = new dewpoint(config.heightAboveSeaLevel);
 
 var updateTimestamps = {};
 
-const gaugeTypes = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups'];
+const gaugeTypes = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups', 'ruuvi_jari', 'ruuvi_samuli'];
 const counterTypes = ['rain'];
 const stringTypes = ['roof', 'status'];
 
