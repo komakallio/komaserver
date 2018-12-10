@@ -51,7 +51,7 @@ module.exports = {
     },
 
     cleanupAll: () => {
-        const supportedQueryTypes = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups'];
+        const supportedQueryTypes = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups', 'ruuvi_jari', 'ruuvi_samuli'];
         supportedQueryTypes.forEach(type => module.exports.cleanup(type));
     }
 }
