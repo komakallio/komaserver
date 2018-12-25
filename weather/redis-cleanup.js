@@ -47,7 +47,7 @@ module.exports = {
                 logger.info('Did not clean ' + type + ' as there are no newer entries');
                 redisClient.quit();
             }
-        }
+        });
     },
 
     cleanupAll: () => {
