@@ -32,6 +32,7 @@ const redis = require('redis');
 const roofMotor = require('./roofmotor');
 const request = require('request');
 const roundTo = require('round-to');
+const config = require('./config');
 
 const app = express();
 app.use(expressLogging(logger));
@@ -43,6 +44,7 @@ const defaultRoofState = { openRequestedBy:[], users:{} };
 
 var roofState = "STOPPED";
 var lastroofdata = {};
+var lastRoofReportTime = 0;
 
 redisClient.on("error", function(err) {
     console.log("Redis error: " + err);
@@ -134,7 +136,8 @@ function roofReporter() {
         }
     };
 
-    if (!_.isEqual(data, lastroofdata)) {
+    if (!_.isEqual(data, lastroofdata) || (Date.now() - lastRoofReportTime) > config.ROOF_REPORT_TIME) {
+        lastRoofReportTime = Date.now();
         request.post({
             url: 'http://localhost:9001/api',
             body: data,
