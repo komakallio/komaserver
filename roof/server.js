@@ -151,10 +151,10 @@ app.all('/roof/*', function(req, res, next) {
             logger.error('error reading redis: ' + error + ' result: ' + result);
             return res.status(500).end();
         }
-        req.roofstate = JSON.parse(result) || defaultRoofState;
-        var state = JSON.stringify(req.roofstate);
+        req.roofState = JSON.parse(result) || defaultRoofState;
+        var state = JSON.stringify(req.roofState);
         next();
-        var newState = JSON.stringify(req.roofstate);
+        var newState = JSON.stringify(req.roofState);
         if (!_.isEqual(newState, state)) {
             redisClient.set('roof-state', newState);
         }
@@ -166,11 +166,11 @@ app.get('/roof/:user', function(req, res) {
     if (physicalState == "OPENING" || physicalState == "CLOSING" || physicalState == "ERROR" || physicalState == "STOPPING" || physicalState == "STOPPED") {
         reportedState = physicalState;
     } else {
-        reportedState = req.roofstate.users[req.user] ? "OPEN" : "CLOSED";
+        reportedState = req.roofState.users[req.user] ? "OPEN" : "CLOSED";
     }
     res.json({
         state: reportedState,
-        open: req.roofstate.users[req.user] ? true : false,
+        open: req.roofState.users[req.user] ? true : false,
     });
 });
 
@@ -178,27 +178,27 @@ app.post('/roof/:user/open', function(req, res) {
     switch (physicalState) {
         case "OPEN": {
             // no need to move roof, just mark as open unless we are closing down
-            req.roofstate.users[req.user] = true;
+            req.roofState.users[req.user] = true;
             break;
         }
         case "OPENING": {
             // roof is already opening; register us to openers list
-            if (!req.roofstate.openRequestedBy.includes(req.user)) {
-                req.roofstate.openRequestedBy.push(req.user);
+            if (!req.roofState.openRequestedBy.includes(req.user)) {
+                req.roofState.openRequestedBy.push(req.user);
             }
             break;
         }
         case "STOPPED":
         case "CLOSED": {
             // physical roof is closed; register us to openers list and open physical roof
-            req.roofstate.openRequestedBy.push(req.user);
+            req.roofState.openRequestedBy.push(req.user);
             logger.info('open physical roof');
             roofMotor.open();
             break;
         }
         case "CLOSING": {
             // register us to openers list, so that roof will be opened again
-            req.roofstate.openRequestedBy.push(req.user);
+            req.roofState.openRequestedBy.push(req.user);
             break;
         }
         case "ERROR": {
@@ -210,7 +210,7 @@ app.post('/roof/:user/open', function(req, res) {
 });
 
 app.post('/roof/:user/close', function(req, res) {
-    var otherusers = _.any(_.mapObject(req.roofstate.users), function(open, user) { 
+    var otherusers = _.any(_.mapObject(req.roofState.users), function(open, user) { 
         return user != req.user && open;
     });
 
@@ -218,7 +218,7 @@ app.post('/roof/:user/close', function(req, res) {
         case "STOPPED":
         case "OPEN": {
             // mark us closed; if we are the last user close the roof
-            req.roofstate.users[req.user] = false;
+            req.roofState.users[req.user] = false;
             if (!otherusers) {
                 logger.info('close physical roof');
                 roofMotor.close();
@@ -227,8 +227,8 @@ app.post('/roof/:user/close', function(req, res) {
         }
         case "OPENING": {
             // roof opening; remove our open request if we have one and mark us closed
-            req.roofstate.users[req.user] = false;
-            req.roofstate.openRequestedBy = _.without(req.roofstate.openRequestedBy, req.user);
+            req.roofState.users[req.user] = false;
+            req.roofState.openRequestedBy = _.without(req.roofState.openRequestedBy, req.user);
             break;
         }
         case "CLOSED": {
@@ -249,8 +249,8 @@ app.post('/roof/:user/close', function(req, res) {
 
 app.post('/roof/:user/stop', function(req, res) {
     roofMotor.stop();
-    req.roofstate.openRequestedBy = [];
-    req.roofstate.users = {};
+    req.roofState.openRequestedBy = [];
+    req.roofState.users = {};
     res.status(200).json({message:"OK"});
 });
 
