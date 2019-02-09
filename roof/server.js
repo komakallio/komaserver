@@ -42,7 +42,7 @@ const redisClient = redis.createClient(REDIS_PORT);
 const defaultRoofState = { openRequestedBy:[], users:{} };
 
 var roofState = "STOPPED";
-var lastroofdata = {};
+var lastRoofData = {};
 var lastRoofReportTime = 0;
 
 redisClient.on("error", function(err) {
@@ -135,7 +135,7 @@ function roofReporter() {
         }
     };
 
-    if (!_.isEqual(data, lastroofdata) || (Date.now() - lastRoofReportTime) > config.ROOF_REPORT_INTERVAL) {
+    if (!_.isEqual(data, lastRoofData) || (Date.now() - lastRoofReportTime) > config.ROOF_REPORT_INTERVAL) {
         lastRoofReportTime = Date.now();
         request.post({
             url: 'http://localhost:9001/api',
@@ -145,7 +145,7 @@ function roofReporter() {
             if (!response || response.statusCode != 200) {
                 logger.warn(error);
             }
-            lastroofdata = data;
+            lastRoofData = data;
         });
     }
 
