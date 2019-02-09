@@ -196,7 +196,9 @@ app.post('/roof/:user/open', function(req, res) {
         }
         case "OPENING": {
             // roof is already opening; register us to openers list
-            req.roofstate.openRequestedBy.push(req.user);
+            if (!req.roofstate.openRequestedBy.includes(req.user)) {
+                req.roofstate.openRequestedBy.push(req.user);
+            }
             break;
         }
         case "STOPPED":
