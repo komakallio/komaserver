@@ -43,9 +43,9 @@ const redisClient = redis.createClient(REDIS_PORT);
 
 const defaultRoofState = { openRequestedBy:[], users:{} };
 
-var physicalState = "STOPPED";
-var lastRoofData = {};
-var lastRoofReportTime = 0;
+let physicalState = "STOPPED";
+let lastRoofData = {};
+let lastRoofReportTime = 0;
 
 redisClient.on("error", function(err) {
     console.log("Redis error: " + err);
@@ -90,8 +90,8 @@ roofMotor.setStateCallback(function(state) {
 });
 
 function batteryReporter() {
-    var status = roofMotor.status();
-    var data = {
+    let status = roofMotor.status();
+    let data = {
         'Type': 'Battery',
         'Battery': {
             'Voltage': [ roundTo(parseFloat(status['BATTERYVOLTAGE']), 2), 'V' ],
@@ -113,8 +113,8 @@ function batteryReporter() {
 }
 
 function roofReporter() {
-    var status = roofMotor.status();
-    var data = {
+    let status = roofMotor.status();
+    let data = {
         'Type': 'Roof',
         'Roof': {
             'State': status['ROOF']
@@ -150,9 +150,9 @@ app.all('/roof/*', function(req, res, next) {
             return res.status(500).end();
         }
         req.roofState = JSON.parse(result) || defaultRoofState;
-        var state = JSON.stringify(req.roofState);
+        let state = JSON.stringify(req.roofState);
         next();
-        var newState = JSON.stringify(req.roofState);
+        let newState = JSON.stringify(req.roofState);
         if (!_.isEqual(newState, state)) {
             redisClient.set('roof-state', newState);
         }
@@ -160,7 +160,7 @@ app.all('/roof/*', function(req, res, next) {
 });
 
 app.get('/roof/:user', function(req, res) {
-    var reportedState;
+    let reportedState;
     if (physicalState == "OPENING" || physicalState == "CLOSING" || physicalState == "ERROR" || physicalState == "STOPPING" || physicalState == "STOPPED") {
         reportedState = physicalState;
     } else {
@@ -208,7 +208,7 @@ app.post('/roof/:user/open', function(req, res) {
 });
 
 app.post('/roof/:user/close', function(req, res) {
-    var otherusers = _.any(_.mapObject(req.roofState.users), function(open, user) { 
+    let otherusers = _.any(_.mapObject(req.roofState.users), function(open, user) { 
         return user != req.user && open;
     });
 
@@ -298,9 +298,9 @@ app.post('/motor/stop', function(req, res) {
 
 app.use(express.static('public'));
 
-var server = app.listen(9000, function() {
-    var host = server.address().address;
-    var port = server.address().port;
+let server = app.listen(9000, function() {
+    let host = server.address().address;
+    let port = server.address().port;
 
     // wait for the roof controller to initialize and report current state
     setTimeout(() => {
