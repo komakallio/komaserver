@@ -136,7 +136,7 @@ function roofReporter() {
         }
     };
 
-    if (!_.isEqual(data, lastroofdata) || (Date.now() - lastRoofReportTime) > config.ROOF_REPORT_TIME) {
+    if (!_.isEqual(data, lastroofdata) || (Date.now() - lastRoofReportTime) > config.ROOF_REPORT_INTERVAL) {
         lastRoofReportTime = Date.now();
         request.post({
             url: 'http://localhost:9001/api',
