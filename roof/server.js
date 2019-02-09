@@ -27,7 +27,6 @@ const _ = require('underscore');
 const expressLogging = require('express-logging');
 const logger = require('logops');
 logger.setLevel('DEBUG');
-const fs = require('fs');
 const redis = require('redis');
 const roofMotor = require('./roofmotor');
 const request = require('request');
