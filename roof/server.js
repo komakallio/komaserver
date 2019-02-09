@@ -208,7 +208,7 @@ app.post('/roof/:user/open', function(req, res) {
 });
 
 app.post('/roof/:user/close', function(req, res) {
-    let otherusers = _.any(_.mapObject(req.roofState.users), function(open, user) { 
+    let otherUsers = _.any(_.mapObject(req.roofState.users), function(open, user) { 
         return user != req.user && open;
     });
 
@@ -217,7 +217,7 @@ app.post('/roof/:user/close', function(req, res) {
         case "OPEN": {
             // mark us closed; if we are the last user close the roof
             req.roofState.users[req.user] = false;
-            if (!otherusers) {
+            if (!otherUsers) {
                 logger.info('close physical roof');
                 roofMotor.close();
             }
