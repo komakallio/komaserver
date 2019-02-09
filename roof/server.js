@@ -65,7 +65,7 @@ roofMotor.setStateCallback(function(state) {
         case "STOPPED": break;
         case "OPEN": {
             redisClient.get('roof-state', function(error, result) {
-               let roofState = JSON.parse(result) || defaultRoofState;
+                let roofState = JSON.parse(result) || defaultRoofState;
                 roofState.openRequestedBy.forEach((user) => { roofState.users[user] = true });
                 roofState.openRequestedBy = [];
                 redisClient.set('roof-state', JSON.stringify(roofState));
