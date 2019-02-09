@@ -22,11 +22,13 @@
  */
 'use strict';
 
-const express = require('express');
 const _ = require('underscore');
+
+const express = require('express');
 const expressLogging = require('express-logging');
 const logger = require('logops');
 logger.setLevel('DEBUG');
+
 const redis = require('redis');
 const roofMotor = require('./roofmotor');
 const request = require('request');
@@ -41,7 +43,7 @@ const redisClient = redis.createClient(REDIS_PORT);
 
 const defaultRoofState = { openRequestedBy:[], users:{} };
 
-var roofState = "STOPPED";
+var physicalState = "STOPPED";
 var lastRoofData = {};
 var lastRoofReportTime = 0;
 
@@ -63,20 +65,20 @@ roofMotor.setStateCallback(function(state) {
         case "STOPPED": break;
         case "OPEN": {
             redisClient.get('roof-state', function(error, result) {
-               let roofstate = JSON.parse(result) || defaultRoofState;
-               if (roofstate.openRequestedBy.length > 0) {
-                   roofstate.openRequestedBy.forEach((user) => { roofstate.users[user] = true });
-                   roofstate.openRequestedBy = [];
-                   redisClient.set('roof-state', JSON.stringify(roofstate));
+               let roofState = JSON.parse(result) || defaultRoofState;
+               if (roofState.openRequestedBy.length > 0) {
+                   roofState.openRequestedBy.forEach((user) => { roofState.users[user] = true });
+                   roofState.openRequestedBy = [];
+                   redisClient.set('roof-state', JSON.stringify(roofState));
                }
            });
            break;
         }
         case "CLOSED": {
             redisClient.get('roof-state', function(error, result) {
-                let roofstate = JSON.parse(result) || defaultRoofState;
-                roofstate.users = {};
-                redisClient.set('roof-state', JSON.stringify(roofstate));
+                let roofState = JSON.parse(result) || defaultRoofState;
+                roofState.users = {};
+                redisClient.set('roof-state', JSON.stringify(roofState));
             });
             break;
         }
@@ -86,7 +88,7 @@ roofMotor.setStateCallback(function(state) {
         case "ERROR": break;
     }
 
-    roofState = state;
+    physicalState = state;
 });
 
 function batteryReporter() {
@@ -160,20 +162,20 @@ app.all('/roof/*', function(req, res, next) {
 });
 
 app.get('/roof/:user', function(req, res) {
-    var state;
-    if (roofState == "OPENING" || roofState == "CLOSING" || roofState == "ERROR" || roofState == "STOPPING" || roofState == "STOPPED") {
-        state = roofState;
+    var reportedState;
+    if (physicalState == "OPENING" || physicalState == "CLOSING" || physicalState == "ERROR" || physicalState == "STOPPING" || physicalState == "STOPPED") {
+        reportedState = physicalState;
     } else {
-        state = req.roofstate.users[req.user] ? "OPEN" : "CLOSED";
+        reportedState = req.roofstate.users[req.user] ? "OPEN" : "CLOSED";
     }
     res.json({
-        state: state,
+        state: reportedState,
         open: req.roofstate.users[req.user] ? true : false,
     });
 });
 
 app.post('/roof/:user/open', function(req, res) {
-    switch (roofState) {
+    switch (physicalState) {
         case "OPEN": {
             // no need to move roof, just mark as open unless we are closing down
             req.roofstate.users[req.user] = true;
@@ -212,7 +214,7 @@ app.post('/roof/:user/close', function(req, res) {
         return user != req.user && open;
     });
 
-    switch (roofState) {
+    switch (physicalState) {
         case "STOPPED":
         case "OPEN": {
             // mark us closed; if we are the last user close the roof
