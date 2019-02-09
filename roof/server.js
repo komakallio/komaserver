@@ -64,13 +64,7 @@ roofMotor.setStateCallback(function(state) {
         case "OPEN": {
             redisClient.get('roof-state', function(error, result) {
                let roofstate = JSON.parse(result) || defaultRoofState;
-               if (roofstate.openRequestedBy.length == 0) {
-                   // we opened the roof but no-one is interested any more; close down
-/*
-                   logger.info('close physical roof');
-                   roofMotor.close();
-*/
-               } else {
+               if (roofstate.openRequestedBy.length > 0) {
                    roofstate.openRequestedBy.forEach((user) => { roofstate.users[user] = true });
                    roofstate.openRequestedBy = [];
                    redisClient.set('roof-state', JSON.stringify(roofstate));
@@ -83,14 +77,6 @@ roofMotor.setStateCallback(function(state) {
                 let roofstate = JSON.parse(result) || defaultRoofState;
                 roofstate.users = {};
                 redisClient.set('roof-state', JSON.stringify(roofstate));
-
-                if (roofstate.openRequestedBy.length != 0) {
-                    // we have someone wanting the roof open; let's open it again
-/*
-                    logger.info('open physical roof');
-                    roofMotor.open();
-*/
-                }
             });
             break;
         }
