@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Jari Saukkonen
+ * Copyright (c) 2019 Jari Saukkonen
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -90,8 +90,8 @@ roofMotor.setStateCallback(function(state) {
 });
 
 function batteryReporter() {
-    let status = roofMotor.status();
-    let data = {
+    const status = roofMotor.status();
+    const data = {
         'Type': 'Battery',
         'Battery': {
             'Voltage': [ roundTo(parseFloat(status['BATTERYVOLTAGE']), 2), 'V' ],
@@ -113,8 +113,8 @@ function batteryReporter() {
 }
 
 function roofReporter() {
-    let status = roofMotor.status();
-    let data = {
+    const status = roofMotor.status();
+    const data = {
         'Type': 'Roof',
         'Roof': {
             'State': status['ROOF']
@@ -150,9 +150,9 @@ app.all('/roof/*', function(req, res, next) {
             return res.status(500).end();
         }
         req.roofState = JSON.parse(result) || defaultRoofState;
-        let state = JSON.stringify(req.roofState);
+        const state = JSON.stringify(req.roofState);
         next();
-        let newState = JSON.stringify(req.roofState);
+        const newState = JSON.stringify(req.roofState);
         if (!_.isEqual(newState, state)) {
             redisClient.set('roof-state', newState);
         }
@@ -208,7 +208,7 @@ app.post('/roof/:user/open', function(req, res) {
 });
 
 app.post('/roof/:user/close', function(req, res) {
-    let otherUsers = _.any(_.mapObject(req.roofState.users), function(open, user) { 
+    const otherUsers = _.any(_.mapObject(req.roofState.users), function(open, user) { 
         return user != req.user && open;
     });
 
@@ -298,9 +298,9 @@ app.post('/motor/stop', function(req, res) {
 
 app.use(express.static('public'));
 
-let server = app.listen(9000, function() {
-    let host = server.address().address;
-    let port = server.address().port;
+const server = app.listen(9000, function() {
+    const host = server.address().address;
+    const port = server.address().port;
 
     // wait for the roof controller to initialize and report current state
     setTimeout(() => {
