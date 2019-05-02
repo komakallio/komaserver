@@ -16,7 +16,7 @@
     "redis": "^2.7.1",
     "request": "^2.81.0",
     "round-to": "^2.0.0",
-    "serialport": "^4.0.1",
+    "serialport": "^7.1.5",
     "underscore": "^1.8.3"
   }
 }
