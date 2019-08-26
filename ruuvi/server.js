@@ -69,6 +69,10 @@ ruuvi.on('found', tag => {
     logger.info('Found RuuviTag "' + name + '", id ' + tag.id);
     tag.on('updated', tagdata => {
         tagdata.id = tag.id;
+        if (tagdata.battery < 1800 || tagdata.battery > 3600) {
+            // Discard broken frame
+            return;
+        }        
         let data = {
             Type: 'Ruuvi_' + name,
             Timestamp: Date.now()
