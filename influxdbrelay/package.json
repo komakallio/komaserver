@@ -1,0 +1,19 @@
+{
+  "name": "koma-influxdbrelay",
+  "version": "1.0.0",
+  "description": "",
+  "main": "influxdbrelay.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node influxdbrelay.js"
+  },
+  "author": "Jari Saukkonen",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "dewpoint": "^1.0.0",
+    "logops": "^1.0.7",
+    "redis": "^2.7.1",
+    "request": "^2.88.0"
+  }
+}

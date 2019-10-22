@@ -1,0 +1,7 @@
+module.exports = {
+    endpoint: 'https://metrics.komakallio.fi/write',
+    db: 'komakallio',
+    username: '',
+    password: '',
+    heightAboveSeaLevel: 61
+}
