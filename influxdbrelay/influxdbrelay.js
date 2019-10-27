@@ -41,93 +41,106 @@ function convertDataForType(data) {
     switch(data.Type) {
         case 'PTU':
             var dewp = xdp.Calc(data.PTU.Temperature.Ambient[0], data.PTU.Humidity[0]).dp;
-            return `Weather ` + 
-                `temperature=${data.PTU.Temperature.Ambient[0]},` + 
-                `pressure=${data.PTU.Pressure[0]},` + 
-                `humidity=${data.PTU.Humidity[0]},` + 
-                `dewpoint=${dewp ? parseInt(dewp*100)/100 : 0}` + 
+            return `Weather ` +
+                `temperature=${data.PTU.Temperature.Ambient[0]},` +
+                `pressure=${data.PTU.Pressure[0]},` +
+                `humidity=${data.PTU.Humidity[0]},` +
+                `dewpoint=${dewp ? parseInt(dewp*100)/100 : 0}` +
                 ` ${data.Timestamp}\n` +
                 `WXT520 temperature=${data.PTU.Temperature.Internal[0]} ${data.Timestamp}\n`;
-             
+
         case 'Interior':
             var dewp = xdp.Calc(data.Interior.InteriorTemp[0], data.Interior.InteriorHumidity[0]).dp;
-            return `Interior ` + 
-                `temperature=${data.Interior.InteriorTemp[0]},` + 
-                `pressure=${data.Interior.InteriorPressure[0]},` + 
-                `humidity=${data.Interior.InteriorHumidity[0]},` + 
-                `dewpoint=${dewp ? parseInt(dewp*100)/100 : 0}` + 
+            return `Interior ` +
+                `temperature=${data.Interior.InteriorTemp[0]},` +
+                `pressure=${data.Interior.InteriorPressure[0]},` +
+                `humidity=${data.Interior.InteriorHumidity[0]},` +
+                `dewpoint=${dewp ? parseInt(dewp*100)/100 : 0}` +
                 ` ${data.Timestamp}\n` +
                 `Enclosure temperature=${data.Interior.EnclosureTemp[0]} ${data.Timestamp}\n`;
-                
+
 
         case 'Battery':
-            return `Roof ` + 
-                `battery.voltage=${data.Battery.Voltage[0]},` + 
-                `battery.temperature=${data.Battery.Temperature[0]}` + 
+            return `Roof ` +
+                `battery.voltage=${data.Battery.Voltage[0]},` +
+                `battery.temperature=${data.Battery.Temperature[0]}` +
                 ` ${data.Timestamp}\n`;
 
         case 'CPU':
-            return `RaspberryPi ` + 
+            return `RaspberryPi ` +
                 `cpu.temperature=${data.CPU.Temperature[0]},` +
-                `gpu.temperature=${data.GPU.Temperature[0]}` + 
+                `gpu.temperature=${data.GPU.Temperature[0]}` +
                 ` ${data.Timestamp}\n`;
 
         case 'Wind':
             return `Weather ` +
-                `wind.speed=${data.Wind.Speed.average[0]},` + 
-                `wind.direction=${data.Wind.Direction.average[0]}` + 
+                `wind.speed=${data.Wind.Speed.average[0]},` +
+                `wind.direction=${data.Wind.Direction.average[0]}` +
                 ` ${data.Timestamp}\n`;
 
         case 'Status':
-            return `WXT520 ` + 
-                `heater.temperature=${data.Status.Heating.Temperature[0]},` + 
-                `heater.voltage=${data.Status.Voltages.Heating[0]},` + 
-                `supply.voltage=${data.Status.Voltages.Supply[0]}` + 
+            return `WXT520 ` +
+                `heater.temperature=${data.Status.Heating.Temperature[0]},` +
+                `heater.voltage=${data.Status.Voltages.Heating[0]},` +
+                `supply.voltage=${data.Status.Voltages.Supply[0]}` +
                 ` ${data.Timestamp}\n`;
-            
+
         case 'RainTrigger':
-            return `Weather ` + 
-                `rain.intensity2=${data.RainTrigger.Intensity},` + 
-                `rain.trigger=${data.RainTrigger.Rain}` + 
+            return `Weather ` +
+                `rain.intensity2=${data.RainTrigger.Intensity},` +
+                `rain.trigger=${data.RainTrigger.Rain}` +
                 ` ${data.Timestamp}\n`;
 
         case 'Rain':
             return `Weather rain.intensity=${data.Rain.Rain.Intensity[0]} ${data.Timestamp}\n`;
-            
+
         case 'Radar':
-            return `Weather ` + 
-                `radar.50km=${data.Radar['50km'][0]},` + 
-                `radar.30km=${data.Radar['30km'][0]},` + 
-                `radar.10km=${data.Radar['10km'][0]},` + 
-                `radar.3km=${data.Radar['3km'][0]},` + 
-                `radar.1km=${data.Radar['1km'][0]},` + 
-                `radar.distance=${data.Radar['rain_distance'][0] !== null ? data.Radar['rain_distance'][0] : 9999}` + 
+            return `Weather ` +
+                `radar.50km=${data.Radar['50km'][0]},` +
+                `radar.30km=${data.Radar['30km'][0]},` +
+                `radar.10km=${data.Radar['10km'][0]},` +
+                `radar.3km=${data.Radar['3km'][0]},` +
+                `radar.1km=${data.Radar['1km'][0]},` +
+                `radar.distance=${data.Radar['rain_distance'][0] !== null ? data.Radar['rain_distance'][0] : 9999}` +
                 ` ${data.Timestamp}\n`;
-            
+
         case 'Roof':
             return `Roof state="${data.Roof.State}" ${data.Timestamp}\n`;
-            
+
         case 'UPS':
-            return `UPS ` + 
-                `battery.charge=${data.UPS.BCHARGE[0]},` + 
-                `battery.voltage=${data.UPS.BATTV[0]},` + 
-                `load=${data.UPS.LOADPCT[0]},` + 
-                `line.voltage=${data.UPS.LINEV[0]},` + 
-                `timeleft=${data.UPS.TIMELEFT[0]},` + 
-                `timeonbattery=${data.UPS.TONBATT[0]}` + 
+            return `UPS ` +
+                `battery.charge=${data.UPS.BCHARGE[0]},` +
+                `battery.voltage=${data.UPS.BATTV[0]},` +
+                `load=${data.UPS.LOADPCT[0]},` +
+                `line.voltage=${data.UPS.LINEV[0]},` +
+                `timeleft=${data.UPS.TIMELEFT[0]},` +
+                `timeonbattery=${data.UPS.TONBATT[0]}` +
                 ` ${data.Timestamp}\n`;
 
         case 'Ruuvi_jari':
         case 'Ruuvi_samuli':
             let name = data.Type.substring(6);
-            return `Ruuvi ` + 
-                `${name + '.atpark'}=${data[data.Type].AtPark ? 1 : 0},` + 
-                `${name + '.signal'}=${data[data.Type].Signal[0]},` + 
-                `${name + '.temperature'}=${data[data.Type].Temperature[0]},` + 
-                `${name + '.humidity'}=${data[data.Type].Humidity[0]},` + 
-                `${name + '.pressure'}=${data[data.Type].Pressure[0]},` + 
+            return `Ruuvi ` +
+                `${name + '.atpark'}=${data[data.Type].AtPark ? 1 : 0},` +
+                `${name + '.signal'}=${data[data.Type].Signal[0]},` +
+                `${name + '.temperature'}=${data[data.Type].Temperature[0]},` +
+                `${name + '.humidity'}=${data[data.Type].Humidity[0]},` +
+                `${name + '.pressure'}=${data[data.Type].Pressure[0]},` +
                 `${name + '.voltage'}=${data[data.Type].Voltage[0]}` +
-                ` ${data.Timestamp}\n`; 
+                ` ${data.Timestamp}\n`;
+
+        case 'Safety':
+            return `Safety ` +
+                `safe=${data.Safety.Safe},` +
+                `reason.temperature=${!data.Safety.Details.Temperature},` +
+                `reason.raintrigger=${!data.Safety.Details.RainTrigger},` +
+                `reason.rainintensity=${!data.Safety.Details.RainIntensity},` +
+                `reason.radar=${!data.Safety.Details.Radar},` +
+                `reason.sunaltitude=${!data.Safety.Details.SunAltitude},` +
+                `reason.upscharge=${!data.Safety.Details.UPSCharge},` +
+                `reason.enclosuretemp=${!data.Safety.Details.EnclosureTemp}` +
+                ` ${data.Timestamp}\n`;
+
         default:
             return '';
     }

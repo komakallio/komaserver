@@ -42,6 +42,9 @@ const app = express();
 const redisClient = redis.createClient(REDIS_PORT);
 
 var lastSafe = true;
+var lastData;
+var lastSafetyData = {};
+var lastSafetyReportTime = 0;
 
 redisClient.on("error", function (err) {
     console.log("Redis error " + err);
@@ -108,6 +111,7 @@ app.get('/safety', function(req, res) {
                 safe: safe,
                 details: safetyDetails
             };
+            lastData = data;
             res.json(data);
         }
     ).catch(function(err) {
@@ -116,9 +120,49 @@ app.get('/safety', function(req, res) {
     });
 });
 
+function safetyReporter() {
+    if (!lastData) {
+        return;
+    }
+
+    const data = {
+        'Type': 'Safety',
+        'Safety': {
+            'Safe': lastData.safe,
+            'Details': {
+              'Temperature': lastData.details.temperature.safe,
+              'RainTrigger': lastData.details.raintrigger.safe,
+              'RainIntensity': lastData.details.rainintensity.safe,
+              'Radar': lastData.details.rainradar30km,
+              'SunAltitude': lastData.details.sunaltitude.safe,
+              'UPSCharge': lastData.details.upscharge.safe,
+              'EnclosureTemp': lastData.details.enclosuretemp.safe
+          }
+        }
+    };
+
+    if (!_.isEqual(data, lastSafetyData) || (Date.now() - lastSafetyReportTime) > 300*1000) {
+        lastSafetyReportTime = Date.now();
+        request.post({
+            url: 'http://localhost:9001/api',
+            body: data,
+            json: true
+        }, function (error, response) {
+            if (!response || response.statusCode != 200) {
+                logger.warn(error);
+            }
+            lastSafetyData = data;
+        });
+    }
+
+    setTimeout(safetyReporter, 1000);
+}
+
 var server = app.listen(9002, function() {
     var host = server.address().address;
     var port = server.address().port;
+
+    safetyReporter();
 
     logger.info('koma-safety-server listening at http://%s:%s', host, port);
 }).on('error', function(err) {

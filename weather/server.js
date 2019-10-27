@@ -126,6 +126,8 @@ app.post('/api', function(req, res) {
         saveData('roof', req, res);
     } else if (req.body.Type == 'UPS') {
         saveData('ups', req, res);
+      } else if (req.body.Type == 'Safety') {
+        saveData('safety', req, res);
     } else if (req.body.Type.startsWith('Ruuvi')) {
         saveData(req.body.Type.toLowerCase(), req, res);
     } else {
@@ -134,7 +136,7 @@ app.post('/api', function(req, res) {
     }
 });
 
-const supportedQueryTypes = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups', 'ruuvi_jari', 'ruuvi_samuli'];
+const supportedQueryTypes = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups', 'ruuvi_jari', 'ruuvi_samuli', 'safety'];
 supportedQueryTypes.forEach(type => {
     app.get('/api/' + type, function(req, res) {
         sendLatestData(type, req, res);
