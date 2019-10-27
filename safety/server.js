@@ -122,6 +122,7 @@ app.get('/safety', function(req, res) {
 
 function safetyReporter() {
     if (!lastData) {
+        setTimeout(safetyReporter, 1000);
         return;
     }
 
