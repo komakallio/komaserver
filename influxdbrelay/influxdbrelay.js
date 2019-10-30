@@ -35,7 +35,7 @@ const xdp = new dewpoint(config.heightAboveSeaLevel);
 
 var updateTimestamps = {};
 
-const types = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups', 'ruuvi_jari', 'ruuvi_samuli'];
+const types = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups', 'ruuvi_jari', 'ruuvi_samuli', 'safety'];
 
 function convertDataForType(data) {
     switch(data.Type) {
@@ -130,8 +130,20 @@ function convertDataForType(data) {
                 ` ${data.Timestamp}\n`;
 
         case 'Safety':
+            let desc = 'SAFE';
+            if (!data.Safety.Safe) {
+                if (!data.Safety.Details.SunAltitude)         desc = 'UNSAFE_SUNALTITUDE';
+                else if (!data.Safety.Details.UPSCharge)      desc = 'UNSAFE_UPS';
+                else if (!data.Safety.Details.Temperature)    desc = 'UNSAFE_OUTSIDETEMP';
+                else if (!data.Safety.Details.EnclosureTemp)  desc = 'UNSAFE_ENCLOSURETEMP';
+                else if (!data.Safety.Details.Radar)          desc = 'UNSAFE_RADAR';
+                else if (!data.Safety.Details.RainTrigger)    desc = 'UNSAFE_RAINTRIGGER';
+                else if (!data.Safety.Details.RainIntensity)  desc = 'UNSAFE_RAININTENSITY';
+                else desc = 'UNSAFE';
+            }
             return `Safety ` +
                 `safe=${data.Safety.Safe},` +
+                `safe.desc="${desc}",` +
                 `reason.temperature=${!data.Safety.Details.Temperature},` +
                 `reason.raintrigger=${!data.Safety.Details.RainTrigger},` +
                 `reason.rainintensity=${!data.Safety.Details.RainIntensity},` +
