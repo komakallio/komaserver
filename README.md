@@ -10,6 +10,7 @@
 - **cpu** - CPU temperature monitor for Raspberry PI
 - **rain** - Observatory server that provides roof and weather data
 - **hawkularrelay** - Relay for sending metrics data to a Hawkular Metrics endpoint
+- **influxdbrelay** - Relay for sending metrics data to an InfluxDB endpoint
 - **roof** - Multi-user roof server with an REST interface
 - **ruuvi** - Monitor multiple RuuviTag devices
 - **safety** - SafetyMonitor REST interface
