@@ -19,6 +19,6 @@
     "request": "^2.88.0",
     "round-to": "^2.0.0",
     "suncalc": "git://github.com/mourner/suncalc.git#master",
-    "underscore": "^1.9.1"
+    "underscore": "^1.12.1"
   }
 }
