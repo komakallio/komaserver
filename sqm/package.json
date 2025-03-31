@@ -1,0 +1,15 @@
+{
+  "name": "sqm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jari Saukkonen",
+  "license": "MIT",
+  "dependencies": {
+    "logops": "^2.1.2",
+    "request": "^2.88.2"
+  }
+}

@@ -1,0 +1,6 @@
+module.exports = {
+	SQM_HOST: '10.10.10.10',
+	SQM_PORT: 10001,
+	READ_INTERVAL_MS: 60 * 1000,
+	KOMASERVER_API_URL: 'http://1.2.3.4:9001/api'
+}
