@@ -35,7 +35,7 @@ const xdp = new dewpoint(config.heightAboveSeaLevel);
 
 var updateTimestamps = {};
 
-const types = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups', 'ruuvi_jari', 'ruuvi_samuli', 'safety'];
+const types = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups', 'ruuvi_jari', 'ruuvi_samuli', 'safety', 'sqm', 'allsky'];
 
 function convertDataForType(data) {
     switch(data.Type) {
@@ -93,6 +93,12 @@ function convertDataForType(data) {
 
         case 'Rain':
             return `Weather rain.intensity=${data.Rain.Rain.Intensity[0]} ${data.Timestamp}\n`;
+
+        case 'SQM':
+            return `SQM sqm.magnitude=${data.SQM.SQM[0]} sqm.frequency=${data.SQM.Frequency[0]} sqm.temperature=${data.SQM.Temperature[0]} ${data.Timestamp}\n`;
+
+        case 'Allsky':
+            return `Allsky allsky.temperature=${data.Allsky.Temperature[0]} allsky.humidity=${data.Allsky.Humidity[0]} allsky.pressure=${data.Allsky.Pressure[0]} ${data.Timestamp}\n`;
 
         case 'Radar':
             return `Weather ` +
