@@ -11,7 +11,7 @@
   "license": "MIT",
   "dependencies": {
     "logops": "^1.0.1",
-    "node-ruuvitag": "^4.1.0",
+    "node-ruuvitag": "^4.6.1",
     "request": "^2.81.0",
     "underscore": "^1.8.3"
   }
