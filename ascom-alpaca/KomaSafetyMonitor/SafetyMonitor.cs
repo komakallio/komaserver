@@ -8,8 +8,8 @@ namespace KomaSafetyMonitor
 {
     public class SafetyMonitor : ISafetyMonitorV3
     {
-        // TODO: Make base URL configurable
-        private static readonly ISafetyMonitorApi ApiClient = RestService.For<ISafetyMonitorApi>("http://192.168.1.8:9002");
+        // TODO: Figure out a way to make base URL update without restarting Alpaca server
+        private static readonly ISafetyMonitorApi ApiClient = RestService.For<ISafetyMonitorApi>(SafetyMonitorSettings.BaseUrl);
 
         private readonly PeriodicTimer _timer = new(TimeSpan.FromSeconds(3));
         private CancellationTokenSource _cancellationTokenSource = new();

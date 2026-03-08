@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\KomaAlpacaCommon\KomaAlpacaCommon.csproj" />
     <ProjectReference Include="..\KomaSafetyMonitor\KomaSafetyMonitor.csproj" />
   </ItemGroup>
 

@@ -1,20 +1,35 @@
 ﻿@page "/setup/v1/SafetyMonitor/{InstanceID:int}/setup"
+@using KomaSafetyMonitor
 
 <h3>SafetyMonitor Setup: @InstanceID</h3>
 
 @if (ASCOM.Alpaca.DeviceManager.SafetyMonitors.ContainsKey(InstanceID))
 {
     <p>Add your device setup and control functions here</p>
-
+    <fieldset>
+        <legend>Safety Monitor settings</legend>
+        <br />
+        <label>Safety Monitor API base URL: </label>
+        <input type="text" style="width:25ch;" @bind="BaseUrl" />
+        <br />
+        <br />
+        <p>Server must be restarted for changes to take effect!</p>
+        <button @onclick="SaveSafetyMonitorSettings" style="min-width:12ch; vertical-align:middle;">Save</button>
+    </fieldset>
 }
 else
 {
     <h3>This device does not exist and cannot be configured</h3>
 }
 
-
 @code {
     [Parameter]
     public int InstanceID { get; set; }
 
+    string BaseUrl { get; set; } = SafetyMonitorSettings.BaseUrl;
+
+    void SaveSafetyMonitorSettings()
+    {
+        SafetyMonitorSettings.BaseUrl = BaseUrl;
+    }
 }

@@ -1,5 +1,7 @@
 using ASCOM.Alpaca;
 using ASCOM.Common;
+using KomaAlpacaCommon;
+using KomaSafetyMonitor;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Reflection;
@@ -9,9 +11,6 @@ namespace KomaAlpacaServer
 {
     public class Program
     {
-        //Fill this with your driver name
-        internal const string DriverID = "ASCOM.Komakallio.Alpaca";
-
         //You should offer a way for the end user to customize this via the command line so it can be changed in the case of a collision.
         //This supports --urls=http://*:port by default.
         internal const int DefaultPort = 12345;
@@ -80,6 +79,7 @@ namespace KomaAlpacaServer
             {
                 Logger.LogInformation("Reseting Settings");
                 ServerSettings.Reset();
+                SafetyMonitorSettings.Reset();
 
                 //If you have any device settings you should reset them as well or add a specific reset command.
 

@@ -1,11 +1,12 @@
 ﻿using ASCOM.Alpaca;
+using KomaAlpacaCommon;
 
 namespace KomaAlpacaServer
 {
     internal static class ServerSettings
     {
         //This is a shared profile that is used to store server settings.
-        internal static ASCOM.Tools.XMLProfile Profile = new ASCOM.Tools.XMLProfile(Program.DriverID, "Server");
+        internal static ASCOM.Tools.XMLProfile Profile = new(Constants.DriverID, "Server");
 
         internal static void Reset()
         {
