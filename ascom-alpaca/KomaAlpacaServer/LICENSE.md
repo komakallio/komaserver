@@ -1,9 +1,6 @@
-
-The base template code license (You should add your own license for your code)
-
 The MIT License (MIT)
 
-Copyright (c) 2023-25 Daniel Van Noord
+Copyright (c) 2026 Samuli Vuorinen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
