@@ -10,4 +10,8 @@
     <PackageReference Include="ASCOM.Alpaca.Razor" Version="0.5.0-alpha02" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\KomaSafetyMonitor\KomaSafetyMonitor.csproj" />
+  </ItemGroup>
+
 </Project>
