@@ -2,31 +2,21 @@
 
 namespace KomaAlpacaServer.DeviceAccess
 {
-    public class BasicMonitor : ISafetyMonitorV3
+    public class SafetyMonitor : ISafetyMonitorV3
     {
-        public bool IsSafe
-        {
-            get
-            {
-                if (Connected)
-                {
-                    return false;
-                }
-                return true;
-            }
-        }
+        public bool IsSafe { get; }
 
         public bool Connected { get; set; } = false;
 
-        public string Description => "A Safety Monitor";
+        public string Description => "Safety monitor for Komakallio observatory";
 
-        public string DriverInfo => "A really not functional Safety Monitor";
+        public string DriverInfo => "Alpaca driver for Komakallio safety monitor";
 
-        public string DriverVersion => "0.1";
+        public string DriverVersion => "1.0";
 
-        public short InterfaceVersion => 1;
+        public short InterfaceVersion => 3;
 
-        public string Name => "Safety Monitor";
+        public string Name => "Komakallio Safety Monitor";
 
         public IList<string> SupportedActions => [];
 
@@ -36,22 +26,22 @@ namespace KomaAlpacaServer.DeviceAccess
 
         public string Action(string ActionName, string ActionParameters)
         {
-            throw new ASCOM.NotImplementedException();
+            throw new ASCOM.MethodNotImplementedException();
         }
 
         public void CommandBlind(string Command, bool Raw = false)
         {
-            throw new ASCOM.NotImplementedException();
+            throw new ASCOM.MethodNotImplementedException();
         }
 
         public bool CommandBool(string Command, bool Raw = false)
         {
-            throw new ASCOM.NotImplementedException();
+            throw new ASCOM.MethodNotImplementedException();
         }
 
         public string CommandString(string Command, bool Raw = false)
         {
-            throw new ASCOM.NotImplementedException();
+            throw new ASCOM.MethodNotImplementedException();
         }
 
         public void Connect()

@@ -144,7 +144,7 @@ namespace KomaAlpacaServer
             //You may want to inject settings and logging here to the Driver Instance.
             //For each device you add you should add or edit an existing settings page in the settings folder and an entry in the Shared NavMenu.
             //There are pages already included for the first device of each device type.
-            ASCOM.Alpaca.DeviceManager.LoadSafetyMonitor(0, new DeviceAccess.BasicMonitor(), "Really Basic Safety Monitor", ServerSettings.GetDeviceUniqueId("SafetyMonitor", 0));
+            ASCOM.Alpaca.DeviceManager.LoadSafetyMonitor(0, new DeviceAccess.SafetyMonitor(), "Komakallio Safety Monitor", ServerSettings.GetDeviceUniqueId("SafetyMonitor", 0));
             // TODO: you can add devices here
 
 
