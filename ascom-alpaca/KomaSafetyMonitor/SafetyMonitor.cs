@@ -1,16 +1,13 @@
 ﻿using ASCOM;
 using ASCOM.Common.DeviceInterfaces;
+using KomaAlpacaCommon;
 using KomaSafetyMonitor.SafetyRestApi;
-using Refit;
 using System.Globalization;
 
 namespace KomaSafetyMonitor
 {
-    public class SafetyMonitor : ISafetyMonitorV3
+    public class SafetyMonitor(IRefitClientFactory<ISafetyMonitorApi> refitClientFactory) : ISafetyMonitorV3
     {
-        // TODO: Figure out a way to make base URL update without restarting Alpaca server
-        private static readonly ISafetyMonitorApi ApiClient = RestService.For<ISafetyMonitorApi>(SafetyMonitorSettings.BaseUrl);
-
         private readonly PeriodicTimer _timer = new(TimeSpan.FromSeconds(3));
         private CancellationTokenSource _cancellationTokenSource = new();
         private Task? _timerTask;
@@ -124,7 +121,7 @@ namespace KomaSafetyMonitor
             Connecting = true;
             try
             {
-                _safetyStatus = await ApiClient.GetSafetyStatusAsync();
+                _safetyStatus = await CreateApiClient().GetSafetyStatusAsync();
                 _timerTask = StartPollingLoop();
                 _connected = true;
             }
@@ -158,7 +155,7 @@ namespace KomaSafetyMonitor
             {
                 while (await _timer.WaitForNextTickAsync(_cancellationTokenSource.Token))
                 {
-                    _safetyStatus = await ApiClient.GetSafetyStatusAsync();
+                    _safetyStatus = await CreateApiClient().GetSafetyStatusAsync();
                 }
             }
             catch (OperationCanceledException)
@@ -184,6 +181,11 @@ namespace KomaSafetyMonitor
         {
             // TODO: Check status details if configured so
             return status.Safe;
+        }
+
+        private ISafetyMonitorApi CreateApiClient()
+        {
+            return refitClientFactory.CreateClient(SafetyMonitorSettings.BaseUrl);
         }
     }
 }

@@ -1,11 +1,11 @@
 ﻿namespace KomaSafetyMonitor.SafetyRestApi;
 
-internal record SafetyStatus
+public record SafetyStatus
 {
     public required bool Safe { get; init; }
     public required SafetyStatusDetails Details { get; init; }
 
-    internal record SafetyStatusDetails
+    public record SafetyStatusDetails
     {
         public required SafetyValue Temperature { get; init; }
         public required SafetyValue RainIntensity { get; init; }
@@ -19,7 +19,7 @@ internal record SafetyStatus
         public required SafetyValue EnclosureTemp { get; init; }
     }
 
-    internal record SafetyValue
+    public record SafetyValue
     {
         public required double Value { get; init; }
         public required bool Safe { get; init; }

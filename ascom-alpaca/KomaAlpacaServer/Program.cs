@@ -159,12 +159,16 @@ namespace KomaAlpacaServer
             //Add User Service
             builder.Services.AddScoped<IUserService, Data.UserService>();
 
+            builder.Services.AddHttpClient();
+            builder.Services.AddTransient(typeof(IRefitClientFactory<>), typeof(RefitClientFactory<>));
+            builder.Services.AddSingleton<SafetyMonitor>();
+
             var app = builder.Build();
             //Add a safety monitor with device id 0. You can load any number of the same device with different ids or load other devices with Load* functions.
             //You may want to inject settings and logging here to the Driver Instance.
             //For each device you add you should add or edit an existing settings page in the settings folder and an entry in the Shared NavMenu.
             //There are pages already included for the first device of each device type.
-            ASCOM.Alpaca.DeviceManager.LoadSafetyMonitor(0, new KomaSafetyMonitor.SafetyMonitor(), "Komakallio Safety Monitor", ServerSettings.GetDeviceUniqueId("SafetyMonitor", 0));
+            ASCOM.Alpaca.DeviceManager.LoadSafetyMonitor(0, app.Services.GetRequiredService<SafetyMonitor>(), "Komakallio Safety Monitor", ServerSettings.GetDeviceUniqueId("SafetyMonitor", 0));
             // TODO: you can add devices here
 
 
