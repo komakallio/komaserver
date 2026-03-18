@@ -1,29 +1,24 @@
 # Komakallio roof server
 
-You need to have a memcached running in port 11211 for storing runtime data:
-
-```
-git clone git://github.com/dalssoft/memcached.js.git
-cd memcached.js
-npm install
-bin/memcachedjs --port 11211
-```
+You need to have a Redis instance running in port 6379 for storing runtime data.
 
 To run the server, run:
 
-```
+```bash
 npm install
-node server.js
+npm start
 ```
 
 ## Examples
 
-```curl http://localhost:9000/weather```
+```bash
+curl -X POST http://localhost:9000/roof/jari/open
+```
 
-```curl http://localhost:9000/safe```
+```bash
+curl http://localhost:9000/roof/jari
+```
 
-```curl -X POST http://localhost:9000/roof/jari/open```
-
-```curl http://localhost:9000/roof/jari```
-
-```curl -X POST http://localhost:9000/roof/jari/close```
+```bash
+curl -X POST http://localhost:9000/roof/jari/close
+```
