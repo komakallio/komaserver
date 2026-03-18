@@ -1,20 +1,33 @@
-﻿@page "/setup/v1/Dome/{InstanceID:int}/setup"
+@page "/setup/v1/Dome/{InstanceID:int}/setup"
+@using KomaDome
 
 <h3>Dome Setup: @InstanceID</h3>
 
 @if (ASCOM.Alpaca.DeviceManager.Domes.ContainsKey(InstanceID))
 {
-    <p>Add your device setup and control functions here</p>
-
+    <fieldset>
+        <legend>Dome settings</legend>
+        <br />
+        <label>Roof API base URL: </label>
+        <input type="text" style="width:40ch;" @bind="BaseUrl" />
+        <br />
+        <br />
+        <button @onclick="SaveSettings" style="min-width:12ch;">Save</button>
+    </fieldset>
 }
 else
 {
     <h3>This device does not exist and cannot be configured</h3>
 }
 
-
 @code {
     [Parameter]
     public int InstanceID { get; set; }
 
+    string BaseUrl { get; set; } = DomeSettings.BaseUrl;
+
+    void SaveSettings()
+    {
+        DomeSettings.BaseUrl = BaseUrl;
+    }
 }

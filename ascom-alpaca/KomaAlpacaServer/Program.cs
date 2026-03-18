@@ -1,6 +1,7 @@
 using ASCOM.Alpaca;
 using ASCOM.Common;
 using KomaAlpacaCommon;
+using KomaDome;
 using KomaSafetyMonitor;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
@@ -80,6 +81,7 @@ namespace KomaAlpacaServer
                 Logger.LogInformation("Reseting Settings");
                 ServerSettings.Reset();
                 SafetyMonitorSettings.Reset();
+                DomeSettings.Reset();
 
                 //If you have any device settings you should reset them as well or add a specific reset command.
 
@@ -162,6 +164,7 @@ namespace KomaAlpacaServer
             builder.Services.AddHttpClient();
             builder.Services.AddTransient(typeof(IRefitClientFactory<>), typeof(RefitClientFactory<>));
             builder.Services.AddSingleton<SafetyMonitor>();
+            builder.Services.AddSingleton<Dome>();
 
             var app = builder.Build();
             //Add a safety monitor with device id 0. You can load any number of the same device with different ids or load other devices with Load* functions.
@@ -169,7 +172,7 @@ namespace KomaAlpacaServer
             //For each device you add you should add or edit an existing settings page in the settings folder and an entry in the Shared NavMenu.
             //There are pages already included for the first device of each device type.
             ASCOM.Alpaca.DeviceManager.LoadSafetyMonitor(0, app.Services.GetRequiredService<SafetyMonitor>(), "Komakallio Safety Monitor", ServerSettings.GetDeviceUniqueId("SafetyMonitor", 0));
-            // TODO: you can add devices here
+            ASCOM.Alpaca.DeviceManager.LoadDome(0, app.Services.GetRequiredService<Dome>(), "Komakallio Dome", ServerSettings.GetDeviceUniqueId("Dome", 0));
 
 
             // Configure the HTTP request pipeline.

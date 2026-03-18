@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ASCOM.Common.Components" Version="3.0.0" />
+    <PackageReference Include="ASCOM.Tools" Version="3.0.0" />
+    <PackageReference Include="Refit" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KomaAlpacaCommon\KomaAlpacaCommon.csproj" />
+  </ItemGroup>
+
+</Project>
