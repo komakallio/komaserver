@@ -19,7 +19,7 @@ public class SafetyMonitorSettings
         }
         set
         {
-            Profile.WriteValue("BaseUrl", value.ToString());
+            Profile.WriteValue("BaseUrl", value.TrimEnd('/'));
         }
     }
 }
