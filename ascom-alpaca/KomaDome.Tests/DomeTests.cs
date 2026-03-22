@@ -33,49 +33,15 @@ public class DomeTests : IDisposable
     #region Connection
 
     [Fact]
-    public void Connect_WithOpenRoof_SetsConnectedAndShutterOpen()
+    public void Connected_AlwaysReturnsTrue()
     {
-        SetupStatusResponse("OPEN");
-
-        _dome.Connected = true;
-
         Assert.True(_dome.Connected);
+    }
+
+    [Fact]
+    public void Connecting_AlwaysReturnsFalse()
+    {
         Assert.False(_dome.Connecting);
-        Assert.Equal(ShutterState.Open, _dome.ShutterStatus);
-    }
-
-    [Fact]
-    public void Connect_WithClosedRoof_SetsShutterClosed()
-    {
-        SetupStatusResponse("CLOSED");
-
-        _dome.Connected = true;
-
-        Assert.Equal(ShutterState.Closed, _dome.ShutterStatus);
-    }
-
-    [Fact]
-    public void Disconnect_AfterConnect_SetsConnectedFalse()
-    {
-        SetupStatusResponse("OPEN");
-        _dome.Connected = true;
-
-        _dome.Connected = false;
-
-        Assert.False(_dome.Connected);
-        Assert.False(_dome.Connecting);
-    }
-
-    [Fact]
-    public void Connect_WhenAlreadyConnected_DoesNotCallApiAgain()
-    {
-        SetupStatusResponse("OPEN");
-        _dome.Connected = true;
-
-        _dome.Connected = true;
-
-        // Only one call from the first connect
-        _api.Verify(a => a.GetStatusAsync("testuser"), Times.Once);
     }
 
     #endregion
@@ -93,8 +59,6 @@ public class DomeTests : IDisposable
     {
         SetupStatusResponse(state);
 
-        _dome.Connected = true;
-
         Assert.Equal(expected, _dome.ShutterStatus);
     }
 
@@ -106,7 +70,6 @@ public class DomeTests : IDisposable
     public void OpenShutter_CallsApi()
     {
         SetupStatusResponse("CLOSED");
-        _dome.Connected = true;
 
         _dome.OpenShutter();
 
@@ -117,7 +80,6 @@ public class DomeTests : IDisposable
     public void CloseShutter_CallsApi()
     {
         SetupStatusResponse("OPEN");
-        _dome.Connected = true;
 
         _dome.CloseShutter();
 
@@ -128,7 +90,6 @@ public class DomeTests : IDisposable
     public void AbortSlew_CallsStopOnApi()
     {
         SetupStatusResponse("OPENING");
-        _dome.Connected = true;
 
         _dome.AbortSlew();
 
@@ -148,8 +109,6 @@ public class DomeTests : IDisposable
     {
         SetupStatusResponse(state);
 
-        _dome.Connected = true;
-
         Assert.Equal(expectedSlewing, _dome.Slewing);
     }
 
@@ -161,7 +120,6 @@ public class DomeTests : IDisposable
     public void DeviceState_WhenConnected_ReturnsValues()
     {
         SetupStatusResponse("OPEN");
-        _dome.Connected = true;
 
         var state = _dome.DeviceState;
 
@@ -171,13 +129,6 @@ public class DomeTests : IDisposable
         Assert.Contains(state, s => s.Name == "TimeStamp");
     }
 
-    [Fact]
-    public void DeviceState_WhenNotConnected_ReturnsEmpty()
-    {
-        var state = _dome.DeviceState;
-
-        Assert.Empty(state);
-    }
 
     #endregion
 

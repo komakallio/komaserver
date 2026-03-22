@@ -65,32 +65,18 @@ public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<Dom
         set => throw new PropertyNotImplementedException();
     }
 
-    private bool _connected = false;
-
+    /// <summary>
+    /// Connected is always true, as this driver is not connected to any physical device and thus cannot be disconnected.
+    /// </summary>
     public bool Connected
     {
-        get => _connected;
+        get => true;
         set
         {
-            try
-            {
-                if (value)
-                {
-                    ConnectAsync().Wait();
-                }
-                else
-                {
-                    DisconnectAsync().Wait();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new DriverException("Failed to connect to Komakallio dome", ex);
-            }
         }
     }
 
-    public bool Connecting { get; internal set; }
+    public bool Connecting => false;
 
     public List<StateValue> DeviceState => Connected ? [
         new StateValue(nameof(ShutterStatus), ShutterStatus.ToString()),
@@ -98,78 +84,16 @@ public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<Dom
         new StateValue("TimeStamp", DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture)),
     ] : [];
 
-    #region Unused legacy
-
-    public IList<string> SupportedActions => [];
-
-    public string Action(string ActionName, string ActionParameters)
-    {
-        throw new MethodNotImplementedException();
-    }
-
-    public void CommandBlind(string Command, bool Raw = false)
-    {
-        throw new MethodNotImplementedException();
-    }
-
-    public bool CommandBool(string Command, bool Raw = false)
-    {
-        throw new MethodNotImplementedException();
-    }
-
-    public string CommandString(string Command, bool Raw = false)
-    {
-        throw new MethodNotImplementedException();
-    }
-
-    #endregion
-
     public void Connect()
     {
-        _ = ConnectAsync();
     }
 
     public void Disconnect()
     {
-        _ = DisconnectAsync();
     }
 
     public void Dispose()
     {
-    }
-
-    private async Task ConnectAsync()
-    {
-        if (Connected || Connecting)
-        {
-            return;
-        }
-
-        Connecting = true;
-        try
-        {
-            await CreateApiClient().GetStatusAsync(user);
-            _connected = true;
-        }
-        catch (Exception)
-        {
-            // TODO: Log error
-        }
-        finally
-        {
-            Connecting = false;
-        }
-    }
-
-    private Task DisconnectAsync()
-    {
-        if (!Connected)
-        {
-            return Task.CompletedTask;
-        }
-
-        _connected = false;
-        return Task.CompletedTask;
     }
 
     private static ShutterState ParseShutterState(string state) => state switch
@@ -225,6 +149,32 @@ public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<Dom
     {
         throw new MethodNotImplementedException();
     }
+
+    #region Unused legacy
+
+    public IList<string> SupportedActions => [];
+
+    public string Action(string ActionName, string ActionParameters)
+    {
+        throw new MethodNotImplementedException();
+    }
+
+    public void CommandBlind(string Command, bool Raw = false)
+    {
+        throw new MethodNotImplementedException();
+    }
+
+    public bool CommandBool(string Command, bool Raw = false)
+    {
+        throw new MethodNotImplementedException();
+    }
+
+    public string CommandString(string Command, bool Raw = false)
+    {
+        throw new MethodNotImplementedException();
+    }
+
+    #endregion
 
     private IDomeApi CreateApiClient()
     {
