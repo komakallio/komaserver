@@ -4,15 +4,15 @@ namespace KomaDome.DomeRestApi;
 
 public interface IDomeApi
 {
-    [Get("/")]
-    Task<RoofStatus> GetStatusAsync();
+    [Get("/{user}/")]
+    Task<RoofStatus> GetStatusAsync(string user);
 
-    [Post("/open")]
-    Task OpenAsync();
+    [Post("/{user}/open")]
+    Task OpenAsync(string user);
 
-    [Post("/close")]
-    Task CloseAsync();
+    [Post("/{user}/close")]
+    Task CloseAsync(string user);
 
-    [Post("/stop")]
-    Task StopAsync();
+    [Post("/{user}/stop")]
+    Task StopAsync(string user);
 }

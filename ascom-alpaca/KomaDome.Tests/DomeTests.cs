@@ -17,7 +17,7 @@ public class DomeTests : IDisposable
         var factory = new Mock<IRefitClientFactory<IDomeApi>>();
         _api = new Mock<IDomeApi>();
         factory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_api.Object);
-        _dome = new Dome(factory.Object, Options.Create<DomeOptions>(new() { BaseUrl = "http://invalid.invalid" }));
+        _dome = new Dome(factory.Object, Options.Create<DomeOptions>(new() { BaseUrl = "http://invalid.invalid", Users = ["testuser"] }), "testuser");
     }
 
     public void Dispose()
@@ -27,7 +27,7 @@ public class DomeTests : IDisposable
 
     private void SetupStatusResponse(string state)
     {
-        _api.Setup(a => a.GetStatusAsync()).ReturnsAsync(new RoofStatus { State = state });
+        _api.Setup(a => a.GetStatusAsync("testuser")).ReturnsAsync(new RoofStatus { State = state });
     }
 
     #region Connection
@@ -75,7 +75,7 @@ public class DomeTests : IDisposable
         _dome.Connected = true;
 
         // Only one call from the first connect
-        _api.Verify(a => a.GetStatusAsync(), Times.Once);
+        _api.Verify(a => a.GetStatusAsync("testuser"), Times.Once);
     }
 
     #endregion
@@ -110,7 +110,7 @@ public class DomeTests : IDisposable
 
         _dome.OpenShutter();
 
-        _api.Verify(a => a.OpenAsync(), Times.Once);
+        _api.Verify(a => a.OpenAsync("testuser"), Times.Once);
         Assert.Equal(ShutterState.Opening, _dome.ShutterStatus);
     }
 
@@ -122,7 +122,7 @@ public class DomeTests : IDisposable
 
         _dome.CloseShutter();
 
-        _api.Verify(a => a.CloseAsync(), Times.Once);
+        _api.Verify(a => a.CloseAsync("testuser"), Times.Once);
         Assert.Equal(ShutterState.Closing, _dome.ShutterStatus);
     }
 
@@ -134,7 +134,7 @@ public class DomeTests : IDisposable
 
         _dome.AbortSlew();
 
-        _api.Verify(a => a.StopAsync(), Times.Once);
+        _api.Verify(a => a.StopAsync("testuser"), Times.Once);
     }
 
     #endregion

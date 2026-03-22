@@ -7,7 +7,7 @@ using System.Globalization;
 
 namespace KomaDome;
 
-public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<DomeOptions> options) : IDomeV3
+public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<DomeOptions> options, string user) : IDomeV3
 {
     private readonly PeriodicTimer _timer = new(TimeSpan.FromSeconds(5));
     private CancellationTokenSource _cancellationTokenSource = new();
@@ -148,7 +148,7 @@ public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<Dom
         Connecting = true;
         try
         {
-            var status = await CreateApiClient().GetStatusAsync();
+            var status = await CreateApiClient().GetStatusAsync(user);
             _shutterStatus = ParseShutterState(status.State);
             _timerTask = StartPollingLoop();
             _connected = true;
@@ -182,7 +182,7 @@ public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<Dom
         {
             while (await _timer.WaitForNextTickAsync(_cancellationTokenSource.Token))
             {
-                var status = await CreateApiClient().GetStatusAsync();
+                var status = await CreateApiClient().GetStatusAsync(user);
                 _shutterStatus = ParseShutterState(status.State);
             }
         }
@@ -216,19 +216,19 @@ public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<Dom
 
     public void OpenShutter()
     {
-        CreateApiClient().OpenAsync().Wait();
+        CreateApiClient().OpenAsync(user).Wait();
         _shutterStatus = ShutterState.Opening;
     }
 
     public void CloseShutter()
     {
-        CreateApiClient().CloseAsync().Wait();
+        CreateApiClient().CloseAsync(user).Wait();
         _shutterStatus = ShutterState.Closing;
     }
 
     public void AbortSlew()
     {
-        CreateApiClient().StopAsync().Wait();
+        CreateApiClient().StopAsync(user).Wait();
     }
 
     public void FindHome()
