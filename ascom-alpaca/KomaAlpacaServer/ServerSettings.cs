@@ -6,7 +6,7 @@ namespace KomaAlpacaServer
     internal static class ServerSettings
     {
         //This is a shared profile that is used to store server settings.
-        internal static ASCOM.Tools.XMLProfile Profile = new(Constants.DriverID, "Server");
+        internal static ASCOM.Tools.XMLProfile Profile = new("ASCOM.Komakallio.Alpaca", "Server");
 
         internal static void Reset()
         {
