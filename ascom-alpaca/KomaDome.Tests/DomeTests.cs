@@ -103,7 +103,7 @@ public class DomeTests : IDisposable
     #region Shutter control
 
     [Fact]
-    public void OpenShutter_CallsApiAndSetsOpening()
+    public void OpenShutter_CallsApi()
     {
         SetupStatusResponse("CLOSED");
         _dome.Connected = true;
@@ -111,11 +111,10 @@ public class DomeTests : IDisposable
         _dome.OpenShutter();
 
         _api.Verify(a => a.OpenAsync("testuser"), Times.Once);
-        Assert.Equal(ShutterState.Opening, _dome.ShutterStatus);
     }
 
     [Fact]
-    public void CloseShutter_CallsApiAndSetsClosing()
+    public void CloseShutter_CallsApi()
     {
         SetupStatusResponse("OPEN");
         _dome.Connected = true;
@@ -123,7 +122,6 @@ public class DomeTests : IDisposable
         _dome.CloseShutter();
 
         _api.Verify(a => a.CloseAsync("testuser"), Times.Once);
-        Assert.Equal(ShutterState.Closing, _dome.ShutterStatus);
     }
 
     [Fact]

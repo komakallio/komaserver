@@ -9,11 +9,6 @@ namespace KomaDome;
 
 public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<DomeOptions> options, string user) : IDomeV3
 {
-    private readonly PeriodicTimer _timer = new(TimeSpan.FromSeconds(5));
-    private CancellationTokenSource _cancellationTokenSource = new();
-    private Task? _timerTask;
-
-    private ShutterState _shutterStatus = ShutterState.Error;
 
     #region Basic information
 
@@ -29,9 +24,16 @@ public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<Dom
 
     #endregion
 
-    public ShutterState ShutterStatus => _shutterStatus;
+    public ShutterState ShutterStatus
+    {
+        get
+        {
+            var status = CreateApiClient().GetStatusAsync(user).GetAwaiter().GetResult();
+            return ParseShutterState(status.State);
+        }
+    }
 
-    public bool Slewing => _shutterStatus is ShutterState.Opening or ShutterState.Closing;
+    public bool Slewing => ShutterStatus is ShutterState.Opening or ShutterState.Closing;
 
     public bool CanSetShutter => true;
 
@@ -134,8 +136,6 @@ public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<Dom
 
     public void Dispose()
     {
-        _cancellationTokenSource?.Dispose();
-        _timer.Dispose();
     }
 
     private async Task ConnectAsync()
@@ -148,9 +148,7 @@ public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<Dom
         Connecting = true;
         try
         {
-            var status = await CreateApiClient().GetStatusAsync(user);
-            _shutterStatus = ParseShutterState(status.State);
-            _timerTask = StartPollingLoop();
+            await CreateApiClient().GetStatusAsync(user);
             _connected = true;
         }
         catch (Exception)
@@ -163,46 +161,15 @@ public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<Dom
         }
     }
 
-    private async Task DisconnectAsync()
+    private Task DisconnectAsync()
     {
         if (!Connected)
         {
-            return;
+            return Task.CompletedTask;
         }
 
-        Connecting = true;
-        await StopPollingAsync();
         _connected = false;
-        Connecting = false;
-    }
-
-    private async Task StartPollingLoop()
-    {
-        try
-        {
-            while (await _timer.WaitForNextTickAsync(_cancellationTokenSource.Token))
-            {
-                var status = await CreateApiClient().GetStatusAsync(user);
-                _shutterStatus = ParseShutterState(status.State);
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            // Timer was stopped, exit the loop
-        }
-    }
-
-    private async Task StopPollingAsync()
-    {
-        if (_timerTask is null)
-        {
-            return;
-        }
-
-        await _cancellationTokenSource.CancelAsync();
-        await _timerTask;
-        _cancellationTokenSource.Dispose();
-        _cancellationTokenSource = new();
+        return Task.CompletedTask;
     }
 
     private static ShutterState ParseShutterState(string state) => state switch
@@ -217,13 +184,11 @@ public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<Dom
     public void OpenShutter()
     {
         CreateApiClient().OpenAsync(user).Wait();
-        _shutterStatus = ShutterState.Opening;
     }
 
     public void CloseShutter()
     {
         CreateApiClient().CloseAsync(user).Wait();
-        _shutterStatus = ShutterState.Closing;
     }
 
     public void AbortSlew()
