@@ -1,262 +1,261 @@
 ﻿using ASCOM.Alpaca;
 
-namespace KomaAlpacaServer
+namespace KomaAlpacaServer;
+
+internal static class ServerSettings
 {
-    internal static class ServerSettings
+    //This is a shared profile that is used to store server settings.
+    internal static ASCOM.Tools.XMLProfile Profile = new("ASCOM.Komakallio.Alpaca", "Server");
+
+    internal static void Reset()
     {
-        //This is a shared profile that is used to store server settings.
-        internal static ASCOM.Tools.XMLProfile Profile = new("ASCOM.Komakallio.Alpaca", "Server");
+        Profile.Clear();
+    }
 
-        internal static void Reset()
+    internal static string Location
+    {
+        get
         {
-            Profile.Clear();
+            return Profile.GetValue("Location", "Unknown");
         }
-
-        internal static string Location
+        set
         {
-            get
-            {
-                return Profile.GetValue("Location", "Unknown");
-            }
-            set
-            {
-                Profile.WriteValue("Location", value.ToString());
-            }
+            Profile.WriteValue("Location", value.ToString());
         }
+    }
 
-        internal static bool AutoStartBrowser
+    internal static bool AutoStartBrowser
+    {
+        get
         {
-            get
+            if (bool.TryParse(Profile.GetValue("AutoStartBrowser", true.ToString()), out bool result))
             {
-                if (bool.TryParse(Profile.GetValue("AutoStartBrowser", true.ToString()), out bool result))
-                {
-                    return result;
-                }
-                return true;
+                return result;
             }
-            set
-            {
-                Profile.WriteValue("AutoStartBrowser", value.ToString());
-            }
+            return true;
         }
-
-        internal static ushort ServerPort
+        set
         {
-            get
-            {
-                if (ushort.TryParse(Profile.GetValue("ServerPort", Program.DefaultPort.ToString()), out ushort result))
-                {
-                    return result;
-                }
-                return Program.DefaultPort;
-            }
-            set
-            {
-                Profile.WriteValue("ServerPort", value.ToString());
-            }
+            Profile.WriteValue("AutoStartBrowser", value.ToString());
         }
+    }
 
-        internal static bool AllowRemoteAccess
+    internal static ushort ServerPort
+    {
+        get
         {
-            get
+            if (ushort.TryParse(Profile.GetValue("ServerPort", Program.DefaultPort.ToString()), out ushort result))
             {
-                if (bool.TryParse(Profile.GetValue("AllowRemoteAccess", false.ToString()), out bool result))
-                {
-                    return result;
-                }
-                return false;
+                return result;
             }
-            set
-            {
-                Profile.WriteValue("AllowRemoteAccess", value.ToString());
-            }
+            return Program.DefaultPort;
         }
-
-        internal static bool AllowDiscovery
+        set
         {
-            get
-            {
-                if (bool.TryParse(Profile.GetValue("AllowDiscovery", true.ToString()), out bool result))
-                {
-                    return result;
-                }
-                return true;
-            }
-            set
-            {
-                Profile.WriteValue("AllowDiscovery", value.ToString());
-            }
+            Profile.WriteValue("ServerPort", value.ToString());
         }
+    }
 
-        internal static bool LocalRespondOnlyToLocalHost
+    internal static bool AllowRemoteAccess
+    {
+        get
         {
-            get
+            if (bool.TryParse(Profile.GetValue("AllowRemoteAccess", false.ToString()), out bool result))
             {
-                if (bool.TryParse(Profile.GetValue("LocalRespondOnlyToLocalHost", true.ToString()), out bool result))
-                {
-                    return result;
-                }
-                return true;
+                return result;
             }
-            set
-            {
-                Profile.WriteValue("LocalRespondOnlyToLocalHost", value.ToString());
-            }
+            return false;
         }
-
-        internal static bool PreventRemoteDisconnects
+        set
         {
-            get
-            {
-                if (bool.TryParse(Profile.GetValue("PreventRemoteDisconnects", false.ToString()), out bool result))
-                {
-                    return result;
-                }
-                return false;
-            }
-            set
-            {
-                Profile.WriteValue("PreventRemoteDisconnects", value.ToString());
-            }
+            Profile.WriteValue("AllowRemoteAccess", value.ToString());
         }
+    }
 
-        internal static bool RunSwagger
+    internal static bool AllowDiscovery
+    {
+        get
         {
-            get
+            if (bool.TryParse(Profile.GetValue("AllowDiscovery", true.ToString()), out bool result))
             {
-                if (bool.TryParse(Profile.GetValue("RunSwagger", true.ToString()), out bool result))
-                {
-                    return result;
-                }
-                return true;
+                return result;
             }
-            set
-            {
-                Profile.WriteValue("RunSwagger", value.ToString());
-            }
+            return true;
         }
-
-        internal static bool AllowImageBytesDownload
+        set
         {
-            get
-            {
-                if (bool.TryParse(Profile.GetValue("CanImageBytesDownload", true.ToString()), out bool result))
-                {
-                    return result;
-                }
-                return true;
-            }
-            set
-            {
-                Profile.WriteValue("CanImageBytesDownload", value.ToString());
-            }
+            Profile.WriteValue("AllowDiscovery", value.ToString());
         }
+    }
 
-        internal static bool RunInStrictAlpacaMode
+    internal static bool LocalRespondOnlyToLocalHost
+    {
+        get
         {
-            get
+            if (bool.TryParse(Profile.GetValue("LocalRespondOnlyToLocalHost", true.ToString()), out bool result))
             {
-                if (bool.TryParse(Profile.GetValue("RunInStrictAlpacaMode", true.ToString()), out bool result))
-                {
-                    return result;
-                }
-                return true;
+                return result;
             }
-            set
-            {
-                Profile.WriteValue("RunInStrictAlpacaMode", value.ToString());
-            }
+            return true;
         }
-
-        internal static bool UseAuth
+        set
         {
-            get
-            {
-                if (bool.TryParse(Profile.GetValue("UseAuth", false.ToString()), out bool result))
-                {
-                    return result;
-                }
-                return false;
-            }
-            set
-            {
-                Profile.WriteValue("UseAuth", value.ToString());
-            }
+            Profile.WriteValue("LocalRespondOnlyToLocalHost", value.ToString());
         }
+    }
 
-        internal static string UserName
+    internal static bool PreventRemoteDisconnects
+    {
+        get
         {
-            get
+            if (bool.TryParse(Profile.GetValue("PreventRemoteDisconnects", false.ToString()), out bool result))
             {
-                return Profile.GetValue("UserName", "User");
+                return result;
             }
-            set
-            {
-                Profile.WriteValue("UserName", value.ToString());
-            }
+            return false;
         }
-
-        internal static string Password
+        set
         {
-            get
-            {
-                return Profile.GetValue("Password");
-            }
-            set
-            {
-                Profile.WriteValue("Password", Hash.GetStoragePassword(value));
-            }
+            Profile.WriteValue("PreventRemoteDisconnects", value.ToString());
         }
+    }
 
-        internal static ASCOM.Common.Interfaces.LogLevel LoggingLevel
+    internal static bool RunSwagger
+    {
+        get
         {
-            get
+            if (bool.TryParse(Profile.GetValue("RunSwagger", true.ToString()), out bool result))
             {
-                if (Enum.TryParse(Profile.GetValue("LoggingLevel", ASCOM.Common.Interfaces.LogLevel.Information.ToString()), out ASCOM.Common.Interfaces.LogLevel result))
-                {
-                    return result;
-                }
-                return ASCOM.Common.Interfaces.LogLevel.Information;
+                return result;
             }
-            set
-            {
-                Program.Logger?.SetMinimumLoggingLevel(value);
-                Profile.WriteValue("LoggingLevel", value.ToString());
-            }
+            return true;
         }
-
-        internal static string GetDeviceUniqueId(string DeviceType, int DeviceID)
+        set
         {
-            string deviceKey = $"{DeviceType}-{DeviceID}";
-            if (Profile.ContainsKey(deviceKey))
-            {
-                return Profile.GetValue(deviceKey);
-            }
-            else
-            {
-                var NewGuid = Guid.NewGuid();
-
-                Profile.WriteValue(deviceKey, NewGuid.ToString());
-
-                return NewGuid.ToString();
-            }
+            Profile.WriteValue("RunSwagger", value.ToString());
         }
+    }
 
-        internal static string GetDeviceUniqueId(ASCOM.Common.DeviceTypes DeviceType, int DeviceID)
+    internal static bool AllowImageBytesDownload
+    {
+        get
         {
-            string deviceKey = $"{DeviceType.ToString()}-{DeviceID}";
-            if (Profile.ContainsKey(deviceKey))
+            if (bool.TryParse(Profile.GetValue("CanImageBytesDownload", true.ToString()), out bool result))
             {
-                return Profile.GetValue(deviceKey);
+                return result;
             }
-            else
+            return true;
+        }
+        set
+        {
+            Profile.WriteValue("CanImageBytesDownload", value.ToString());
+        }
+    }
+
+    internal static bool RunInStrictAlpacaMode
+    {
+        get
+        {
+            if (bool.TryParse(Profile.GetValue("RunInStrictAlpacaMode", true.ToString()), out bool result))
             {
-                var NewGuid = Guid.NewGuid();
-
-                Profile.WriteValue(deviceKey, NewGuid.ToString());
-
-                return NewGuid.ToString();
+                return result;
             }
+            return true;
+        }
+        set
+        {
+            Profile.WriteValue("RunInStrictAlpacaMode", value.ToString());
+        }
+    }
+
+    internal static bool UseAuth
+    {
+        get
+        {
+            if (bool.TryParse(Profile.GetValue("UseAuth", false.ToString()), out bool result))
+            {
+                return result;
+            }
+            return false;
+        }
+        set
+        {
+            Profile.WriteValue("UseAuth", value.ToString());
+        }
+    }
+
+    internal static string UserName
+    {
+        get
+        {
+            return Profile.GetValue("UserName", "User");
+        }
+        set
+        {
+            Profile.WriteValue("UserName", value.ToString());
+        }
+    }
+
+    internal static string Password
+    {
+        get
+        {
+            return Profile.GetValue("Password");
+        }
+        set
+        {
+            Profile.WriteValue("Password", Hash.GetStoragePassword(value));
+        }
+    }
+
+    internal static ASCOM.Common.Interfaces.LogLevel LoggingLevel
+    {
+        get
+        {
+            if (Enum.TryParse(Profile.GetValue("LoggingLevel", ASCOM.Common.Interfaces.LogLevel.Information.ToString()), out ASCOM.Common.Interfaces.LogLevel result))
+            {
+                return result;
+            }
+            return ASCOM.Common.Interfaces.LogLevel.Information;
+        }
+        set
+        {
+            Program.Logger?.SetMinimumLoggingLevel(value);
+            Profile.WriteValue("LoggingLevel", value.ToString());
+        }
+    }
+
+    internal static string GetDeviceUniqueId(string DeviceType, int DeviceID)
+    {
+        string deviceKey = $"{DeviceType}-{DeviceID}";
+        if (Profile.ContainsKey(deviceKey))
+        {
+            return Profile.GetValue(deviceKey);
+        }
+        else
+        {
+            var NewGuid = Guid.NewGuid();
+
+            Profile.WriteValue(deviceKey, NewGuid.ToString());
+
+            return NewGuid.ToString();
+        }
+    }
+
+    internal static string GetDeviceUniqueId(ASCOM.Common.DeviceTypes DeviceType, int DeviceID)
+    {
+        string deviceKey = $"{DeviceType.ToString()}-{DeviceID}";
+        if (Profile.ContainsKey(deviceKey))
+        {
+            return Profile.GetValue(deviceKey);
+        }
+        else
+        {
+            var NewGuid = Guid.NewGuid();
+
+            Profile.WriteValue(deviceKey, NewGuid.ToString());
+
+            return NewGuid.ToString();
         }
     }
 }

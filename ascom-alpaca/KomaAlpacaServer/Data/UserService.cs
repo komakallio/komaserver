@@ -1,29 +1,28 @@
 ﻿using ASCOM.Alpaca;
 
-namespace KomaAlpacaServer.Data
+namespace KomaAlpacaServer.Data;
+
+internal class UserService : ASCOM.Alpaca.IUserService
 {
-    internal class UserService : ASCOM.Alpaca.IUserService
-	{
-        public async Task<bool> Authenticate(string username, string password)
+    public async Task<bool> Authenticate(string username, string password)
+    {
+        return await Task.Run(() =>
         {
-            return await Task.Run(() =>
+            try
             {
-                try
-                {
-                    return username == ServerSettings.UserName && Hash.Validate(ServerSettings.Password, password);
-                }
-                catch
-                {
-                    return false;
-                }
+                return username == ServerSettings.UserName && Hash.Validate(ServerSettings.Password, password);
             }
-
-            );
+            catch
+            {
+                return false;
+            }
         }
 
-        public bool UseAuth
-        {
-            get => ServerSettings.UseAuth;
-        }
+        );
+    }
+
+    public bool UseAuth
+    {
+        get => ServerSettings.UseAuth;
     }
 }

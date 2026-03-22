@@ -1,31 +1,30 @@
 ﻿using ASCOM.Alpaca;
 
-namespace KomaAlpacaServer
+namespace KomaAlpacaServer;
+
+internal class AlpacaConfiguration : IAlpacaConfiguration
 {
-    internal class AlpacaConfiguration : IAlpacaConfiguration
-    {
-        public bool RunInStrictAlpacaMode => ServerSettings.RunInStrictAlpacaMode;
+    public bool RunInStrictAlpacaMode => ServerSettings.RunInStrictAlpacaMode;
 
-        public bool PreventRemoteDisconnects => ServerSettings.PreventRemoteDisconnects;
+    public bool PreventRemoteDisconnects => ServerSettings.PreventRemoteDisconnects;
 
-        public string ServerName => Program.ServerName;
+    public string ServerName => Program.ServerName;
 
-        public string Manufacturer => Program.Manufacturer;
+    public string Manufacturer => Program.Manufacturer;
 
-        public string ServerVersion => Program.ServerVersion;
+    public string ServerVersion => Program.ServerVersion;
 
-        public string Location => ServerSettings.Location;
+    public string Location => ServerSettings.Location;
 
-        public bool AllowImageBytesDownload => ServerSettings.AllowImageBytesDownload;
+    public bool AllowImageBytesDownload => ServerSettings.AllowImageBytesDownload;
 
-        public bool AllowDiscovery => ServerSettings.AllowDiscovery;
+    public bool AllowDiscovery => ServerSettings.AllowDiscovery;
 
-        public int ServerPort => ServerSettings.ServerPort;
+    public int ServerPort => ServerSettings.ServerPort;
 
-        public bool AllowRemoteAccess => ServerSettings.AllowRemoteAccess;
+    public bool AllowRemoteAccess => ServerSettings.AllowRemoteAccess;
 
-        public bool LocalRespondOnlyToLocalHost => ServerSettings.LocalRespondOnlyToLocalHost;
+    public bool LocalRespondOnlyToLocalHost => ServerSettings.LocalRespondOnlyToLocalHost;
 
-        public bool RunSwagger => ServerSettings.RunSwagger;
-    }
+    public bool RunSwagger => ServerSettings.RunSwagger;
 }
