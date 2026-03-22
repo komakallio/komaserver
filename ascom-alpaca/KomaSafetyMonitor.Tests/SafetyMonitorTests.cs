@@ -39,68 +39,29 @@ public class SafetyMonitorTests : IDisposable
         }
     };
 
-    #region Connection
-
-    [Fact]
-    public void Connect_SetsConnectedTrue()
-    {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
-
-        _monitor.Connected = true;
-
-        Assert.True(_monitor.Connected);
-        Assert.False(_monitor.Connecting);
-    }
-
-    [Fact]
-    public void Disconnect_AfterConnect_SetsConnectedFalse()
-    {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
-        _monitor.Connected = true;
-
-        _monitor.Connected = false;
-
-        Assert.False(_monitor.Connected);
-    }
-
-    [Fact]
-    public void Connect_WhenAlreadyConnected_DoesNotCallApiAgain()
-    {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
-        _monitor.Connected = true;
-
-        _monitor.Connected = true;
-
-        _source.Verify(s => s.GetStatusAsync(), Times.Once);
-    }
-
-    #endregion
-
     #region IsSafe
 
     [Fact]
-    public void IsSafe_WhenConnectedAndSafe_ReturnsTrue()
+    public void IsSafe_WhenStatusIsSafe_ReturnsTrue()
     {
         _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
-
-        _monitor.Connected = true;
 
         Assert.True(_monitor.IsSafe);
     }
 
     [Fact]
-    public void IsSafe_WhenConnectedAndUnsafe_ReturnsFalse()
+    public void IsSafe_WhenStatusIsUnsafe_ReturnsFalse()
     {
         _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateSafetyStatus(false));
-
-        _monitor.Connected = true;
 
         Assert.False(_monitor.IsSafe);
     }
 
     [Fact]
-    public void IsSafe_WhenNotConnected_ReturnsFalse()
+    public void IsSafe_WhenStatusIsNull_ReturnsFalse()
     {
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync((SafetyStatus?)null);
+
         Assert.False(_monitor.IsSafe);
     }
 
@@ -109,24 +70,15 @@ public class SafetyMonitorTests : IDisposable
     #region DeviceState
 
     [Fact]
-    public void DeviceState_WhenConnected_ReturnsValues()
+    public void DeviceState_ReturnsIsSafeAndTimeStamp()
     {
         _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
-        _monitor.Connected = true;
 
         var state = _monitor.DeviceState;
 
         Assert.NotEmpty(state);
         Assert.Contains(state, s => s.Name == "IsSafe");
         Assert.Contains(state, s => s.Name == "TimeStamp");
-    }
-
-    [Fact]
-    public void DeviceState_WhenNotConnected_ReturnsEmpty()
-    {
-        var state = _monitor.DeviceState;
-
-        Assert.Empty(state);
     }
 
     #endregion

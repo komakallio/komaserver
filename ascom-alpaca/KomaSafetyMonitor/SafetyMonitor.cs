@@ -1,5 +1,4 @@
-﻿using ASCOM;
-using ASCOM.Common.DeviceInterfaces;
+﻿using ASCOM.Common.DeviceInterfaces;
 using KomaSafetyMonitor.SafetyRestApi;
 using System.Globalization;
 
@@ -25,52 +24,52 @@ namespace KomaSafetyMonitor
         {
             get
             {
-                if (!_connected)
-                    return false;
-
+                // TODO: Log if something goes wrong
                 var status = safetyStatusSource.GetStatusAsync().GetAwaiter().GetResult();
                 return status is not null && ParseSafetyStatus(status);
             }
         }
 
-        private bool _connected = false;
+        public List<StateValue> DeviceState => Connected ? [
+            new StateValue("IsSafe", IsSafe ? 1 : 0),
+            new StateValue("TimeStamp", DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture)),
+        ] : [];
+
         /// <summary>
-        /// As of ASCOM Platform 7, the setter of Connected should not be used.
-        /// The asynchronous Connect and Disconnect methods should be used instead,
-        /// which will update the Connecting and Connected properties accordingly.
+        /// Connected is always true, as this driver is not connected to any physical device and thus cannot be disconnected.
+        /// The same Alpaca device will also be available to several consumers on the network, and they should not be able to
+        /// globally connect or disconnect the device.
         /// </summary>
         public bool Connected
         {
             get
             {
-                return _connected;
+                return true;
             }
             set
             {
-                try
-                {
-                    if (value)
-                    {
-                        ConnectAsync().Wait();
-                    }
-                    else
-                    {
-                        DisconnectAsync().Wait();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw new DriverException("Failed to connect to Komakallio safety monitor", ex);
-                }
             }
         }
 
-        public bool Connecting { get; internal set; }
+        public bool Connecting => false;
 
-        public List<StateValue> DeviceState => Connected ? [
-            new StateValue("IsSafe", IsSafe ? 1 : 0),
-            new StateValue("TimeStamp", DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture)),
-        ] : [];
+        public void Connect()
+        {
+        }
+
+        public void Disconnect()
+        {
+        }
+
+        public void Dispose()
+        {
+        }
+
+        private static bool ParseSafetyStatus(SafetyStatus status)
+        {
+            // TODO: Check status details if configured so
+            return status.Safe;
+        }
 
         #region Unused legacy
 
@@ -97,59 +96,5 @@ namespace KomaSafetyMonitor
         }
 
         #endregion
-
-        public void Connect()
-        {
-            _ = ConnectAsync();
-        }
-
-        public void Disconnect()
-        {
-            _ = DisconnectAsync();
-        }
-
-        public void Dispose()
-        {
-        }
-
-        private async Task ConnectAsync()
-        {
-            if (Connected || Connecting)
-            {
-                return;
-            }
-
-            Connecting = true;
-            try
-            {
-                await safetyStatusSource.GetStatusAsync();
-                _connected = true;
-            }
-            catch (Exception)
-            {
-                // TODO: Log error
-            }
-            finally
-            {
-                Connecting = false;
-            }
-        }
-
-        private Task DisconnectAsync()
-        {
-            if (!Connected)
-            {
-                return Task.CompletedTask;
-            }
-
-            _connected = false;
-            return Task.CompletedTask;
-        }
-
-        private static bool ParseSafetyStatus(SafetyStatus status)
-        {
-            // TODO: Check status details if configured so
-            return status.Safe;
-        }
     }
 }
