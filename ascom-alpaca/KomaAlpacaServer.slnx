@@ -3,4 +3,6 @@
   <Project Path="KomaAlpacaServer/KomaAlpacaServer.csproj" />
   <Project Path="KomaDome/KomaDome.csproj" />
   <Project Path="KomaSafetyMonitor/KomaSafetyMonitor.csproj" Id="ef52d8b4-747d-4ce7-8fc3-1f0af4a177d8" />
+  <Project Path="KomaDome.Tests/KomaDome.Tests.csproj" />
+  <Project Path="KomaSafetyMonitor.Tests/KomaSafetyMonitor.Tests.csproj" />
 </Solution>
