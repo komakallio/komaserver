@@ -1,6 +1,4 @@
-using KomaAlpacaCommon;
 using KomaSafetyMonitor.SafetyRestApi;
-using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 using static KomaSafetyMonitor.SafetyRestApi.SafetyStatus;
@@ -9,15 +7,13 @@ namespace KomaSafetyMonitor.Tests;
 
 public class SafetyMonitorTests : IDisposable
 {
-    private readonly Mock<ISafetyMonitorApi> _api;
+    private readonly Mock<ISafetyStatusSource> _source;
     private readonly SafetyMonitor _monitor;
 
     public SafetyMonitorTests()
     {
-        var factory = new Mock<IRefitClientFactory<ISafetyMonitorApi>>();
-        _api = new Mock<ISafetyMonitorApi>();
-        factory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_api.Object);
-        _monitor = new SafetyMonitor(factory.Object, Options.Create<SafetyMonitorOptions>(new() { BaseUrl = "https://invalid.invalid" }));
+        _source = new Mock<ISafetyStatusSource>();
+        _monitor = new SafetyMonitor(_source.Object);
     }
 
     public void Dispose()
@@ -48,7 +44,7 @@ public class SafetyMonitorTests : IDisposable
     [Fact]
     public void Connect_SetsConnectedTrue()
     {
-        _api.Setup(a => a.GetSafetyStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
 
         _monitor.Connected = true;
 
@@ -59,7 +55,7 @@ public class SafetyMonitorTests : IDisposable
     [Fact]
     public void Disconnect_AfterConnect_SetsConnectedFalse()
     {
-        _api.Setup(a => a.GetSafetyStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
         _monitor.Connected = true;
 
         _monitor.Connected = false;
@@ -70,12 +66,12 @@ public class SafetyMonitorTests : IDisposable
     [Fact]
     public void Connect_WhenAlreadyConnected_DoesNotCallApiAgain()
     {
-        _api.Setup(a => a.GetSafetyStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
         _monitor.Connected = true;
 
         _monitor.Connected = true;
 
-        _api.Verify(a => a.GetSafetyStatusAsync(), Times.Once);
+        _source.Verify(s => s.GetStatusAsync(), Times.Once);
     }
 
     #endregion
@@ -85,7 +81,7 @@ public class SafetyMonitorTests : IDisposable
     [Fact]
     public void IsSafe_WhenConnectedAndSafe_ReturnsTrue()
     {
-        _api.Setup(a => a.GetSafetyStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
 
         _monitor.Connected = true;
 
@@ -95,7 +91,7 @@ public class SafetyMonitorTests : IDisposable
     [Fact]
     public void IsSafe_WhenConnectedAndUnsafe_ReturnsFalse()
     {
-        _api.Setup(a => a.GetSafetyStatusAsync()).ReturnsAsync(CreateSafetyStatus(false));
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateSafetyStatus(false));
 
         _monitor.Connected = true;
 
@@ -115,7 +111,7 @@ public class SafetyMonitorTests : IDisposable
     [Fact]
     public void DeviceState_WhenConnected_ReturnsValues()
     {
-        _api.Setup(a => a.GetSafetyStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
         _monitor.Connected = true;
 
         var state = _monitor.DeviceState;

@@ -1,20 +1,12 @@
 ﻿using ASCOM;
 using ASCOM.Common.DeviceInterfaces;
-using KomaAlpacaCommon;
 using KomaSafetyMonitor.SafetyRestApi;
-using Microsoft.Extensions.Options;
 using System.Globalization;
 
 namespace KomaSafetyMonitor
 {
-    public class SafetyMonitor(IRefitClientFactory<ISafetyMonitorApi> refitClientFactory, IOptions<SafetyMonitorOptions> options) : ISafetyMonitorV3
+    public class SafetyMonitor(ISafetyStatusSource safetyStatusSource) : ISafetyMonitorV3
     {
-        private readonly PeriodicTimer _timer = new(TimeSpan.FromSeconds(3));
-        private CancellationTokenSource _cancellationTokenSource = new();
-        private Task? _timerTask;
-
-        private SafetyStatus? _safetyStatus = null;
-
         #region Basic information
 
         public string Description => "Safety monitor for Komakallio observatory";
@@ -29,7 +21,17 @@ namespace KomaSafetyMonitor
 
         #endregion
 
-        public bool IsSafe => _safetyStatus is not null && ParseSafetyStatus(_safetyStatus);
+        public bool IsSafe
+        {
+            get
+            {
+                if (!_connected)
+                    return false;
+
+                var status = safetyStatusSource.GetStatusAsync().GetAwaiter().GetResult();
+                return status is not null && ParseSafetyStatus(status);
+            }
+        }
 
         private bool _connected = false;
         /// <summary>
@@ -108,8 +110,6 @@ namespace KomaSafetyMonitor
 
         public void Dispose()
         {
-            _cancellationTokenSource?.Dispose();
-            _timer.Dispose();
         }
 
         private async Task ConnectAsync()
@@ -122,8 +122,7 @@ namespace KomaSafetyMonitor
             Connecting = true;
             try
             {
-                _safetyStatus = await CreateApiClient().GetSafetyStatusAsync();
-                _timerTask = StartPollingLoop();
+                await safetyStatusSource.GetStatusAsync();
                 _connected = true;
             }
             catch (Exception)
@@ -136,57 +135,21 @@ namespace KomaSafetyMonitor
             }
         }
 
-        private async Task DisconnectAsync()
+        private Task DisconnectAsync()
         {
             if (!Connected)
             {
-                return;
+                return Task.CompletedTask;
             }
 
-            Connecting = true;
-            await StopPollingAsync();
             _connected = false;
-            Connecting = false;
-        }
-
-        private async Task StartPollingLoop()
-        {
-            // TODO: Handle exceptions from ApiClient
-            try
-            {
-                while (await _timer.WaitForNextTickAsync(_cancellationTokenSource.Token))
-                {
-                    _safetyStatus = await CreateApiClient().GetSafetyStatusAsync();
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                // Timer was stopped, exit the loop
-            }
-        }
-
-        private async Task StopPollingAsync()
-        {
-            if (_timerTask is null)
-            {
-                return;
-            }
-
-            await _cancellationTokenSource.CancelAsync();
-            await _timerTask;
-            _cancellationTokenSource.Dispose();
-            _cancellationTokenSource = new();
+            return Task.CompletedTask;
         }
 
         private static bool ParseSafetyStatus(SafetyStatus status)
         {
             // TODO: Check status details if configured so
             return status.Safe;
-        }
-
-        private ISafetyMonitorApi CreateApiClient()
-        {
-            return refitClientFactory.CreateClient(options.Value.BaseUrl);
         }
     }
 }

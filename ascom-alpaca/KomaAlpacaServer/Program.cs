@@ -162,7 +162,9 @@ namespace KomaAlpacaServer
             builder.Services.Configure<SafetyMonitorOptions>(builder.Configuration.GetSection(nameof(SafetyMonitorOptions)));
             builder.Services.Configure<DomeOptions>(builder.Configuration.GetSection(nameof(DomeOptions)));
             builder.Services.AddHttpClient();
+            builder.Services.AddMemoryCache();
             builder.Services.AddTransient(typeof(IRefitClientFactory<>), typeof(RefitClientFactory<>));
+            builder.Services.AddSingleton<ISafetyStatusSource, SafetyStatusCache>();
             builder.Services.AddSingleton<SafetyMonitor>();
             builder.Services.AddSingleton<Dome>();
 
