@@ -1,10 +1,11 @@
 using ASCOM.Alpaca;
 using ASCOM.Common;
-using KomaAlpacaCommon;
 using KomaDome;
 using KomaDome.DomeRestApi;
 using KomaSafetyMonitor;
+using KomaSafetyMonitor.SafetyRestApi;
 using Microsoft.Extensions.Options;
+using Refit;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Reflection;
@@ -163,23 +164,31 @@ namespace KomaAlpacaServer
 
             builder.Services.Configure<SafetyMonitorOptions>(builder.Configuration.GetSection(nameof(SafetyMonitorOptions)));
             builder.Services.Configure<DomeOptions>(builder.Configuration.GetSection(nameof(DomeOptions)));
-            builder.Services.AddHttpClient();
+
             builder.Services.AddMemoryCache();
-            builder.Services.AddTransient(typeof(IRefitClientFactory<>), typeof(RefitClientFactory<>));
+            builder.Services.AddRefitClient<ISafetyMonitorApi>().ConfigureHttpClient(c =>
+            {
+                var options = new SafetyMonitorOptions();
+                builder.Configuration.GetSection(nameof(SafetyMonitorOptions)).Bind(options);
+                c.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/'));
+            });
+
+            builder.Services.AddRefitClient<IDomeApi>().ConfigureHttpClient(c =>
+            {
+                var options = new DomeOptions();
+                builder.Configuration.GetSection(nameof(DomeOptions)).Bind(options);
+                c.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/'));
+            });
             builder.Services.AddSingleton<ISafetyStatusSource, SafetyStatusCache>();
             builder.Services.AddSingleton<SafetyMonitor>();
             var app = builder.Build();
-            //Add a safety monitor with device id 0. You can load any number of the same device with different ids or load other devices with Load* functions.
-            //You may want to inject settings and logging here to the Driver Instance.
-            //For each device you add you should add or edit an existing settings page in the settings folder and an entry in the Shared NavMenu.
-            //There are pages already included for the first device of each device type.
             ASCOM.Alpaca.DeviceManager.LoadSafetyMonitor(0, app.Services.GetRequiredService<SafetyMonitor>(), "Komakallio Safety Monitor", ServerSettings.GetDeviceUniqueId("SafetyMonitor", 0));
-            var domeOptions = app.Services.GetRequiredService<IOptions<DomeOptions>>();
-            var refitFactory = app.Services.GetRequiredService<IRefitClientFactory<IDomeApi>>();
-            var domeUsers = domeOptions.Value.Users;
+            var domeApi = app.Services.GetRequiredService<IDomeApi>();
+            var domeUsers = app.Services.GetRequiredService<IOptions<DomeOptions>>().Value.Users;
             for (int i = 0; i < domeUsers.Length; i++)
             {
-                var dome = new Dome(refitFactory, domeOptions, domeUsers[i]);
+                var dome = new Dome(domeApi, domeUsers[i]);
+                // TODO: Encode friendly names for each pier in the appsettings file
                 ASCOM.Alpaca.DeviceManager.LoadDome(i, dome, $"Komakallio Dome ({domeUsers[i]})", ServerSettings.GetDeviceUniqueId("Dome", i));
             }
 

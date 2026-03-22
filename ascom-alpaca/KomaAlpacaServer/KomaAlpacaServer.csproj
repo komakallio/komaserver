@@ -8,10 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="ASCOM.Alpaca.Razor" Version="0.5.0-alpha02" />
+    <PackageReference Include="Refit" Version="10.1.6" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="10.1.6" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KomaAlpacaCommon\KomaAlpacaCommon.csproj" />
     <ProjectReference Include="..\KomaDome\KomaDome.csproj" />
     <ProjectReference Include="..\KomaSafetyMonitor\KomaSafetyMonitor.csproj" />
   </ItemGroup>

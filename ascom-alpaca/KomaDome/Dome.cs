@@ -1,13 +1,11 @@
 using ASCOM;
 using ASCOM.Common.DeviceInterfaces;
-using KomaAlpacaCommon;
 using KomaDome.DomeRestApi;
-using Microsoft.Extensions.Options;
 using System.Globalization;
 
 namespace KomaDome;
 
-public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<DomeOptions> options, string user) : IDomeV3
+public class Dome(IDomeApi api, string user) : IDomeV3
 {
 
     #region Basic information
@@ -28,7 +26,7 @@ public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<Dom
     {
         get
         {
-            var status = CreateApiClient().GetStatusAsync(user).GetAwaiter().GetResult();
+            var status = api.GetStatusAsync(user).GetAwaiter().GetResult();
             return ParseShutterState(status.State);
         }
     }
@@ -107,17 +105,17 @@ public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<Dom
 
     public void OpenShutter()
     {
-        CreateApiClient().OpenAsync(user).Wait();
+        api.OpenAsync(user).Wait();
     }
 
     public void CloseShutter()
     {
-        CreateApiClient().CloseAsync(user).Wait();
+        api.CloseAsync(user).Wait();
     }
 
     public void AbortSlew()
     {
-        CreateApiClient().StopAsync(user).Wait();
+        api.StopAsync(user).Wait();
     }
 
     public void FindHome()
@@ -176,8 +174,4 @@ public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<Dom
 
     #endregion
 
-    private IDomeApi CreateApiClient()
-    {
-        return refitClientFactory.CreateClient(options.Value.BaseUrl);
-    }
 }

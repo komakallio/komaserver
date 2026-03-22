@@ -10,11 +10,7 @@
     <PackageReference Include="ASCOM.Common.Components" Version="3.0.0" />
     <PackageReference Include="ASCOM.Tools" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
-    <PackageReference Include="Refit" Version="10.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\KomaAlpacaCommon\KomaAlpacaCommon.csproj" />
+    <PackageReference Include="Refit" Version="10.1.6" />
   </ItemGroup>
 
 </Project>

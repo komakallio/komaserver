@@ -1,14 +1,11 @@
-using KomaAlpacaCommon;
 using KomaSafetyMonitor.SafetyRestApi;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 
 namespace KomaSafetyMonitor
 {
     public class SafetyStatusCache(
         IMemoryCache memoryCache,
-        IRefitClientFactory<ISafetyMonitorApi> refitClientFactory,
-        IOptions<SafetyMonitorOptions> options) : ISafetyStatusSource
+        ISafetyMonitorApi api) : ISafetyStatusSource
     {
         private const string CacheKey = "SafetyStatus";
         private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(5);
@@ -27,9 +24,7 @@ namespace KomaSafetyMonitor
                 if (memoryCache.TryGetValue(CacheKey, out cached))
                     return cached;
 
-                var status = await refitClientFactory
-                    .CreateClient(options.Value.BaseUrl)
-                    .GetSafetyStatusAsync();
+                var status = await api.GetSafetyStatusAsync();
 
                 memoryCache.Set(CacheKey, status, CacheDuration);
                 return status;

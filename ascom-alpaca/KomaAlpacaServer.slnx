@@ -1,6 +1,5 @@
 <Solution>
-  <Project Path="KomaAlpacaCommon/KomaAlpacaCommon.csproj" Id="83695a38-98dd-4a98-bb3e-b589c4bc95b7" />
-  <Project Path="KomaAlpacaServer/KomaAlpacaServer.csproj" />
+<Project Path="KomaAlpacaServer/KomaAlpacaServer.csproj" />
   <Project Path="KomaDome/KomaDome.csproj" />
   <Project Path="KomaSafetyMonitor/KomaSafetyMonitor.csproj" Id="ef52d8b4-747d-4ce7-8fc3-1f0af4a177d8" />
   <Project Path="KomaDome.Tests/KomaDome.Tests.csproj" />

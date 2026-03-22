@@ -1,5 +1,4 @@
 ﻿using ASCOM.Alpaca;
-using KomaAlpacaCommon;
 
 namespace KomaAlpacaServer
 {
