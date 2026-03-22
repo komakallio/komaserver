@@ -1,19 +1,10 @@
 @page "/setup/v1/Dome/{InstanceID:int}/setup"
-@using KomaDome
 
 <h3>Dome Setup: @InstanceID</h3>
 
 @if (ASCOM.Alpaca.DeviceManager.Domes.ContainsKey(InstanceID))
 {
-    <fieldset>
-        <legend>Dome settings</legend>
-        <br />
-        <label>Roof API base URL: </label>
-        <input type="text" style="width:40ch;" @bind="BaseUrl" />
-        <br />
-        <br />
-        <button @onclick="SaveSettings" style="min-width:12ch;">Save</button>
-    </fieldset>
+    <p>Add your device setup and control functions here</p>
 }
 else
 {
@@ -23,11 +14,4 @@ else
 @code {
     [Parameter]
     public int InstanceID { get; set; }
-
-    string BaseUrl { get; set; } = DomeSettings.BaseUrl;
-
-    void SaveSettings()
-    {
-        DomeSettings.BaseUrl = BaseUrl;
-    }
 }

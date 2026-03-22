@@ -1,6 +1,7 @@
 using ASCOM.Common.DeviceInterfaces;
 using KomaAlpacaCommon;
 using KomaDome.DomeRestApi;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -16,7 +17,7 @@ public class DomeTests : IDisposable
         var factory = new Mock<IRefitClientFactory<IDomeApi>>();
         _api = new Mock<IDomeApi>();
         factory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_api.Object);
-        _dome = new Dome(factory.Object);
+        _dome = new Dome(factory.Object, Options.Create<DomeOptions>(new() { BaseUrl = "http://invalid.invalid" }));
     }
 
     public void Dispose()

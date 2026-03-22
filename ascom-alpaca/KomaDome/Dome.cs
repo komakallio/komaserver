@@ -2,11 +2,12 @@ using ASCOM;
 using ASCOM.Common.DeviceInterfaces;
 using KomaAlpacaCommon;
 using KomaDome.DomeRestApi;
+using Microsoft.Extensions.Options;
 using System.Globalization;
 
 namespace KomaDome;
 
-public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory) : IDomeV3
+public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory, IOptions<DomeOptions> options) : IDomeV3
 {
     private readonly PeriodicTimer _timer = new(TimeSpan.FromSeconds(5));
     private CancellationTokenSource _cancellationTokenSource = new();
@@ -262,6 +263,6 @@ public class Dome(IRefitClientFactory<IDomeApi> refitClientFactory) : IDomeV3
 
     private IDomeApi CreateApiClient()
     {
-        return refitClientFactory.CreateClient(DomeSettings.BaseUrl);
+        return refitClientFactory.CreateClient(options.Value.BaseUrl);
     }
 }
