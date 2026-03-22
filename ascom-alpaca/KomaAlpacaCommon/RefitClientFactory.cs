@@ -11,7 +11,7 @@ public class RefitClientFactory<T>(IHttpClientFactory httpClientFactory) : IRefi
     public T CreateClient(string baseAddress)
     {
         var httpClient = httpClientFactory.CreateClient();
-        httpClient.BaseAddress = new Uri(baseAddress);
+        httpClient.BaseAddress = new Uri(baseAddress.TrimEnd('/'));
         return Refit.RestService.For<T>(httpClient);
     }
 }

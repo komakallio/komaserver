@@ -80,7 +80,6 @@ namespace KomaAlpacaServer
             {
                 Logger.LogInformation("Reseting Settings");
                 ServerSettings.Reset();
-                SafetyMonitorSettings.Reset();
                 DomeSettings.Reset();
 
                 //If you have any device settings you should reset them as well or add a specific reset command.
@@ -161,6 +160,7 @@ namespace KomaAlpacaServer
             //Add User Service
             builder.Services.AddScoped<IUserService, Data.UserService>();
 
+            builder.Services.Configure<SafetyMonitorOptions>(builder.Configuration.GetSection(nameof(SafetyMonitorOptions)));
             builder.Services.AddHttpClient();
             builder.Services.AddTransient(typeof(IRefitClientFactory<>), typeof(RefitClientFactory<>));
             builder.Services.AddSingleton<SafetyMonitor>();

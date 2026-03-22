@@ -2,11 +2,12 @@
 using ASCOM.Common.DeviceInterfaces;
 using KomaAlpacaCommon;
 using KomaSafetyMonitor.SafetyRestApi;
+using Microsoft.Extensions.Options;
 using System.Globalization;
 
 namespace KomaSafetyMonitor
 {
-    public class SafetyMonitor(IRefitClientFactory<ISafetyMonitorApi> refitClientFactory) : ISafetyMonitorV3
+    public class SafetyMonitor(IRefitClientFactory<ISafetyMonitorApi> refitClientFactory, IOptions<SafetyMonitorOptions> options) : ISafetyMonitorV3
     {
         private readonly PeriodicTimer _timer = new(TimeSpan.FromSeconds(3));
         private CancellationTokenSource _cancellationTokenSource = new();
@@ -185,7 +186,7 @@ namespace KomaSafetyMonitor
 
         private ISafetyMonitorApi CreateApiClient()
         {
-            return refitClientFactory.CreateClient(SafetyMonitorSettings.BaseUrl);
+            return refitClientFactory.CreateClient(options.Value.BaseUrl);
         }
     }
 }

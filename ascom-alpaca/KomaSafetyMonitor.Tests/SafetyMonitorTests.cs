@@ -1,5 +1,6 @@
 using KomaAlpacaCommon;
 using KomaSafetyMonitor.SafetyRestApi;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 using static KomaSafetyMonitor.SafetyRestApi.SafetyStatus;
@@ -16,7 +17,7 @@ public class SafetyMonitorTests : IDisposable
         var factory = new Mock<IRefitClientFactory<ISafetyMonitorApi>>();
         _api = new Mock<ISafetyMonitorApi>();
         factory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_api.Object);
-        _monitor = new SafetyMonitor(factory.Object);
+        _monitor = new SafetyMonitor(factory.Object, Options.Create<SafetyMonitorOptions>(new() { BaseUrl = "https://invalid.invalid" }));
     }
 
     public void Dispose()
