@@ -3,7 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace KomaSafetyMonitor
 {
-    public class SafetyStatusCache(
+    internal class SafetyStatusCache(
         IMemoryCache memoryCache,
         ISafetyMonitorApi api) : ISafetyStatusSource
     {

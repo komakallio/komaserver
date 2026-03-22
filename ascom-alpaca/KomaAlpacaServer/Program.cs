@@ -3,9 +3,7 @@ using ASCOM.Common;
 using KomaDome;
 using KomaDome.DomeRestApi;
 using KomaSafetyMonitor;
-using KomaSafetyMonitor.SafetyRestApi;
 using Microsoft.Extensions.Options;
-using Refit;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Reflection;
@@ -162,26 +160,11 @@ namespace KomaAlpacaServer
             //Add User Service
             builder.Services.AddScoped<IUserService, Data.UserService>();
 
-            builder.Services.Configure<SafetyMonitorOptions>(builder.Configuration.GetSection(nameof(SafetyMonitorOptions)));
-            builder.Services.Configure<DomeOptions>(builder.Configuration.GetSection(nameof(DomeOptions)));
+            builder.Services.AddSafetyMonitor(builder.Configuration);
+            builder.Services.AddDome(builder.Configuration);
 
-            builder.Services.AddMemoryCache();
-            builder.Services.AddRefitClient<ISafetyMonitorApi>().ConfigureHttpClient(c =>
-            {
-                var options = new SafetyMonitorOptions();
-                builder.Configuration.GetSection(nameof(SafetyMonitorOptions)).Bind(options);
-                c.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/'));
-            });
-
-            builder.Services.AddRefitClient<IDomeApi>().ConfigureHttpClient(c =>
-            {
-                var options = new DomeOptions();
-                builder.Configuration.GetSection(nameof(DomeOptions)).Bind(options);
-                c.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/'));
-            });
-            builder.Services.AddSingleton<ISafetyStatusSource, SafetyStatusCache>();
-            builder.Services.AddSingleton<SafetyMonitor>();
             var app = builder.Build();
+
             ASCOM.Alpaca.DeviceManager.LoadSafetyMonitor(0, app.Services.GetRequiredService<SafetyMonitor>(), "Komakallio Safety Monitor", ServerSettings.GetDeviceUniqueId("SafetyMonitor", 0));
             var domeApi = app.Services.GetRequiredService<IDomeApi>();
             var domeUsers = app.Services.GetRequiredService<IOptions<DomeOptions>>().Value.Users;
@@ -191,7 +174,6 @@ namespace KomaAlpacaServer
                 // TODO: Encode friendly names for each pier in the appsettings file
                 ASCOM.Alpaca.DeviceManager.LoadDome(i, dome, $"Komakallio Dome ({domeUsers[i]})", ServerSettings.GetDeviceUniqueId("Dome", i));
             }
-
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

@@ -1,6 +1,6 @@
 ﻿namespace KomaSafetyMonitor;
 
-public class SafetyMonitorOptions
+internal class SafetyMonitorOptions
 {
     public string BaseUrl { get; set; }
 }

@@ -10,6 +10,7 @@
     <PackageReference Include="ASCOM.Common.Components" Version="3.0.0" />
     <PackageReference Include="ASCOM.Tools" Version="3.0.0" />
     <PackageReference Include="Refit" Version="10.1.6" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="10.1.6" />
   </ItemGroup>
 
 </Project>

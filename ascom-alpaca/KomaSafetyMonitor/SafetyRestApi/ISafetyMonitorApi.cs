@@ -2,7 +2,7 @@
 
 namespace KomaSafetyMonitor.SafetyRestApi;
 
-public interface ISafetyMonitorApi
+internal interface ISafetyMonitorApi
 {
     [Get("/safety")]
     public Task<SafetyStatus> GetSafetyStatusAsync();
