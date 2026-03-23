@@ -1,4 +1,3 @@
-using ASCOM.Alpaca;
 using ASCOM.Common;
 using KomaDome;
 using KomaDome.DomeRestApi;
@@ -158,7 +157,7 @@ public class Program
         //Use Authentication
         ASCOM.Alpaca.Razor.StartupHelpers.ConfigureAuthentication(builder.Services);
         //Add User Service
-        builder.Services.AddScoped<IUserService, Data.UserService>();
+        builder.Services.AddScoped<ASCOM.Alpaca.IUserService, Data.UserService>();
 
         builder.Services.AddSafetyMonitor(builder.Configuration);
         builder.Services.AddDome(builder.Configuration);
