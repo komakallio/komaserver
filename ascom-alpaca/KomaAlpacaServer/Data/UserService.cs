@@ -1,6 +1,4 @@
-﻿using ASCOM.Alpaca;
-
-namespace KomaAlpacaServer.Data;
+﻿namespace KomaAlpacaServer.Data;
 
 internal class UserService : ASCOM.Alpaca.IUserService
 {
@@ -10,7 +8,7 @@ internal class UserService : ASCOM.Alpaca.IUserService
         {
             try
             {
-                return username == ServerSettings.UserName && Hash.Validate(ServerSettings.Password, password);
+                return username == ServerSettings.UserName && ASCOM.Alpaca.Hash.Validate(ServerSettings.Password, password);
             }
             catch
             {
