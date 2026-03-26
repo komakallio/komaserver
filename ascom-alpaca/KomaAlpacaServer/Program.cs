@@ -1,6 +1,7 @@
 using ASCOM.Common;
 using KomaDome;
 using KomaDome.DomeRestApi;
+using KomaObservingConditions;
 using KomaSafetyMonitor;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
@@ -159,12 +160,15 @@ public class Program
         //Add User Service
         builder.Services.AddScoped<ASCOM.Alpaca.IUserService, Data.UserService>();
 
-        builder.Services.AddSafetyMonitor(builder.Configuration);
-        builder.Services.AddDome(builder.Configuration);
+        builder.Services
+            .AddSafetyMonitor(builder.Configuration)
+            .AddObservingConditions(builder.Configuration)
+            .AddDome(builder.Configuration);
 
         var app = builder.Build();
 
         ASCOM.Alpaca.DeviceManager.LoadSafetyMonitor(0, app.Services.GetRequiredService<SafetyMonitor>(), "Komakallio Safety Monitor", ServerSettings.GetDeviceUniqueId("SafetyMonitor", 0));
+        ASCOM.Alpaca.DeviceManager.LoadObservingConditions(0, app.Services.GetRequiredService<ObservingConditions>(), "Komakallio Observing Conditions", ServerSettings.GetDeviceUniqueId("ObservingConditions", 0));
         var domeApi = app.Services.GetRequiredService<IDomeApi>();
         var domeUsers = app.Services.GetRequiredService<IOptions<DomeOptions>>().Value.Users;
         for (int i = 0; i < domeUsers.Length; i++)

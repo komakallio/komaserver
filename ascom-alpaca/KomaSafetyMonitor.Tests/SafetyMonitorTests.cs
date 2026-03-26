@@ -5,7 +5,7 @@ using static KomaSafetyMonitor.SafetyRestApi.SafetyStatus;
 
 namespace KomaSafetyMonitor.Tests;
 
-public class SafetyMonitorTests : IDisposable
+public sealed class SafetyMonitorTests : IDisposable
 {
     private readonly Mock<ISafetyStatusSource> _source;
     private readonly SafetyMonitor _monitor;

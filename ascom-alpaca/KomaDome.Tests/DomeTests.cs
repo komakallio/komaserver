@@ -5,7 +5,7 @@ using Xunit;
 
 namespace KomaDome.Tests;
 
-public class DomeTests : IDisposable
+public sealed class DomeTests : IDisposable
 {
     private readonly Mock<IDomeApi> _api;
     private readonly Dome _dome;
