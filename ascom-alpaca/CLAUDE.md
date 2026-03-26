@@ -4,47 +4,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Komakallio ASCOM Alpaca Server — a C# .NET 8.0 ASP.NET Core Blazor Server application exposing observatory devices over the ASCOM Alpaca REST protocol. Built for the Komakallio observatory.
+ASCOM Alpaca server for the Komakallio observatory. Wraps three remote observatory REST APIs (dome/roof control, safety monitoring, weather) and exposes them as standard ASCOM Alpaca device drivers. Built with ASP.NET Core Blazor (.NET 8.0).
 
-## Build & Run
+## Build & Test Commands
 
 ```bash
-# Build the solution
-dotnet build KomaAlpacaServer.slnx
-
-# Run the server
-dotnet run --project KomaAlpacaServer/KomaAlpacaServer.csproj
-
-# Run on a specific port
-dotnet run --project KomaAlpacaServer/KomaAlpacaServer.csproj -- --urls=http://localhost:12345
+dotnet build                                    # Build all projects
+dotnet test                                     # Run all tests
+dotnet test --filter FullyQualifiedName~DomeTests  # Run a specific test class
+dotnet run --project KomaAlpacaServer           # Run the server (default port 12345)
 ```
 
-Tests are in `KomaDome.Tests` and `KomaSafetyMonitor.Tests`. Run with `dotnet test`.
-
-The server starts at `http://localhost:5077` in development (via launchSettings.json), defaulting to port 12345 in production. The web UI includes a Setup page and per-device configuration pages.
-
-Useful startup flags: `--reset` (clear all settings), `--reset-auth` (disable auth to allow password change), `--local-address` (print local IP/port).
+The server accepts CLI flags: `--reset` (reset settings), `--reset-auth` (reset auth), `--urls=http://localhost:PORT` (custom port).
 
 ## Architecture
 
-Two projects plus the server host:
+**Solution structure:** One ASP.NET Core Blazor web app (`KomaAlpacaServer`) references three device driver libraries (`KomaDome`, `KomaSafetyMonitor`, `KomaObservingConditions`). Each driver library has a corresponding test project (except ObservingConditions).
 
-- **KomaAlpacaServer** — ASP.NET Core Blazor Server host. `Program.cs` configures the ASCOM Alpaca framework, registers devices with `DeviceManager`, and sets up auth/Swagger. `ServerSettings.cs` manages persistent config via ASCOM `XMLProfile`. Razor pages in `Pages/` provide the setup UI.
-- **KomaSafetyMonitor** — Implements `ISafetyMonitorV3`. Fetches safety status from an external REST API via a Refit client with caching. Safety state is derived from a `SafetyStatus` record with 10 sensor fields.
-- **KomaDome** — Implements `IDomeV3`. Controls observatory dome/roof via an external REST API using a Refit client.
+**Device driver pattern:** Each driver library follows the same structure:
+- A main class implementing an ASCOM interface (`IDomeV3`, `ISafetyMonitorV3`, `IObservingConditionsV2`)
+- A Refit-generated HTTP client interface for the upstream REST API
+- An options class for configuration (base URL, etc.)
+- A `ServiceCollectionExtensions` class for DI registration
+- All drivers report `Connected = true` always — they are stateless network proxies
 
-### Key patterns
+**Caching:** SafetyMonitor and ObservingConditions use a cache class with 5-second expiry, `SemaphoreSlim`-based stampede protection, and double-check locking. Dome does not cache.
 
-**Adding a new device:** Implement the relevant ASCOM interface (e.g., `ISafetyMonitorV3`), register it in `Program.cs` via `DeviceManager`, and create a setup Razor page under `Pages/Devices/`. Store device-specific settings in a dedicated settings class using `XMLProfile` (see `SafetyMonitorSettings.cs` as the model).
+**Multi-instance devices:** The Dome driver is instantiated once per pier user (eastpier, centerpier, westpier), each registered as a separate Alpaca device.
 
-**Persistent settings:** `ServerSettings` and device-specific settings classes use ASCOM `XMLProfile` for storage. Each setting has an explicit key constant and default value.
+**Configuration:** Server settings are persisted via ASCOM XML Profile (`ServerSettings.cs`). Device endpoint URLs come from `appsettings.{Environment}.json`.
 
-**External API integration:** Define a Refit interface (see `ISafetyMonitorApi`, `IDomeApi`), register it in `Program.cs` via `RestService.For<T>()`, and inject into the device implementation.
+## Testing
 
-## NuGet Sources
-
-`KomaAlpacaServer/NuGet.config` includes a MyGet feed for ASCOM Initiative packages (`ASCOM.Alpaca.Razor`, `ASCOM.Common.Components`, `ASCOM.Tools`).
-
-## External Safety Monitor API
-
-The safety monitor polls `GET /safety` at the configured base URL (default `http://192.168.1.8:9002`). It expects a `SafetyStatus` JSON response with a `Safe` boolean and a `Details` object containing 10 `SafetyValue` fields (each with `Value` and `Safe`): temperature, rain intensity, rain trigger, rain radar at 3 km/10 km/30 km, sun altitude, moon altitude, UPS charge, and enclosure temperature.
+xUnit + Moq. Tests mock the Refit API interface and verify ASCOM interface behavior. Each driver library has its own test project (convention: `{ProjectName}.Tests`).
