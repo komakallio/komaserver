@@ -59,7 +59,7 @@ public class Dome(IDomeApi api, string user) : IDomeV3
 
     public bool Slaved
     {
-        get => throw new PropertyNotImplementedException();
+        get => false;
         set => throw new PropertyNotImplementedException();
     }
 
