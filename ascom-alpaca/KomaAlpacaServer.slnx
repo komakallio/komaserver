@@ -1,9 +1,11 @@
 <Solution>
-<Project Path="KomaAlpacaServer/KomaAlpacaServer.csproj" />
+<Folder Name="/Tests/">
 <Project Path="KomaDome.Tests/KomaDome.Tests.csproj" />
-<Project Path="KomaDome/KomaDome.csproj" />
 <Project Path="KomaObservingConditions.Tests/KomaObservingConditions.Tests.csproj" />
-<Project Path="KomaObservingConditions/KomaObservingConditions.csproj" Id="61d4a745-30dc-4535-a325-5b7f5486f193" />
 <Project Path="KomaSafetyMonitor.Tests/KomaSafetyMonitor.Tests.csproj" />
+</Folder>
+<Project Path="KomaAlpacaServer/KomaAlpacaServer.csproj" />
+<Project Path="KomaDome/KomaDome.csproj" />
+<Project Path="KomaObservingConditions/KomaObservingConditions.csproj" Id="61d4a745-30dc-4535-a325-5b7f5486f193" />
 <Project Path="KomaSafetyMonitor/KomaSafetyMonitor.csproj" Id="ef52d8b4-747d-4ce7-8fc3-1f0af4a177d8" />
 </Solution>
