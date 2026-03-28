@@ -25,15 +25,27 @@ public class SafetyMonitor(ISafetyStatusSource safetyStatusSource) : ISafetyMoni
         get
         {
             // TODO: Log if something goes wrong
-            var status = safetyStatusSource.GetStatusAsync().GetAwaiter().GetResult();
-            return status is not null && ParseSafetyStatus(status);
+            var result = safetyStatusSource.GetStatusAsync().GetAwaiter().GetResult();
+            return result.Value is not null && ParseSafetyStatus(result.Value);
         }
     }
 
-    public List<StateValue> DeviceState => Connected ? [
-        new StateValue("IsSafe", IsSafe ? 1 : 0),
-        new StateValue("TimeStamp", DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture)),
-    ] : [];
+    public List<StateValue> DeviceState
+    {
+        get
+        {
+            if (!Connected)
+                return [];
+
+            var result = safetyStatusSource.GetStatusAsync().GetAwaiter().GetResult();
+            var isSafe = result.Value is not null && ParseSafetyStatus(result.Value);
+
+            return [
+                new StateValue("IsSafe", isSafe ? 1 : 0),
+                new StateValue("TimeStamp", result.FetchedAt.ToString("o", CultureInfo.InvariantCulture)),
+            ];
+        }
+    }
 
     /// <summary>
     /// Connected is always true, as this driver is not connected to any physical device and thus cannot be disconnected.

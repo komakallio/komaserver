@@ -44,7 +44,7 @@ public sealed class SafetyMonitorTests : IDisposable
     [Fact]
     public void IsSafe_WhenStatusIsSafe_ReturnsTrue()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(new TimestampedResult<SafetyStatus>(CreateSafetyStatus(true), DateTime.UtcNow));
 
         Assert.True(_monitor.IsSafe);
     }
@@ -52,7 +52,7 @@ public sealed class SafetyMonitorTests : IDisposable
     [Fact]
     public void IsSafe_WhenStatusIsUnsafe_ReturnsFalse()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateSafetyStatus(false));
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(new TimestampedResult<SafetyStatus>(CreateSafetyStatus(false), DateTime.UtcNow));
 
         Assert.False(_monitor.IsSafe);
     }
@@ -60,7 +60,7 @@ public sealed class SafetyMonitorTests : IDisposable
     [Fact]
     public void IsSafe_WhenStatusIsNull_ReturnsFalse()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync((SafetyStatus?)null);
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(new TimestampedResult<SafetyStatus>(null, DateTime.UtcNow));
 
         Assert.False(_monitor.IsSafe);
     }
@@ -72,13 +72,14 @@ public sealed class SafetyMonitorTests : IDisposable
     [Fact]
     public void DeviceState_ReturnsIsSafeAndTimeStamp()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateSafetyStatus(true));
+        var fetchedAt = new DateTime(2025, 1, 15, 12, 0, 0, DateTimeKind.Utc);
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(new TimestampedResult<SafetyStatus>(CreateSafetyStatus(true), fetchedAt));
 
         var state = _monitor.DeviceState;
 
         Assert.NotEmpty(state);
         Assert.Contains(state, s => s.Name == "IsSafe");
-        Assert.Contains(state, s => s.Name == "TimeStamp");
+        Assert.Contains(state, s => s.Name == "TimeStamp" && s.Value.ToString() == "2025-01-15T12:00:00.0000000Z");
     }
 
     #endregion

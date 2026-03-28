@@ -11,10 +11,10 @@ internal class SafetyStatusCache(
     private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(5);
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-    public async Task<SafetyStatus?> GetStatusAsync()
+    public async Task<TimestampedResult<SafetyStatus>> GetStatusAsync()
     {
-        if (memoryCache.TryGetValue(CacheKey, out SafetyStatus? cached))
-            return cached;
+        if (memoryCache.TryGetValue(CacheKey, out TimestampedResult<SafetyStatus>? cached))
+            return cached!;
 
         // The semaphor provides stampede protection, ensuring only one request fetches the data when cache is expired
         await _semaphore.WaitAsync();
@@ -22,12 +22,13 @@ internal class SafetyStatusCache(
         {
             // Double-check after acquiring lock
             if (memoryCache.TryGetValue(CacheKey, out cached))
-                return cached;
+                return cached!;
 
             var status = await api.GetSafetyStatusAsync();
+            var result = new TimestampedResult<SafetyStatus>(status, DateTime.UtcNow);
 
-            memoryCache.Set(CacheKey, status, CacheDuration);
-            return status;
+            memoryCache.Set(CacheKey, result, CacheDuration);
+            return result;
         }
         finally
         {

@@ -4,5 +4,5 @@ namespace KomaSafetyMonitor;
 
 public interface ISafetyStatusSource
 {
-    Task<SafetyStatus?> GetStatusAsync();
+    Task<TimestampedResult<SafetyStatus>> GetStatusAsync();
 }
