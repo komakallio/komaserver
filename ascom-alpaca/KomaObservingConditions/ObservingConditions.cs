@@ -35,19 +35,18 @@ public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IOb
     {
         get
         {
-            var timestampedResult = GetResult();
-            var weatherStatus = timestampedResult.Value ?? throw new ASCOM.DriverException("Failed to get weather status");
+            var result = FetchWeatherStatus();
             return
             [
-                new(nameof(Temperature), weatherStatus.Temperature),
-                new(nameof(Humidity), weatherStatus.Humidity),
-                new(nameof(Pressure), weatherStatus.Pressure),
-                new(nameof(WindSpeed), weatherStatus.WindSpeed),
-                new(nameof(WindGust), weatherStatus.WindGust),
-                new(nameof(WindDirection), weatherStatus.WindDir),
-                new(nameof(RainRate), weatherStatus.RainRate),
-                new(nameof(DewPoint), weatherStatus.DewPoint),
-                new("TimeStamp", timestampedResult.FetchedAt.ToString("o", CultureInfo.InvariantCulture)),
+                new(nameof(Temperature), result.Value.Temperature),
+                new(nameof(Humidity), result.Value.Humidity),
+                new(nameof(Pressure), result.Value.Pressure),
+                new(nameof(WindSpeed), result.Value.WindSpeed),
+                new(nameof(WindGust), result.Value.WindGust),
+                new(nameof(WindDirection), result.Value.WindDir),
+                new(nameof(RainRate), result.Value.RainRate),
+                new(nameof(DewPoint), result.Value.DewPoint),
+                new("TimeStamp", result.FetchedAt.ToString("o", CultureInfo.InvariantCulture)),
             ];
         }
     }
@@ -64,21 +63,21 @@ public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IOb
         }
     }
 
-    public double Temperature => GetWeatherStatus().Temperature;
+    public double Temperature => FetchWeatherStatus().Value.Temperature;
 
-    public double DewPoint => GetWeatherStatus().DewPoint;
+    public double DewPoint => FetchWeatherStatus().Value.DewPoint;
 
-    public double Humidity => GetWeatherStatus().Humidity;
+    public double Humidity => FetchWeatherStatus().Value.Humidity;
 
-    public double Pressure => GetWeatherStatus().Pressure;
+    public double Pressure => FetchWeatherStatus().Value.Pressure;
 
-    public double RainRate => GetWeatherStatus().RainRate;
+    public double RainRate => FetchWeatherStatus().Value.RainRate;
 
-    public double WindDirection => GetWeatherStatus().WindDir;
+    public double WindDirection => FetchWeatherStatus().Value.WindDir;
 
-    public double WindGust => GetWeatherStatus().WindGust;
+    public double WindGust => FetchWeatherStatus().Value.WindGust;
 
-    public double WindSpeed => GetWeatherStatus().WindSpeed;
+    public double WindSpeed => FetchWeatherStatus().Value.WindSpeed;
 
     public double CloudCover => throw new ASCOM.PropertyNotImplementedException();
 
@@ -122,7 +121,7 @@ public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IOb
         if (!string.IsNullOrEmpty(PropertyName))
             ValidateSensorName(PropertyName);
 
-        var result = GetResult();
+        var result = FetchWeatherStatus();
         return (DateTime.UtcNow - result.FetchedAt).TotalSeconds;
     }
 
@@ -158,9 +157,9 @@ public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IOb
             throw new ASCOM.InvalidValueException($"No such sensor: {propertyName}");
     }
 
-    private TimestampedResult<WeatherStatus> GetResult() => weatherStatusSource.GetStatusAsync()
-                                                                               .GetAwaiter()
-                                                                               .GetResult();
-
-    private WeatherStatus GetWeatherStatus() => GetResult().Value ?? throw new ASCOM.DriverException("Failed to get weather status");
+    private TimestampedResult<WeatherStatus> FetchWeatherStatus()
+    {
+        var result = weatherStatusSource.GetStatusAsync().GetAwaiter().GetResult();
+        return result ?? throw new ASCOM.DriverException("Failed to fetch weather status");
+    }
 }

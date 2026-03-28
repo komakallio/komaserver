@@ -35,9 +35,6 @@ public sealed class ObservingConditionsTests : IDisposable
     private static TimestampedResult<WeatherStatus> CreateResult(DateTime? fetchedAt = null) =>
         new(CreateWeatherStatus(), fetchedAt ?? DateTime.UtcNow);
 
-    private static TimestampedResult<WeatherStatus> CreateNullResult() =>
-        new(null, DateTime.UtcNow);
-
     #region Weather properties
 
     [Fact]
@@ -94,73 +91,6 @@ public sealed class ObservingConditionsTests : IDisposable
     {
         _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateResult());
         Assert.Equal(8.5, _conditions.DewPoint);
-    }
-
-    #endregion
-
-    #region Null source handling
-
-    [Fact]
-    public void Temperature_WhenSourceReturnsNull_ThrowsDriverException()
-    {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
-        Assert.Throws<ASCOM.DriverException>(() => _conditions.Temperature);
-    }
-
-    [Fact]
-    public void Humidity_WhenSourceReturnsNull_ThrowsDriverException()
-    {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
-        Assert.Throws<ASCOM.DriverException>(() => _conditions.Humidity);
-    }
-
-    [Fact]
-    public void Pressure_WhenSourceReturnsNull_ThrowsDriverException()
-    {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
-        Assert.Throws<ASCOM.DriverException>(() => _conditions.Pressure);
-    }
-
-    [Fact]
-    public void WindSpeed_WhenSourceReturnsNull_ThrowsDriverException()
-    {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
-        Assert.Throws<ASCOM.DriverException>(() => _conditions.WindSpeed);
-    }
-
-    [Fact]
-    public void WindGust_WhenSourceReturnsNull_ThrowsDriverException()
-    {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
-        Assert.Throws<ASCOM.DriverException>(() => _conditions.WindGust);
-    }
-
-    [Fact]
-    public void WindDirection_WhenSourceReturnsNull_ThrowsDriverException()
-    {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
-        Assert.Throws<ASCOM.DriverException>(() => _conditions.WindDirection);
-    }
-
-    [Fact]
-    public void RainRate_WhenSourceReturnsNull_ThrowsDriverException()
-    {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
-        Assert.Throws<ASCOM.DriverException>(() => _conditions.RainRate);
-    }
-
-    [Fact]
-    public void DewPoint_WhenSourceReturnsNull_ThrowsDriverException()
-    {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
-        Assert.Throws<ASCOM.DriverException>(() => _conditions.DewPoint);
-    }
-
-    [Fact]
-    public void DeviceState_WhenSourceReturnsNull_ThrowsDriverException()
-    {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
-        Assert.Throws<ASCOM.DriverException>(() => _conditions.DeviceState);
     }
 
     #endregion

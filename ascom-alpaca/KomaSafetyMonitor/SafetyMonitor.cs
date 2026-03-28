@@ -25,8 +25,8 @@ public class SafetyMonitor(ISafetyStatusSource safetyStatusSource) : ISafetyMoni
         get
         {
             // TODO: Log if something goes wrong
-            var result = safetyStatusSource.GetStatusAsync().GetAwaiter().GetResult();
-            return result.Value is not null && ParseSafetyStatus(result.Value);
+            var result = FetchSafetyStatus();
+            return ParseSafetyStatus(result.Value);
         }
     }
 
@@ -37,8 +37,8 @@ public class SafetyMonitor(ISafetyStatusSource safetyStatusSource) : ISafetyMoni
             if (!Connected)
                 return [];
 
-            var result = safetyStatusSource.GetStatusAsync().GetAwaiter().GetResult();
-            var isSafe = result.Value is not null && ParseSafetyStatus(result.Value);
+            var result = FetchSafetyStatus();
+            var isSafe = ParseSafetyStatus(result.Value);
 
             return [
                 new StateValue("IsSafe", isSafe ? 1 : 0),
@@ -81,6 +81,12 @@ public class SafetyMonitor(ISafetyStatusSource safetyStatusSource) : ISafetyMoni
     {
         // TODO: Check status details if configured so
         return status.Safe;
+    }
+
+    private TimestampedResult<SafetyStatus> FetchSafetyStatus()
+    {
+        var result = safetyStatusSource.GetStatusAsync().GetAwaiter().GetResult();
+        return result ?? throw new ASCOM.DriverException("Failed to fetch safety status");
     }
 
     #region Unused legacy

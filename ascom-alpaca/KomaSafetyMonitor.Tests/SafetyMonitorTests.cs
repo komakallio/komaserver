@@ -57,14 +57,6 @@ public sealed class SafetyMonitorTests : IDisposable
         Assert.False(_monitor.IsSafe);
     }
 
-    [Fact]
-    public void IsSafe_WhenStatusIsNull_ReturnsFalse()
-    {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(new TimestampedResult<SafetyStatus>(null, DateTime.UtcNow));
-
-        Assert.False(_monitor.IsSafe);
-    }
-
     #endregion
 
     #region DeviceState
