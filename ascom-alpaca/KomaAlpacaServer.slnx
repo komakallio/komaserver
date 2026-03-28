@@ -1,4 +1,7 @@
 <Solution>
+<Folder Name="/Simulators/">
+<Project Path="SafetyMonitorApiSimulator/SafetyMonitorApiSimulator.csproj" Id="16dd0cf3-987b-4e20-b848-fe524d2dfa2a" />
+</Folder>
 <Folder Name="/Tests/">
 <Project Path="KomaDome.Tests/KomaDome.Tests.csproj" />
 <Project Path="KomaObservingConditions.Tests/KomaObservingConditions.Tests.csproj" />

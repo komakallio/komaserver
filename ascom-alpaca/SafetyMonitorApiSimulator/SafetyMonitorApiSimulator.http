@@ -1,0 +1,6 @@
+@SafetyMonitorApiSimulator_HostAddress = http://localhost:9002
+
+GET {{SafetyMonitorApiSimulator_HostAddress}}/safety/
+Accept: application/json
+
+###
