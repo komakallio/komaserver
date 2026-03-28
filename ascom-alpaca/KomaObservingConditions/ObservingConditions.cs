@@ -1,4 +1,4 @@
-﻿using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceInterfaces;
 using KomaObservingConditions.WeatherRestApi;
 using System.Globalization;
 
@@ -6,6 +6,18 @@ namespace KomaObservingConditions;
 
 public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IObservingConditionsV2
 {
+    private static readonly string[] SupportedSensors =
+    [
+        nameof(Temperature),
+        nameof(DewPoint),
+        nameof(Humidity),
+        nameof(Pressure),
+        nameof(RainRate),
+        nameof(WindDirection),
+        nameof(WindGust),
+        nameof(WindSpeed),
+    ];
+
     #region Basic information
     public string Description => "Observing conditions for Komakallio observatory";
 
@@ -23,9 +35,8 @@ public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IOb
     {
         get
         {
-            var weatherStatus = weatherStatusSource.GetStatusAsync()
-                                                   .GetAwaiter()
-                                                   .GetResult() ?? throw new ASCOM.DriverException("Failed to get weather status");
+            var timestampedResult = GetResult();
+            var weatherStatus = timestampedResult.Value ?? throw new ASCOM.DriverException("Failed to get weather status");
             return
             [
                 new(nameof(Temperature), weatherStatus.Temperature),
@@ -36,7 +47,7 @@ public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IOb
                 new(nameof(WindDirection), weatherStatus.WindDir),
                 new(nameof(RainRate), weatherStatus.RainRate),
                 new(nameof(DewPoint), weatherStatus.DewPoint),
-                new("TimeStamp", DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture)),
+                new("TimeStamp", timestampedResult.FetchedAt.ToString("o", CultureInfo.InvariantCulture)),
             ];
         }
     }
@@ -102,46 +113,17 @@ public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IOb
 
     public string SensorDescription(string PropertyName)
     {
-        var supportedSensors = new[]
-        {
-            nameof(Temperature),
-            nameof(DewPoint),
-            nameof(Humidity),
-            nameof(Pressure),
-            nameof(RainRate),
-            nameof(WindDirection),
-            nameof(WindGust),
-            nameof(WindSpeed),
-        }.Select(s => s.ToLowerInvariant());
-
-        if (supportedSensors.Contains(PropertyName.ToLowerInvariant()))
-        {
-            return "Komakallio weather station";
-        }
-
-        throw new ASCOM.MethodNotImplementedException($"No such sensor: {PropertyName}");
+        ValidateSensorName(PropertyName);
+        return "Komakallio weather station";
     }
 
     public double TimeSinceLastUpdate(string PropertyName)
     {
-        var supportedSensors = new[]
-        {
-            nameof(Temperature),
-            nameof(DewPoint),
-            nameof(Humidity),
-            nameof(Pressure),
-            nameof(RainRate),
-            nameof(WindDirection),
-            nameof(WindGust),
-            nameof(WindSpeed),
-        }.Select(s => s.ToLowerInvariant());
+        if (!string.IsNullOrEmpty(PropertyName))
+            ValidateSensorName(PropertyName);
 
-        if (supportedSensors.Contains(PropertyName.ToLowerInvariant()))
-        {
-            return 0.0;
-        }
-
-        throw new ASCOM.MethodNotImplementedException($"No such sensor: {PropertyName}");
+        var result = GetResult();
+        return (DateTime.UtcNow - result.FetchedAt).TotalSeconds;
     }
 
     #region Unused legacy
@@ -170,7 +152,15 @@ public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IOb
 
     #endregion
 
-    private WeatherStatus GetWeatherStatus() => weatherStatusSource.GetStatusAsync()
-                                                                   .GetAwaiter()
-                                                                   .GetResult() ?? throw new ASCOM.DriverException("Failed to get weather status");
+    private static void ValidateSensorName(string propertyName)
+    {
+        if (!SupportedSensors.Any(s => s.Equals(propertyName, StringComparison.OrdinalIgnoreCase)))
+            throw new ASCOM.InvalidValueException($"No such sensor: {propertyName}");
+    }
+
+    private TimestampedResult<WeatherStatus> GetResult() => weatherStatusSource.GetStatusAsync()
+                                                                               .GetAwaiter()
+                                                                               .GetResult();
+
+    private WeatherStatus GetWeatherStatus() => GetResult().Value ?? throw new ASCOM.DriverException("Failed to get weather status");
 }

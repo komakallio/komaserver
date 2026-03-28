@@ -32,61 +32,67 @@ public sealed class ObservingConditionsTests : IDisposable
         DewPoint = 8.5,
     };
 
+    private static TimestampedResult<WeatherStatus> CreateResult(DateTime? fetchedAt = null) =>
+        new(CreateWeatherStatus(), fetchedAt ?? DateTime.UtcNow);
+
+    private static TimestampedResult<WeatherStatus> CreateNullResult() =>
+        new(null, DateTime.UtcNow);
+
     #region Weather properties
 
     [Fact]
     public void Temperature_ReturnsValueFromSource()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateWeatherStatus());
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateResult());
         Assert.Equal(15.0, _conditions.Temperature);
     }
 
     [Fact]
     public void Humidity_ReturnsValueFromSource()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateWeatherStatus());
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateResult());
         Assert.Equal(65.0, _conditions.Humidity);
     }
 
     [Fact]
     public void Pressure_ReturnsValueFromSource()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateWeatherStatus());
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateResult());
         Assert.Equal(1013.25, _conditions.Pressure);
     }
 
     [Fact]
     public void WindSpeed_ReturnsValueFromSource()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateWeatherStatus());
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateResult());
         Assert.Equal(5.0, _conditions.WindSpeed);
     }
 
     [Fact]
     public void WindGust_ReturnsValueFromSource()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateWeatherStatus());
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateResult());
         Assert.Equal(8.0, _conditions.WindGust);
     }
 
     [Fact]
     public void WindDirection_ReturnsValueFromSource()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateWeatherStatus());
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateResult());
         Assert.Equal(180.0, _conditions.WindDirection);
     }
 
     [Fact]
     public void RainRate_ReturnsValueFromSource()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateWeatherStatus());
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateResult());
         Assert.Equal(0.0, _conditions.RainRate);
     }
 
     [Fact]
     public void DewPoint_ReturnsValueFromSource()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateWeatherStatus());
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateResult());
         Assert.Equal(8.5, _conditions.DewPoint);
     }
 
@@ -97,63 +103,63 @@ public sealed class ObservingConditionsTests : IDisposable
     [Fact]
     public void Temperature_WhenSourceReturnsNull_ThrowsDriverException()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync((WeatherStatus?)null);
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
         Assert.Throws<ASCOM.DriverException>(() => _conditions.Temperature);
     }
 
     [Fact]
     public void Humidity_WhenSourceReturnsNull_ThrowsDriverException()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync((WeatherStatus?)null);
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
         Assert.Throws<ASCOM.DriverException>(() => _conditions.Humidity);
     }
 
     [Fact]
     public void Pressure_WhenSourceReturnsNull_ThrowsDriverException()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync((WeatherStatus?)null);
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
         Assert.Throws<ASCOM.DriverException>(() => _conditions.Pressure);
     }
 
     [Fact]
     public void WindSpeed_WhenSourceReturnsNull_ThrowsDriverException()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync((WeatherStatus?)null);
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
         Assert.Throws<ASCOM.DriverException>(() => _conditions.WindSpeed);
     }
 
     [Fact]
     public void WindGust_WhenSourceReturnsNull_ThrowsDriverException()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync((WeatherStatus?)null);
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
         Assert.Throws<ASCOM.DriverException>(() => _conditions.WindGust);
     }
 
     [Fact]
     public void WindDirection_WhenSourceReturnsNull_ThrowsDriverException()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync((WeatherStatus?)null);
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
         Assert.Throws<ASCOM.DriverException>(() => _conditions.WindDirection);
     }
 
     [Fact]
     public void RainRate_WhenSourceReturnsNull_ThrowsDriverException()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync((WeatherStatus?)null);
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
         Assert.Throws<ASCOM.DriverException>(() => _conditions.RainRate);
     }
 
     [Fact]
     public void DewPoint_WhenSourceReturnsNull_ThrowsDriverException()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync((WeatherStatus?)null);
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
         Assert.Throws<ASCOM.DriverException>(() => _conditions.DewPoint);
     }
 
     [Fact]
     public void DeviceState_WhenSourceReturnsNull_ThrowsDriverException()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync((WeatherStatus?)null);
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateNullResult());
         Assert.Throws<ASCOM.DriverException>(() => _conditions.DeviceState);
     }
 
@@ -164,7 +170,8 @@ public sealed class ObservingConditionsTests : IDisposable
     [Fact]
     public void DeviceState_ReturnsAllSensorNamesAndTimeStamp()
     {
-        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateWeatherStatus());
+        var fetchedAt = new DateTime(2025, 1, 15, 12, 0, 0, DateTimeKind.Utc);
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateResult(fetchedAt));
 
         var state = _conditions.DeviceState;
 
@@ -176,7 +183,7 @@ public sealed class ObservingConditionsTests : IDisposable
         Assert.Contains(state, s => s.Name == "WindDirection");
         Assert.Contains(state, s => s.Name == "RainRate");
         Assert.Contains(state, s => s.Name == "DewPoint");
-        Assert.Contains(state, s => s.Name == "TimeStamp");
+        Assert.Contains(state, s => s.Name == "TimeStamp" && s.Value.ToString() == "2025-01-15T12:00:00.0000000Z");
     }
 
     #endregion
@@ -223,9 +230,9 @@ public sealed class ObservingConditionsTests : IDisposable
     }
 
     [Fact]
-    public void SensorDescription_ForUnsupportedSensor_ThrowsMethodNotImplementedException()
+    public void SensorDescription_ForUnsupportedSensor_ThrowsInvalidValueException()
     {
-        Assert.Throws<ASCOM.MethodNotImplementedException>(() => _conditions.SensorDescription("CloudCover"));
+        Assert.Throws<ASCOM.InvalidValueException>(() => _conditions.SensorDescription("CloudCover"));
     }
 
     #endregion
@@ -236,15 +243,31 @@ public sealed class ObservingConditionsTests : IDisposable
     [InlineData("Temperature")]
     [InlineData("Humidity")]
     [InlineData("windspeed")]
-    public void TimeSinceLastUpdate_ForSupportedSensor_ReturnsZero(string sensorName)
+    public void TimeSinceLastUpdate_ForSupportedSensor_ReturnsElapsedSeconds(string sensorName)
     {
-        Assert.Equal(0.0, _conditions.TimeSinceLastUpdate(sensorName));
+        var fetchedAt = DateTime.UtcNow.AddSeconds(-10);
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateResult(fetchedAt));
+
+        var elapsed = _conditions.TimeSinceLastUpdate(sensorName);
+
+        Assert.True(elapsed >= 10.0);
     }
 
     [Fact]
-    public void TimeSinceLastUpdate_ForUnsupportedSensor_ThrowsMethodNotImplementedException()
+    public void TimeSinceLastUpdate_WithEmptyString_ReturnsElapsedSeconds()
     {
-        Assert.Throws<ASCOM.MethodNotImplementedException>(() => _conditions.TimeSinceLastUpdate("SkyQuality"));
+        var fetchedAt = DateTime.UtcNow.AddSeconds(-10);
+        _source.Setup(s => s.GetStatusAsync()).ReturnsAsync(CreateResult(fetchedAt));
+
+        var elapsed = _conditions.TimeSinceLastUpdate("");
+
+        Assert.True(elapsed >= 10.0);
+    }
+
+    [Fact]
+    public void TimeSinceLastUpdate_ForUnsupportedSensor_ThrowsInvalidValueException()
+    {
+        Assert.Throws<ASCOM.InvalidValueException>(() => _conditions.TimeSinceLastUpdate("SkyQuality"));
     }
 
     #endregion

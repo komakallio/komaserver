@@ -11,10 +11,10 @@ internal class WeatherStatusCache(
     private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(5);
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-    public async Task<WeatherStatus?> GetStatusAsync()
+    public async Task<TimestampedResult<WeatherStatus>> GetStatusAsync()
     {
-        if (memoryCache.TryGetValue(CacheKey, out WeatherStatus? cached))
-            return cached;
+        if (memoryCache.TryGetValue(CacheKey, out TimestampedResult<WeatherStatus>? cached))
+            return cached!;
 
         // The semaphor provides stampede protection, ensuring only one request fetches the data when cache is expired
         await _semaphore.WaitAsync();
@@ -22,12 +22,13 @@ internal class WeatherStatusCache(
         {
             // Double-check after acquiring lock
             if (memoryCache.TryGetValue(CacheKey, out cached))
-                return cached;
+                return cached!;
 
             var status = await api.GetWeatherStatusAsync();
+            var result = new TimestampedResult<WeatherStatus>(status, DateTime.UtcNow);
 
-            memoryCache.Set(CacheKey, status, CacheDuration);
-            return status;
+            memoryCache.Set(CacheKey, result, CacheDuration);
+            return result;
         }
         finally
         {

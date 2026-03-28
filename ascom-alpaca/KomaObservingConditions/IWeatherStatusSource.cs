@@ -4,5 +4,5 @@ namespace KomaObservingConditions;
 
 public interface IWeatherStatusSource
 {
-    Task<WeatherStatus?> GetStatusAsync();
+    Task<TimestampedResult<WeatherStatus>> GetStatusAsync();
 }
