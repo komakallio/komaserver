@@ -1,0 +1,21 @@
+@RoofApiSimulator_HostAddress = http://localhost:9000
+
+GET {{RoofApiSimulator_HostAddress}}/roof/testuser
+Accept: application/json
+
+###
+
+POST {{RoofApiSimulator_HostAddress}}/roof/testuser/open
+Accept: application/json
+
+###
+
+POST {{RoofApiSimulator_HostAddress}}/roof/testuser/close
+Accept: application/json
+
+###
+
+POST {{RoofApiSimulator_HostAddress}}/roof/testuser/stop
+Accept: application/json
+
+###

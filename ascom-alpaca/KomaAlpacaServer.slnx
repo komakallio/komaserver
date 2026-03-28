@@ -1,5 +1,6 @@
 <Solution>
 <Folder Name="/Simulators/">
+<Project Path="RoofApiSimulator/RoofApiSimulator.csproj" Id="81286aec-285e-4804-bee8-7b4b4952f677" />
 <Project Path="SafetyMonitorApiSimulator/SafetyMonitorApiSimulator.csproj" Id="16dd0cf3-987b-4e20-b848-fe524d2dfa2a" />
 <Project Path="WeatherApiSimulator/WeatherApiSimulator.csproj" Id="406fe56d-09f0-48fe-bf38-e102fd42b320" />
 </Folder>
