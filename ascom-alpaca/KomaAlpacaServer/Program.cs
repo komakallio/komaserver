@@ -165,13 +165,21 @@ public class Program
 
         ASCOM.Alpaca.DeviceManager.LoadSafetyMonitor(0, app.Services.GetRequiredService<SafetyMonitor>(), "Komakallio Safety Monitor", ServerSettings.GetDeviceUniqueId("SafetyMonitor", 0));
         ASCOM.Alpaca.DeviceManager.LoadObservingConditions(0, app.Services.GetRequiredService<ObservingConditions>(), "Komakallio Observing Conditions", ServerSettings.GetDeviceUniqueId("ObservingConditions", 0));
-        var domeApi = app.Services.GetRequiredService<IDomeApi>();
-        var domeUsers = app.Services.GetRequiredService<IOptions<DomeOptions>>().Value.Users;
-        for (int i = 0; i < domeUsers.Length; i++)
+
+        var domeUserFriendlyNames = app.Services.GetRequiredService<IOptions<DomeOptions>>().Value.Users;
+        var domeApiUsers = domeUserFriendlyNames
+            .Select(DomeOptions.ToApiUser)
+            .ToArray();
+        if (domeApiUsers.Length != domeApiUsers.Distinct().Count())
         {
-            var dome = new Dome(domeApi, domeUsers[i]);
-            // TODO: Encode friendly names for each pier in the appsettings file
-            ASCOM.Alpaca.DeviceManager.LoadDome(i, dome, $"Komakallio Dome ({domeUsers[i]})", ServerSettings.GetDeviceUniqueId("Dome", i));
+            throw new InvalidOperationException("Dome user friendly names must produce unique API user names.");
+        }
+
+        var domeApi = app.Services.GetRequiredService<IDomeApi>();
+        for (var i = 0; i < domeUserFriendlyNames.Length; ++i)
+        {
+            var dome = new Dome(domeApi, domeApiUsers[i]);
+            ASCOM.Alpaca.DeviceManager.LoadDome(i, dome, $"Komakallio Dome ({domeUserFriendlyNames[i]})", ServerSettings.GetDeviceUniqueId("Dome", i));
         }
 
         // Configure the HTTP request pipeline.
