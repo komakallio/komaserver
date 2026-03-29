@@ -4,8 +4,7 @@
 
 @if (ASCOM.Alpaca.DeviceManager.ObservingConditions.ContainsKey(InstanceID))
 {
-    <p>Add your device setup and control functions here</p>
-
+    <p>Nothing to configure, you're good to go!</p>
 }
 else
 {
@@ -16,5 +15,4 @@ else
 @code {
     [Parameter]
     public int InstanceID { get; set; }
-
 }
