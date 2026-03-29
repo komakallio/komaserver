@@ -46,7 +46,7 @@ public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IOb
         {
             if (value != 0.0)
             {
-                throw new ASCOM.DriverException("Only instantaneous values are supported");
+                throw new ASCOM.InvalidValueException("Only instantaneous values are supported");
             }
         }
     }

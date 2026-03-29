@@ -135,7 +135,7 @@ public sealed class ObservingConditionsTests : IDisposable
     [Fact]
     public void AveragePeriod_SetToNonZero_ThrowsDriverException()
     {
-        Assert.Throws<ASCOM.DriverException>(() => _conditions.AveragePeriod = 5.0);
+        Assert.Throws<ASCOM.InvalidValueException>(() => _conditions.AveragePeriod = 5.0);
     }
 
     #endregion
