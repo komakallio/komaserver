@@ -41,7 +41,7 @@ public class SafetyMonitor(ISafetyStatusSource safetyStatusSource) : ISafetyMoni
             var isSafe = ParseSafetyStatus(result.Value);
 
             return [
-                new StateValue("IsSafe", isSafe ? 1 : 0),
+                new StateValue("IsSafe", isSafe),
                 new StateValue("TimeStamp", result.FetchedAt.ToString("o", CultureInfo.InvariantCulture)),
             ];
         }

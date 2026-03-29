@@ -70,7 +70,7 @@ public sealed class SafetyMonitorTests : IDisposable
         var state = _monitor.DeviceState;
 
         Assert.NotEmpty(state);
-        Assert.Contains(state, s => s.Name == "IsSafe");
+        Assert.Contains(state, s => s.Name == "IsSafe" && (bool)s.Value == true);
         Assert.Contains(state, s => s.Name == "TimeStamp" && s.Value.ToString() == "2025-01-15T12:00:00.0000000Z");
     }
 
