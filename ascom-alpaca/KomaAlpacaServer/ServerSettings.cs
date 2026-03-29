@@ -28,11 +28,11 @@ internal static class ServerSettings
     {
         get
         {
-            if (bool.TryParse(Profile.GetValue("AutoStartBrowser", true.ToString()), out bool result))
+            if (bool.TryParse(Profile.GetValue("AutoStartBrowser", false.ToString()), out bool result))
             {
                 return result;
             }
-            return true;
+            return false;
         }
         set
         {
