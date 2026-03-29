@@ -25,11 +25,6 @@
 
     <br />
 
-    <label>Open Browser on Start:</label>
-    <input type="checkbox" @bind="StartBrowser">
-
-    <br />
-
     <label>Require Strict API Compliance:</label>
     <input type="checkbox" @bind="StrictAPIMode">
 
@@ -204,12 +199,6 @@
         set;
     } = ServerSettings.ServerPort;
 
-    bool StartBrowser
-    {
-        get;
-        set;
-    } = ServerSettings.AutoStartBrowser;
-
     bool EnableShutdown
     {
         get;
@@ -310,8 +299,6 @@
             }
 
             ServerSettings.Location = Location;
-
-            ServerSettings.AutoStartBrowser = StartBrowser;
 
             ServerSettings.RunInStrictAlpacaMode = StrictAPIMode;
 

@@ -24,22 +24,6 @@ internal static class ServerSettings
         }
     }
 
-    internal static bool AutoStartBrowser
-    {
-        get
-        {
-            if (bool.TryParse(Profile.GetValue("AutoStartBrowser", false.ToString()), out bool result))
-            {
-                return result;
-            }
-            return false;
-        }
-        set
-        {
-            Profile.WriteValue("AutoStartBrowser", value.ToString());
-        }
-    }
-
     internal static ushort ServerPort
     {
         get

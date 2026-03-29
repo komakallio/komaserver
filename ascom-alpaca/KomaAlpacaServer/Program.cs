@@ -4,8 +4,6 @@ using KomaDome.DomeRestApi;
 using KomaObservingConditions;
 using KomaSafetyMonitor;
 using Microsoft.Extensions.Options;
-using System.Diagnostics;
-using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -37,40 +35,6 @@ public class Program
 
         Logger.LogInformation($"{ServerName} version {ServerVersion}");
         Logger.LogInformation($"Running on: {RuntimeInformation.OSDescription}.");
-
-        //If already running start browser
-        try
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                //Already running, start the browser, detects based on port in use
-                var con1 = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpConnections().Where(con => con.LocalEndPoint.Port == ServerSettings.ServerPort);
-                if (IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpConnections().Any(con => con.LocalEndPoint.Port == ServerSettings.ServerPort && (con.State == TcpState.Listen || con.State == TcpState.Established)))
-                {
-                    Logger.LogInformation("Detected driver port already open, starting web browser on IP and Port. If this fails something else is using the port");
-                    StartBrowser(ServerSettings.ServerPort);
-                    return;
-                }
-            }
-            else
-            {
-                Assembly? entryAssembly = Assembly.GetEntryAssembly();
-                if (entryAssembly != null)
-                {
-                    if (Process.GetProcessesByName(entryAssembly.Location).Length > 1)
-                    {
-                        Logger.LogInformation("Detected driver already running, starting web browser on IP and Port");
-                        StartBrowser(ServerSettings.ServerPort);
-                        return;
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex.Message);
-            return;
-        }
 
         //Reset all stored settings if requested
         if (args?.Any(str => str.Contains("--reset")) ?? false)
@@ -207,18 +171,6 @@ public class Program
 
         app.MapFallbackToPage("/_Host");
 
-        if (ServerSettings.AutoStartBrowser)
-        {
-            try
-            {
-                StartBrowser(ServerSettings.ServerPort);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning(ex.Message);
-            }
-        }
-
         #endregion Finish Building and Start server
 
         Lifetime = app.Lifetime;
@@ -231,19 +183,5 @@ public class Program
 
         //Start the Alpaca Server
         app.Run();
-    }
-
-    /// <summary>
-    /// Starts the system default handler (normally a browser) for local host and the current port.
-    /// </summary>
-    /// <param name="port"></param>
-    internal static void StartBrowser(int port)
-    {
-        ProcessStartInfo psi = new ProcessStartInfo
-        {
-            FileName = string.Format("http://localhost:{0}", port),
-            UseShellExecute = true
-        };
-        Process.Start(psi);
     }
 }
