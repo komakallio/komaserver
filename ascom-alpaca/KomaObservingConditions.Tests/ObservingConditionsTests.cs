@@ -159,10 +159,19 @@ public sealed class ObservingConditionsTests : IDisposable
         Assert.False(string.IsNullOrEmpty(description));
     }
 
-    [Fact]
-    public void SensorDescription_ForUnsupportedSensor_ThrowsInvalidValueException()
+    [Theory]
+    [InlineData("CloudCover")]
+    [InlineData("SkyQuality")]
+    [InlineData("SkyTemperature")]
+    public void SensorDescription_ForUnimplementedSensor_ThrowsMethodNotImplementedException(string sensorName)
     {
-        Assert.Throws<ASCOM.InvalidValueException>(() => _conditions.SensorDescription("CloudCover"));
+        Assert.Throws<ASCOM.MethodNotImplementedException>(() => _conditions.SensorDescription(sensorName));
+    }
+
+    [Fact]
+    public void SensorDescription_ForInvalidSensor_ThrowsInvalidValueException()
+    {
+        Assert.Throws<ASCOM.InvalidValueException>(() => _conditions.SensorDescription("FooBar"));
     }
 
     #endregion
@@ -195,9 +204,15 @@ public sealed class ObservingConditionsTests : IDisposable
     }
 
     [Fact]
-    public void TimeSinceLastUpdate_ForUnsupportedSensor_ThrowsInvalidValueException()
+    public void TimeSinceLastUpdate_ForUnimplementedSensor_ThrowsMethodNotImplementedException()
     {
-        Assert.Throws<ASCOM.InvalidValueException>(() => _conditions.TimeSinceLastUpdate("SkyQuality"));
+        Assert.Throws<ASCOM.MethodNotImplementedException>(() => _conditions.TimeSinceLastUpdate("SkyQuality"));
+    }
+
+    [Fact]
+    public void TimeSinceLastUpdate_ForInvalidSensor_ThrowsInvalidValueException()
+    {
+        Assert.Throws<ASCOM.InvalidValueException>(() => _conditions.TimeSinceLastUpdate("FooBar"));
     }
 
     #endregion

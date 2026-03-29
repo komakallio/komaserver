@@ -6,18 +6,6 @@ namespace KomaObservingConditions;
 
 public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IObservingConditionsV2
 {
-    private static readonly string[] SupportedSensors =
-    [
-        nameof(Temperature),
-        nameof(DewPoint),
-        nameof(Humidity),
-        nameof(Pressure),
-        nameof(RainRate),
-        nameof(WindDirection),
-        nameof(WindGust),
-        nameof(WindSpeed),
-    ];
-
     #region Basic information
     public string Description => "Observing conditions for Komakallio observatory";
 
@@ -112,14 +100,14 @@ public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IOb
 
     public string SensorDescription(string PropertyName)
     {
-        ValidateSensorName(PropertyName);
+        ValidateSupportedSensorName(PropertyName);
         return "Komakallio weather station";
     }
 
     public double TimeSinceLastUpdate(string PropertyName)
     {
         if (!string.IsNullOrEmpty(PropertyName))
-            ValidateSensorName(PropertyName);
+            ValidateSupportedSensorName(PropertyName);
 
         var result = FetchWeatherStatus();
         return (DateTime.UtcNow - result.FetchedAt).TotalSeconds;
@@ -151,10 +139,42 @@ public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IOb
 
     #endregion
 
-    private static void ValidateSensorName(string propertyName)
+    private static readonly string[] SupportedSensors =
+    [
+        nameof(Temperature),
+        nameof(DewPoint),
+        nameof(Humidity),
+        nameof(Pressure),
+        nameof(RainRate),
+        nameof(WindDirection),
+        nameof(WindGust),
+        nameof(WindSpeed),
+    ];
+
+    private static readonly string[] AllSensors =
+    [
+        nameof(Temperature),
+        nameof(DewPoint),
+        nameof(Humidity),
+        nameof(Pressure),
+        nameof(RainRate),
+        nameof(WindDirection),
+        nameof(WindGust),
+        nameof(WindSpeed),
+        nameof(CloudCover),
+        nameof(SkyBrightness),
+        nameof(SkyQuality),
+        nameof(StarFWHM),
+        nameof(SkyTemperature),
+    ];
+
+    private static void ValidateSupportedSensorName(string propertyName)
     {
+        if (!AllSensors.Any(s => s.Equals(propertyName, StringComparison.OrdinalIgnoreCase)))
+            throw new ASCOM.InvalidValueException($"No such sensor in Alpaca spec: {propertyName}");
+
         if (!SupportedSensors.Any(s => s.Equals(propertyName, StringComparison.OrdinalIgnoreCase)))
-            throw new ASCOM.InvalidValueException($"No such sensor: {propertyName}");
+            throw new ASCOM.MethodNotImplementedException($"No such sensor implemented: {propertyName}");
     }
 
     private TimestampedResult<WeatherStatus> FetchWeatherStatus()
