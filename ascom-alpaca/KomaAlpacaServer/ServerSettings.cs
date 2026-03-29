@@ -44,11 +44,11 @@ internal static class ServerSettings
     {
         get
         {
-            if (bool.TryParse(Profile.GetValue("AllowRemoteAccess", false.ToString()), out bool result))
+            if (bool.TryParse(Profile.GetValue("AllowRemoteAccess", true.ToString()), out bool result))
             {
                 return result;
             }
-            return false;
+            return true;
         }
         set
         {
