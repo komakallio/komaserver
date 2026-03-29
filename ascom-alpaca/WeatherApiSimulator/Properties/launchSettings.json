@@ -4,8 +4,6 @@
         "http": {
             "commandName": "Project",
             "dotnetRunMessages": true,
-            "launchBrowser": true,
-            "launchUrl": "api/weather",
             "applicationUrl": "http://localhost:9001",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
