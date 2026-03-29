@@ -8,7 +8,7 @@ var roofs = new ConcurrentDictionary<string, UserRoofState>();
 
 UserRoofState GetRoof(string user) => roofs.GetOrAdd(user, _ => new UserRoofState());
 
-app.MapGet("/roof/{user}", (string user) =>
+app.MapGet("/roof/{user}", (ILogger<Program> logger, string user) =>
 {
     var roof = GetRoof(user);
     lock (roof)
@@ -18,13 +18,15 @@ app.MapGet("/roof/{user}", (string user) =>
             "OPENING" or "CLOSING" or "STOPPING" or "STOPPED" or "ERROR" => roof.State,
             _ => roof.IsOpen ? "OPEN" : "CLOSED"
         };
+        logger.LogInformation("Roof status requested for {user}, status is: {status}", user, reportedState);
         return Results.Json(new { state = reportedState, open = roof.IsOpen });
     }
 });
 
-app.MapPost("/roof/{user}/open", (string user) =>
+app.MapPost("/roof/{user}/open", (ILogger<Program> logger, string user) =>
 {
     var roof = GetRoof(user);
+    logger.LogInformation("Roof opening requested for {user}, current state is {state}", user, roof.State);
     lock (roof)
     {
         switch (roof.State)
@@ -49,9 +51,10 @@ app.MapPost("/roof/{user}/open", (string user) =>
     }
 });
 
-app.MapPost("/roof/{user}/close", (string user) =>
+app.MapPost("/roof/{user}/close", (ILogger<Program> logger, string user) =>
 {
     var roof = GetRoof(user);
+    logger.LogInformation("Roof closing requested for {user}, current state is {state}", user, roof.State);
     lock (roof)
     {
         switch (roof.State)
@@ -75,9 +78,10 @@ app.MapPost("/roof/{user}/close", (string user) =>
     }
 });
 
-app.MapPost("/roof/{user}/stop", (string user) =>
+app.MapPost("/roof/{user}/stop", (ILogger<Program> logger, string user) =>
 {
     var roof = GetRoof(user);
+    logger.LogInformation("Roof stopping requested for {user}, current state is {state}", user, roof.State);
     lock (roof)
     {
         roof.CancelTransition();
