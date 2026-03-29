@@ -100,6 +100,7 @@ public class Dome(IDomeApi api, string user) : IDomeV3
         "CLOSED" => ShutterState.Closed,
         "OPENING" => ShutterState.Opening,
         "CLOSING" => ShutterState.Closing,
+        "STOPPED" => ShutterState.Open, // ASCOM/Alpaca does not have a Stopped state, so we treat it as open
         _ => ShutterState.Error,
     };
 
