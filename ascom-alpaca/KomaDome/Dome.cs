@@ -7,7 +7,6 @@ namespace KomaDome;
 
 public class Dome(IDomeApi api, string user) : IDomeV3
 {
-
     #region Basic information
 
     public string Description => "Dome driver for Komakallio observatory";
