@@ -120,11 +120,10 @@ public sealed class DomeTests : IDisposable
         var state = _dome.DeviceState;
 
         Assert.NotEmpty(state);
-        Assert.Contains(state, s => s.Name == "ShutterStatus");
-        Assert.Contains(state, s => s.Name == "Slewing");
+        Assert.Contains(state, s => s.Name == "ShutterStatus" && (ShutterState)s.Value == ShutterState.Open);
+        Assert.Contains(state, s => s.Name == "Slewing" && (bool)s.Value == false);
         Assert.Contains(state, s => s.Name == "TimeStamp");
     }
-
 
     #endregion
 

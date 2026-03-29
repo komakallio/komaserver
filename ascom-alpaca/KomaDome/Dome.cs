@@ -77,7 +77,7 @@ public class Dome(IDomeApi api, string user) : IDomeV3
     public bool Connecting => false;
 
     public List<StateValue> DeviceState => Connected ? [
-        new StateValue(nameof(ShutterStatus), ShutterStatus.ToString()),
+        new StateValue(nameof(ShutterStatus), ShutterStatus),
         new StateValue(nameof(Slewing), Slewing),
         new StateValue("TimeStamp", DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture)),
     ] : [];
