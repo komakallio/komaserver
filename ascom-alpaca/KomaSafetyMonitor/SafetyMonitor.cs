@@ -47,20 +47,12 @@ public class SafetyMonitor(ISafetyStatusSource safetyStatusSource) : ISafetyMoni
         }
     }
 
-    /// <summary>
-    /// Connected is always true, as this driver is not connected to any physical device and thus cannot be disconnected.
-    /// The same Alpaca device will also be available to several consumers on the network, and they should not be able to
-    /// globally connect or disconnect the device.
-    /// </summary>
+    #region Connect/disconnect
+
     public bool Connected
     {
-        get
-        {
-            return true;
-        }
-        set
-        {
-        }
+        get => true;
+        set { }
     }
 
     public bool Connecting => false;
@@ -73,20 +65,10 @@ public class SafetyMonitor(ISafetyStatusSource safetyStatusSource) : ISafetyMoni
     {
     }
 
+    #endregion
+
     public void Dispose()
     {
-    }
-
-    private static bool ParseSafetyStatus(SafetyStatus status)
-    {
-        // TODO: Check status details if configured so
-        return status.Safe;
-    }
-
-    private TimestampedResult<SafetyStatus> FetchSafetyStatus()
-    {
-        var result = safetyStatusSource.GetStatusAsync().GetAwaiter().GetResult();
-        return result ?? throw new ASCOM.DriverException("Failed to fetch safety status");
     }
 
     #region Unused legacy
@@ -114,4 +96,16 @@ public class SafetyMonitor(ISafetyStatusSource safetyStatusSource) : ISafetyMoni
     }
 
     #endregion
+
+    private static bool ParseSafetyStatus(SafetyStatus status)
+    {
+        // TODO: Check status details if configured so
+        return status.Safe;
+    }
+
+    private TimestampedResult<SafetyStatus> FetchSafetyStatus()
+    {
+        var result = safetyStatusSource.GetStatusAsync().GetAwaiter().GetResult();
+        return result ?? throw new ASCOM.DriverException("Failed to fetch safety status");
+    }
 }
