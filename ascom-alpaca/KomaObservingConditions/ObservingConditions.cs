@@ -189,7 +189,14 @@ public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IOb
 
     private TimestampedResult<WeatherStatus> FetchWeatherStatus()
     {
-        var result = weatherStatusSource.GetStatusAsync().GetAwaiter().GetResult();
-        return result ?? throw new ASCOM.DriverException("Failed to fetch weather status");
+        try
+        {
+            var result = weatherStatusSource.GetStatusAsync().GetAwaiter().GetResult();
+            return result;
+        }
+        catch (Exception ex)
+        {
+            throw new ASCOM.DriverException("Error fetching weather status", ex);
+        }
     }
 }

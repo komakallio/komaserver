@@ -1,4 +1,3 @@
-using ASCOM;
 using ASCOM.Common.DeviceInterfaces;
 using KomaDome.DomeRestApi;
 using System.Globalization;
@@ -61,26 +60,33 @@ public class Dome(IDomeApi api, string user) : IDomeV3
 
     #endregion
 
-    public double Altitude => throw new PropertyNotImplementedException();
+    public double Altitude => throw new ASCOM.PropertyNotImplementedException();
 
-    public bool AtHome => throw new PropertyNotImplementedException();
+    public bool AtHome => throw new ASCOM.PropertyNotImplementedException();
 
-    public bool AtPark => throw new PropertyNotImplementedException();
+    public bool AtPark => throw new ASCOM.PropertyNotImplementedException();
 
-    public double Azimuth => throw new PropertyNotImplementedException();
+    public double Azimuth => throw new ASCOM.PropertyNotImplementedException();
 
     public bool Slaved
     {
         get => false;
-        set => throw new PropertyNotImplementedException();
+        set => throw new ASCOM.PropertyNotImplementedException();
     }
 
     public ShutterState ShutterStatus
     {
         get
         {
-            var status = api.GetStatusAsync(user).GetAwaiter().GetResult();
-            return ParseShutterState(status.State);
+            try
+            {
+                var status = api.GetStatusAsync(user).GetAwaiter().GetResult();
+                return ParseShutterState(status.State);
+            }
+            catch (Exception ex)
+            {
+                throw new ASCOM.DriverException("Error fetching shutter status", ex);
+            }
         }
     }
 
@@ -103,47 +109,68 @@ public class Dome(IDomeApi api, string user) : IDomeV3
 
     public void OpenShutter()
     {
-        api.OpenAsync(user).Wait();
+        try
+        {
+            api.OpenAsync(user).Wait();
+        }
+        catch (Exception ex)
+        {
+            throw new ASCOM.DriverException("Failed to open shutter", ex);
+        }
     }
 
     public void CloseShutter()
     {
-        api.CloseAsync(user).Wait();
+        try
+        {
+            api.CloseAsync(user).Wait();
+        }
+        catch (Exception ex)
+        {
+            throw new ASCOM.DriverException("Failed to close shutter", ex);
+        }
     }
 
     public void AbortSlew()
     {
-        api.StopAsync(user).Wait();
+        try
+        {
+            api.StopAsync(user).Wait();
+        }
+        catch (Exception ex)
+        {
+            throw new ASCOM.DriverException("Failed to stop dome movement", ex);
+        }
     }
 
     public void FindHome()
     {
-        throw new MethodNotImplementedException();
+        throw new ASCOM.MethodNotImplementedException();
     }
 
     public void Park()
     {
-        throw new MethodNotImplementedException();
+        throw new ASCOM.MethodNotImplementedException();
     }
 
     public void SetPark()
     {
-        throw new MethodNotImplementedException();
+        throw new ASCOM.MethodNotImplementedException();
     }
 
     public void SlewToAltitude(double Altitude)
     {
-        throw new MethodNotImplementedException();
+        throw new ASCOM.MethodNotImplementedException();
     }
 
     public void SlewToAzimuth(double Azimuth)
     {
-        throw new MethodNotImplementedException();
+        throw new ASCOM.MethodNotImplementedException();
     }
 
     public void SyncToAzimuth(double Azimuth)
     {
-        throw new MethodNotImplementedException();
+        throw new ASCOM.MethodNotImplementedException();
     }
 
     public void Dispose()
@@ -156,22 +183,22 @@ public class Dome(IDomeApi api, string user) : IDomeV3
 
     public string Action(string ActionName, string ActionParameters)
     {
-        throw new MethodNotImplementedException();
+        throw new ASCOM.MethodNotImplementedException();
     }
 
     public void CommandBlind(string Command, bool Raw = false)
     {
-        throw new MethodNotImplementedException();
+        throw new ASCOM.MethodNotImplementedException();
     }
 
     public bool CommandBool(string Command, bool Raw = false)
     {
-        throw new MethodNotImplementedException();
+        throw new ASCOM.MethodNotImplementedException();
     }
 
     public string CommandString(string Command, bool Raw = false)
     {
-        throw new MethodNotImplementedException();
+        throw new ASCOM.MethodNotImplementedException();
     }
 
     #endregion

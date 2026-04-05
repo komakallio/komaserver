@@ -105,7 +105,14 @@ public class SafetyMonitor(ISafetyStatusSource safetyStatusSource) : ISafetyMoni
 
     private TimestampedResult<SafetyStatus> FetchSafetyStatus()
     {
-        var result = safetyStatusSource.GetStatusAsync().GetAwaiter().GetResult();
-        return result ?? throw new ASCOM.DriverException("Failed to fetch safety status");
+        try
+        {
+            var result = safetyStatusSource.GetStatusAsync().GetAwaiter().GetResult();
+            return result;
+        }
+        catch (Exception ex)
+        {
+            throw new ASCOM.DriverException("Failed to fetch safety status", ex);
+        }
     }
 }
