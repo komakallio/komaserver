@@ -24,7 +24,6 @@ public class SafetyMonitor(ISafetyStatusSource safetyStatusSource) : ISafetyMoni
     {
         get
         {
-            // TODO: Log if something goes wrong
             var result = FetchSafetyStatus();
             return ParseSafetyStatus(result.Value);
         }
