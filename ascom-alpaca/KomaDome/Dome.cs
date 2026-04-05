@@ -21,16 +21,27 @@ public class Dome(IDomeApi api, string user) : IDomeV3
 
     #endregion
 
-    public ShutterState ShutterStatus
+    #region Connect/disconnect
+
+    public bool Connected
     {
-        get
-        {
-            var status = api.GetStatusAsync(user).GetAwaiter().GetResult();
-            return ParseShutterState(status.State);
-        }
+        get => true;
+        set { }
     }
 
-    public bool Slewing => ShutterStatus is ShutterState.Opening or ShutterState.Closing;
+    public bool Connecting => false;
+
+    public void Connect()
+    {
+    }
+
+    public void Disconnect()
+    {
+    }
+
+    #endregion
+
+    #region Capabilities
 
     public bool CanSetShutter => true;
 
@@ -48,6 +59,8 @@ public class Dome(IDomeApi api, string user) : IDomeV3
 
     public bool CanSyncAzimuth => false;
 
+    #endregion
+
     public double Altitude => throw new PropertyNotImplementedException();
 
     public bool AtHome => throw new PropertyNotImplementedException();
@@ -62,36 +75,22 @@ public class Dome(IDomeApi api, string user) : IDomeV3
         set => throw new PropertyNotImplementedException();
     }
 
-    /// <summary>
-    /// Connected is always true, as this driver is not connected to any physical device and thus cannot be disconnected.
-    /// </summary>
-    public bool Connected
+    public ShutterState ShutterStatus
     {
-        get => true;
-        set
+        get
         {
+            var status = api.GetStatusAsync(user).GetAwaiter().GetResult();
+            return ParseShutterState(status.State);
         }
     }
 
-    public bool Connecting => false;
+    public bool Slewing => ShutterStatus is ShutterState.Opening or ShutterState.Closing;
 
     public List<StateValue> DeviceState => Connected ? [
         new StateValue(nameof(ShutterStatus), ShutterStatus),
         new StateValue(nameof(Slewing), Slewing),
         new StateValue("TimeStamp", DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture)),
     ] : [];
-
-    public void Connect()
-    {
-    }
-
-    public void Disconnect()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
 
     private static ShutterState ParseShutterState(string state) => state switch
     {
@@ -145,6 +144,10 @@ public class Dome(IDomeApi api, string user) : IDomeV3
     public void SyncToAzimuth(double Azimuth)
     {
         throw new MethodNotImplementedException();
+    }
+
+    public void Dispose()
+    {
     }
 
     #region Unused legacy
