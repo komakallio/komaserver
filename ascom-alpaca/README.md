@@ -2,7 +2,7 @@
 
 ASCOM Alpaca server for the Komakallio observatory. Wraps three remote observatory REST APIs (dome/roof control, safety monitoring, weather) and exposes them as standard [ASCOM Alpaca](https://ascom-standards.org/Developer/Alpaca.htm) device drivers.
 
-Built with ASP.NET Core Blazor on .NET 8.0.
+Built with ASP.NET Core Blazor on .NET 10.0.
 
 ## Devices
 
@@ -16,7 +16,7 @@ Built with ASP.NET Core Blazor on .NET 8.0.
 
 ### Prerequisites
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
 ### Build and Run
 

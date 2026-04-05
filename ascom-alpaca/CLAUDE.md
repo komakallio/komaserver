@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ASCOM Alpaca server for the Komakallio observatory. Wraps three remote observatory REST APIs (dome/roof control, safety monitoring, weather) and exposes them as standard ASCOM Alpaca device drivers. Built with ASP.NET Core Blazor (.NET 8.0).
+ASCOM Alpaca server for the Komakallio observatory. Wraps three remote observatory REST APIs (dome/roof control, safety monitoring, weather) and exposes them as standard ASCOM Alpaca device drivers. Built with ASP.NET Core Blazor (.NET 10.0).
 
 ## Build & Test Commands
 
