@@ -37,6 +37,14 @@ Three API simulators are included for local development (roof, safety monitor, w
 dotnet test
 ```
 
+## Publish application for Raspberry Pi
+
+To run the ASCOM Alpaca server on a Raspberry Pi, publish the application as a self-contained deployment targeting Linux ARM:
+
+```bash
+dotnet publish KomaAlpacaServer --configuration Release --runtime linux-arm --self-contained true --output publish
+```
+
 ## Solution Structure
 
 ```
