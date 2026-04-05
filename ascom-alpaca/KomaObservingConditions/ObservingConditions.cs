@@ -77,22 +77,6 @@ public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IOb
 
     public double SkyTemperature => throw new ASCOM.PropertyNotImplementedException();
 
-    public bool Connected { get => true; set { } }
-
-    public bool Connecting => false;
-
-    public void Connect()
-    {
-    }
-
-    public void Disconnect()
-    {
-    }
-
-    public void Dispose()
-    {
-    }
-
     public void Refresh()
     {
         throw new ASCOM.MethodNotImplementedException();
@@ -107,10 +91,36 @@ public class ObservingConditions(IWeatherStatusSource weatherStatusSource) : IOb
     public double TimeSinceLastUpdate(string PropertyName)
     {
         if (!string.IsNullOrEmpty(PropertyName))
+        {
             ValidateSupportedSensorName(PropertyName);
+        }
 
         var result = FetchWeatherStatus();
         return (DateTime.UtcNow - result.FetchedAt).TotalSeconds;
+    }
+
+    #region Connect/disconnect
+
+    public bool Connected
+    {
+        get => true;
+        set { }
+    }
+
+    public bool Connecting => false;
+
+    public void Connect()
+    {
+    }
+
+    public void Disconnect()
+    {
+    }
+
+    #endregion
+
+    public void Dispose()
+    {
     }
 
     #region Unused legacy
