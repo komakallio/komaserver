@@ -9,13 +9,22 @@ ASCOM Alpaca server for the Komakallio observatory. Wraps three remote observato
 ## Build & Test Commands
 
 ```bash
-dotnet build                                    # Build all projects
-dotnet test                                     # Run all tests
+dotnet build                                       # Build all projects
+dotnet test                                        # Run all tests
 dotnet test --filter FullyQualifiedName~DomeTests  # Run a specific test class
-dotnet run --project KomaAlpacaServer           # Run the server (default port 12345)
+dotnet run --project KomaAlpacaServer              # Run the server (default port 12345)
 ```
 
 The server accepts CLI flags: `--reset` (reset settings), `--reset-auth` (reset auth), `--urls=http://localhost:PORT` (custom port).
+
+## API Simulators
+
+Three minimal ASP.NET Core apps simulate the upstream REST APIs for local development:
+- **RoofApiSimulator** - simulates roof open/close/stop with per-user state and timed transitions
+- **SafetyMonitorApiSimulator** - returns hardcoded safe status with detail values
+- **WeatherApiSimulator** - returns hardcoded weather data (temperature, humidity, pressure, wind, rain, dewpoint)
+
+Use the **"With simulators"** launch configuration to run all three simulators alongside the Alpaca server.
 
 ## Architecture
 
