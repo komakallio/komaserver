@@ -12,7 +12,11 @@ public static class ServiceCollectionExtensions
         services.Configure<DomeOptions>(configuration.GetSection(nameof(DomeOptions)));
         services.AddRefitClient<IDomeApi>().ConfigureHttpClient(c =>
         {
-            var options = new DomeOptions();
+            var options = new DomeOptions
+            {
+                BaseUrl = "",
+                Users = [],
+            };
             configuration.GetSection(nameof(DomeOptions)).Bind(options);
             c.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/'));
         });

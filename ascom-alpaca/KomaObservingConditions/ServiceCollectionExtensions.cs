@@ -12,7 +12,10 @@ public static class ServiceCollectionExtensions
         services.AddMemoryCache();
         services.AddRefitClient<IWeatherApi>().ConfigureHttpClient(c =>
         {
-            var options = new ObservingConditionsOptions();
+            var options = new ObservingConditionsOptions
+            {
+                BaseUrl = ""
+            };
             configuration.GetSection(nameof(ObservingConditionsOptions)).Bind(options);
             c.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/'));
         });

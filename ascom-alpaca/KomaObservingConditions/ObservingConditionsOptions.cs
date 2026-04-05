@@ -2,5 +2,5 @@
 
 internal class ObservingConditionsOptions
 {
-    public string BaseUrl { get; set; }
+    public required string BaseUrl { get; set; }
 }

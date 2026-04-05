@@ -12,7 +12,10 @@ public static class ServiceCollectionExtensions
         services.AddMemoryCache();
         services.AddRefitClient<ISafetyMonitorApi>().ConfigureHttpClient(c =>
         {
-            var options = new SafetyMonitorOptions();
+            var options = new SafetyMonitorOptions
+            {
+                BaseUrl = ""
+            };
             configuration.GetSection(nameof(SafetyMonitorOptions)).Bind(options);
             c.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/'));
         });

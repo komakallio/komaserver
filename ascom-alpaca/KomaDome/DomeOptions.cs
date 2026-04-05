@@ -4,8 +4,8 @@ namespace KomaDome;
 
 public partial class DomeOptions
 {
-    public string BaseUrl { get; set; }
-    public string[] Users { get; set; }
+    public required string BaseUrl { get; set; }
+    public required string[] Users { get; set; }
 
     public static string ToApiUser(string friendlyName) =>
         ApiUserRegex().Replace(friendlyName.ToLowerInvariant(), "");
