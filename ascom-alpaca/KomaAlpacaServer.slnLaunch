@@ -1,0 +1,23 @@
+[
+  {
+    "Name": "With simulators",
+    "Projects": [
+      {
+        "Path": "KomaAlpacaServer\\KomaAlpacaServer.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "SafetyMonitorApiSimulator\\SafetyMonitorApiSimulator.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "WeatherApiSimulator\\WeatherApiSimulator.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "RoofApiSimulator\\RoofApiSimulator.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

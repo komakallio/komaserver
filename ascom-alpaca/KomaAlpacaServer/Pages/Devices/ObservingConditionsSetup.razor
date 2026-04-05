@@ -1,0 +1,18 @@
+﻿@page "/setup/v1/ObservingConditions/{InstanceID:int}/setup"
+
+<h3>ObservingConditions Setup: @InstanceID</h3>
+
+@if (ASCOM.Alpaca.DeviceManager.ObservingConditions.ContainsKey(InstanceID))
+{
+    <p>Nothing to configure, you're good to go!</p>
+}
+else
+{
+    <h3>This device does not exist and cannot be configured</h3>
+}
+
+
+@code {
+    [Parameter]
+    public int InstanceID { get; set; }
+}

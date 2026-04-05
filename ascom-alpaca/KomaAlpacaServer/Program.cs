@@ -1,0 +1,187 @@
+using ASCOM.Common;
+using KomaDome;
+using KomaDome.DomeRestApi;
+using KomaObservingConditions;
+using KomaSafetyMonitor;
+using Microsoft.Extensions.Options;
+using System.Reflection;
+using System.Runtime.InteropServices;
+
+namespace KomaAlpacaServer;
+
+public class Program
+{
+    //You should offer a way for the end user to customize this via the command line so it can be changed in the case of a collision.
+    //This supports --urls=http://*:port by default.
+    internal const int DefaultPort = 12345;
+
+    internal const string Manufacturer = "Komakallio";
+
+    internal const string ServerName = "Komakallio Alpaca Server";
+    internal const string ServerVersion = "1.0";
+
+    internal static ASCOM.Common.Interfaces.ILogger? Logger;
+
+    internal static IHostApplicationLifetime? Lifetime;
+
+    public static void Main(string[] args)
+    {
+        //For Debug ConsoleLogger is very nice. For production TraceLogger is recommended.
+        Logger = new ASCOM.Tools.ConsoleLogger();
+
+        //This region contains startup and logging features, most of the time you shouldn't need to customize this
+        //You can add custom Command Line arguments here
+        #region Startup and Logging
+
+        Logger.LogInformation($"{ServerName} version {ServerVersion}");
+        Logger.LogInformation($"Running on: {RuntimeInformation.OSDescription}.");
+
+        //Reset all stored settings if requested
+        if (args?.Any(str => str.Contains("--reset")) ?? false)
+        {
+            Logger.LogInformation("Reseting Settings");
+            ServerSettings.Reset();
+
+            //If you have any device settings you should reset them as well or add a specific reset command.
+
+            return;
+        }
+
+        //Turn off Authentication. Once off the user can change the password and re-enable authentication
+        if (args?.Any(str => str.Contains("--reset-auth")) ?? false)
+        {
+            Logger.LogInformation("Turning off Authentication to allow password reset.");
+            ServerSettings.UseAuth = false;
+            Logger.LogInformation("Authentication off, you can change the password and then re-enable Authentication.");
+        }
+
+        if (args?.Any(str => str.Contains("--local-address")) ?? false)
+        {
+            Console.WriteLine($"http://localhost:{ServerSettings.ServerPort}");
+        }
+
+        if (!args?.Any(str => str.Contains("--urls")) ?? true)
+        {
+            args ??= [];
+
+            Logger.LogInformation("No startup url args detected, binding to saved server settings.");
+
+            var temparray = new string[args.Length + 1];
+
+            args.CopyTo(temparray, 0);
+
+            string startupURLArg = "--urls=http://";
+
+            //If set to allow remote access bind to all local ips, otherwise bind only to localhost
+            if (ServerSettings.AllowRemoteAccess)
+            {
+                startupURLArg += "*";
+            }
+            else
+            {
+                startupURLArg += "localhost";
+            }
+
+            startupURLArg += ":" + ServerSettings.ServerPort;
+
+            Logger.LogInformation("Startup URL args: " + startupURLArg);
+
+            temparray[args.Length] = startupURLArg;
+
+            args = temparray;
+        }
+
+        var builder = WebApplication.CreateBuilder(args ?? []);
+
+        #endregion Startup and Logging
+
+        //Attach the logger
+        ASCOM.Alpaca.Logging.AttachLogger(Logger);
+
+        //Load the configuration
+        ASCOM.Alpaca.DeviceManager.LoadConfiguration(new AlpacaConfiguration());
+
+        #region Finish Building and Start server
+
+        // Add services to the container.
+        builder.Services.AddRazorPages();
+        builder.Services.AddServerSideBlazor();
+
+        //Load any xml comments for this program, this helps with swagger
+        var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+        //Add Swagger for the APIs
+        ASCOM.Alpaca.Razor.StartupHelpers.ConfigureSwagger(builder.Services, xmlPath);
+        //Set default behaviors for Alpaca APIs
+        ASCOM.Alpaca.Razor.StartupHelpers.ConfigureAlpacaAPIBehavoir(builder.Services);
+        //Use Authentication
+        ASCOM.Alpaca.Razor.StartupHelpers.ConfigureAuthentication(builder.Services);
+        //Add User Service
+        builder.Services.AddScoped<ASCOM.Alpaca.IUserService, Data.UserService>();
+
+        builder.Services
+            .AddSafetyMonitor(builder.Configuration)
+            .AddObservingConditions(builder.Configuration)
+            .AddDome(builder.Configuration);
+
+        var app = builder.Build();
+
+        ASCOM.Alpaca.DeviceManager.LoadSafetyMonitor(0, app.Services.GetRequiredService<SafetyMonitor>(), "Komakallio Safety Monitor", ServerSettings.GetDeviceUniqueId("SafetyMonitor", 0));
+        ASCOM.Alpaca.DeviceManager.LoadObservingConditions(0, app.Services.GetRequiredService<ObservingConditions>(), "Komakallio Observing Conditions", ServerSettings.GetDeviceUniqueId("ObservingConditions", 0));
+
+        var domeUserFriendlyNames = app.Services.GetRequiredService<IOptions<DomeOptions>>().Value.Users;
+        var domeApiUsers = domeUserFriendlyNames
+            .Select(DomeOptions.ToApiUser)
+            .ToArray();
+        if (domeApiUsers.Length != domeApiUsers.Distinct().Count())
+        {
+            throw new InvalidOperationException("Dome user friendly names must produce unique API user names.");
+        }
+
+        var domeApi = app.Services.GetRequiredService<IDomeApi>();
+        for (var i = 0; i < domeUserFriendlyNames.Length; ++i)
+        {
+            var dome = new Dome(domeApi, domeApiUsers[i]);
+            ASCOM.Alpaca.DeviceManager.LoadDome(i, dome, $"Komakallio Dome ({domeUserFriendlyNames[i]})", ServerSettings.GetDeviceUniqueId("Dome", i));
+        }
+
+        // Configure the HTTP request pipeline.
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseExceptionHandler("/Error");
+        }
+
+        //Start Swagger on the Swagger endpoints if enabled.
+        ASCOM.Alpaca.Razor.StartupHelpers.ConfigureSwagger(app);
+
+        //Configure Discovery
+        ASCOM.Alpaca.Razor.StartupHelpers.ConfigureDiscovery(app);
+
+        //Allow authentication, either Cookie or Basic HTTP Auth
+        ASCOM.Alpaca.Razor.StartupHelpers.ConfigureAuthentication(app);
+
+        app.UseStaticFiles();
+
+        app.UseRouting();
+
+        app.MapBlazorHub();
+
+        app.MapControllers();
+
+        app.MapFallbackToPage("/_Host");
+
+        #endregion Finish Building and Start server
+
+        Lifetime = app.Lifetime;
+
+        // Put code here that should run at shutdown
+        Lifetime.ApplicationStopping.Register(() =>
+        {
+            Logger.LogInformation($"{ServerName} Stopping");
+        });
+
+        //Start the Alpaca Server
+        app.Run();
+    }
+}

@@ -1,0 +1,6 @@
+@WeatherApiSimulator_HostAddress = http://localhost:9001
+
+GET {{WeatherApiSimulator_HostAddress}}/api/weather
+Accept: application/json
+
+###

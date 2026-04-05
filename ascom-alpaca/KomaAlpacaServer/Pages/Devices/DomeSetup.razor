@@ -1,0 +1,17 @@
+@page "/setup/v1/Dome/{InstanceID:int}/setup"
+
+<h3>Dome Setup: @InstanceID</h3>
+
+@if (ASCOM.Alpaca.DeviceManager.Domes.ContainsKey(InstanceID))
+{
+    <p>Nothing to configure, you're good to go!</p>
+}
+else
+{
+    <h3>This device does not exist and cannot be configured</h3>
+}
+
+@code {
+    [Parameter]
+    public int InstanceID { get; set; }
+}
