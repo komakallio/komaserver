@@ -18,7 +18,7 @@
     "redis": "^2.7.1",
     "request": "^2.88.0",
     "round-to": "^2.0.0",
-    "suncalc": "git://github.com/mourner/suncalc.git#master",
+    "suncalc": "^1.9.0",
     "underscore": "^1.9.1"
   }
 }
