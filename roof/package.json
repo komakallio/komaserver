@@ -10,7 +10,7 @@
   "author": "Jari Saukkonen",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.13.3",
+    "express": "^4.17.3",
     "express-logging": "^1.1.1",
     "logops": "^1.0.1",
     "redis": "^2.7.1",
