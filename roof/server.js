@@ -42,7 +42,18 @@ app.use(expressLogging(logger));
 const REDIS_PORT = process.env.REDIS_PORT || 6379;
 const redisClient = redis.createClient(REDIS_PORT);
 
-const defaultRoofState = { openRequestedBy:[], users:{} };
+// Redis holds no state until the first virtual-roof request; return a fresh
+// object each time so callers never mutate a shared default (README edge case 4).
+function parseRoofState(result) {
+    return JSON.parse(result) || { openRequestedBy:[], users:{} };
+}
+
+// True when no pier holds the roof open or has asked for it to open, e.g.
+// after the button or the web page (/motor/open) opened it directly.
+function noPierOwnsRoof(roofState) {
+    return roofState.openRequestedBy.length == 0 &&
+        !_.any(_.values(roofState.users), (open) => open);
+}
 
 let physicalState = "STOPPED";
 let lastRoofData = {};
@@ -66,7 +77,7 @@ roofMotor.setStateCallback(function(state) {
         case "STOPPED": break;
         case "OPEN": {
             redisClient.get('roof-state', function(error, result) {
-                let roofState = JSON.parse(result) || defaultRoofState;
+                let roofState = parseRoofState(result);
                 roofState.openRequestedBy.forEach((user) => { roofState.users[user] = true });
                 roofState.openRequestedBy = [];
                 redisClient.set('roof-state', JSON.stringify(roofState));
@@ -75,7 +86,7 @@ roofMotor.setStateCallback(function(state) {
         }
         case "CLOSED": {
             redisClient.get('roof-state', function(error, result) {
-                let roofState = JSON.parse(result) || defaultRoofState;
+                let roofState = parseRoofState(result);
                 roofState.users = {};
                 redisClient.set('roof-state', JSON.stringify(roofState));
             });
@@ -150,7 +161,7 @@ app.all('/roof/*', function(req, res, next) {
             logger.error('error reading redis: ' + error + ' result: ' + result);
             return res.status(500).end();
         }
-        req.roofState = JSON.parse(result) || defaultRoofState;
+        req.roofState = parseRoofState(result);
         const state = JSON.stringify(req.roofState);
         next();
         const newState = JSON.stringify(req.roofState);
@@ -164,6 +175,10 @@ app.get('/roof/:user', function(req, res) {
     let reportedState;
     if (physicalState == "OPENING" || physicalState == "CLOSING" || physicalState == "ERROR" || physicalState == "STOPPING" || physicalState == "STOPPED") {
         reportedState = physicalState;
+    } else if (physicalState == "OPEN" && noPierOwnsRoof(req.roofState)) {
+        // opened directly (button or /motor/open): nobody owns it, so every
+        // pier must see it open. A close from any pier then closes it.
+        reportedState = "OPEN";
     } else {
         reportedState = req.roofState.users[req.user] ? "OPEN" : "CLOSED";
     }
