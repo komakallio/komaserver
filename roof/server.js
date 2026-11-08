@@ -30,7 +30,8 @@ const logger = require('logops');
 logger.setLevel('DEBUG');
 
 const redis = require('redis');
-const roofMotor = require('./roofmotor');
+// ROOF_MOTOR=fake runs against roofmotor-fake.js (no serial port) for local testing
+const roofMotor = require(process.env.ROOF_MOTOR === 'fake' ? './roofmotor-fake' : './roofmotor');
 const request = require('request');
 const roundTo = require('round-to');
 const config = require('./config');
