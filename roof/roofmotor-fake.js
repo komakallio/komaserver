@@ -57,16 +57,25 @@ module.exports = {
     lock: () => {},
     unlock: () => {},
     state: () => {
-        return currentState;
+        return status.ROOF;
     },
     setStateCallback: (callback) => {
         stateCallback = callback;
+        // the real Mega reports its state within a second of the port opening
+        setImmediate(() => callback(status.ROOF));
     },
+    setEncoderCallback: () => {},
+    setCurrentCallback: () => {},
+    setlockcurrent: () => {},
+    setroofcurrent: () => {},
     powerusage: () => {
         return power;
     },
+    lockpowerusage: () => {
+        return power;
+    },
     statusline: () => {
-        return statusline;
+        return 'ROOF=' + status.ROOF + statusline.substring(statusline.indexOf(','));
     },
     status: () => {
         return status;
