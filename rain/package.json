@@ -12,6 +12,6 @@
   "dependencies": {
     "logops": "^1.0.1",
     "request": "^2.81.0",
-    "serialport": "^7.1.5"
+    "serialport": "^12.0.0"
   }
 }

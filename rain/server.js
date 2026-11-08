@@ -24,18 +24,42 @@
 
 var logger = require('logops');
 logger.setLevel('DEBUG');
-var SerialPort = require('serialport');
+var { SerialPort } = require('serialport');
 var nmea0183 = require('./nmea0183');
 var request = require('request');
 var parser = nmea0183();
 var config = require('./config.js');
 
-var port = new SerialPort(config.COMPORT, {
+var port = new SerialPort({
+  path: config.COMPORT,
   baudRate: 57600
 });
 
+function tryToOpen() {
+    port.open(function(err) {
+        if (err) {
+            logger.warn('Error opening serial port, trying again in 5000ms');
+            setTimeout(tryToOpen, 5000);
+        }
+    });
+}
+
 port.on('open', function() {
     logger.info('serial port opened');
+});
+
+port.on('close', function(err) {
+    if (err && err.disconnected) {
+        logger.info('serial port lost; reopening');
+        tryToOpen();
+    }
+});
+
+port.on('error', function(err) {
+    logger.error('serial port error: ' + err.message);
+    if (!port.isOpen) {
+        setTimeout(tryToOpen, 5000);
+    }
 });
 
 port.on('data', function (data) {
