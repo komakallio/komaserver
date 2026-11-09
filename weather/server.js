@@ -140,7 +140,7 @@ app.post('/api', function(req, res) {
     }
 });
 
-const supportedQueryTypes = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups', 'sqm', 'ruuvi_jari', 'ruuvi_samuli', 'safety', 'allsky'];
+const supportedQueryTypes = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups', 'sqm', 'ruuvi_jari', 'ruuvi_samuli', 'ruuvi_c8', 'safety', 'allsky'];
 supportedQueryTypes.forEach(type => {
     app.get('/api/' + type, function(req, res) {
         sendLatestData(type, req, res);
