@@ -35,7 +35,7 @@ const xdp = new dewpoint(config.heightAboveSeaLevel);
 
 var updateTimestamps = {};
 
-const types = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups', 'ruuvi_jari', 'ruuvi_samuli', 'ruuvi_c8', 'safety', 'sqm', 'allsky'];
+const types = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups', 'ruuvi_jari', 'ruuvi_samuli', 'ruuvi_lauri', 'safety', 'sqm', 'allsky'];
 
 function convertDataForType(data) {
     switch(data.Type) {
@@ -125,12 +125,13 @@ function convertDataForType(data) {
 
         case 'Ruuvi_jari':
         case 'Ruuvi_samuli':
-        case 'Ruuvi_c8':
+        case 'Ruuvi_lauri':
             let name = data.Type.substring(6);
             let accel = data[data.Type].Acceleration;
             return `Ruuvi ` +
                 (accel ? `${name}.x=${accel[0][0]},${name}.y=${accel[0][1]},${name}.z=${accel[0][2]},` : '') +
                 (data[data.Type].AtPark === null || data[data.Type].AtPark === undefined ? '' : `${name + '.atpark'}=${data[data.Type].AtPark ? 1 : 0},`) +
+                (Number.isInteger(data[data.Type].Sequence) ? `${name}.sequence=${data[data.Type].Sequence}i,` : '') +
                 `${name + '.signal'}=${data[data.Type].Signal[0]},` +
                 `${name + '.temperature'}=${data[data.Type].Temperature[0]},` +
                 `${name + '.humidity'}=${data[data.Type].Humidity[0]},` +
