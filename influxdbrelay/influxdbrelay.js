@@ -33,8 +33,6 @@ const config = require('./config');
 const dewpoint = require('dewpoint');
 const xdp = new dewpoint(config.heightAboveSeaLevel);
 
-var updateTimestamps = {};
-
 const types = ['ptu', 'wind', 'rain', 'raintrigger', 'interior', 'status', 'radar', 'cloud', 'cpu', 'battery', 'roof', 'ups', 'ruuvi_jari', 'ruuvi_samuli', 'ruuvi_lauri', 'safety', 'sqm', 'allsky'];
 
 function convertDataForType(data) {
@@ -168,46 +166,127 @@ function convertDataForType(data) {
     }
 }
 
+// Catch-up: the relay remembers, per type, the timestamp (zset score) of the
+// last record InfluxDB accepted, in the Redis hash SENT_KEY. Each tick sends
+// every record newer than that, thinned to one per MIN_SPACING_MS (the old
+// relay sent only the newest record every 5 s, so normal density is
+// unchanged). If InfluxDB or the network is down, nothing advances and the
+// backlog goes out once it's reachable again, oldest first, at most
+// BATCH_RECORDS per type per tick.
+const SENT_KEY = 'influxdbrelay:sent';
+const TICK_MS = 5000;
+const MIN_SPACING_MS = 5000;
+const BATCH_RECORDS = 2000;
+const MAX_BACKLOG_MS = 7 * 24 * 3600 * 1000;
+
 function postToInfluxDb(data) {
-    if (data.length == 0) {
-        return;
-    }
-
-    request.post({
-        url: config.endpoint,
-        qs: {
-            db: config.db,
-            precision: 'ms'
-        },
-        auth: { 'username': config.username, 'password': config.password },
-        body: data
-    }, (error, response, body) => {
-        if (!error && response.statusCode == 204) {
-            logger.info('Sent ' + data.split(',').length + ' entries for ' + data.split('\n').map(x => x.split(' ')[0]).filter(x => x.length > 0));
-        } else {
-            logger.error('Error: ' + JSON.stringify(body) + ' data was ' + data);
+    // Resolves true when InfluxDB has taken the data (or rejected it as
+    // malformed, which retrying won't fix), false to retry later.
+    return new Promise(resolve => {
+        if (data.length == 0) {
+            return resolve(true);
         }
-    });
-}
-
-function updateTick() {
-    var redisQueries = types.map(type => redisClient.zrevrangeAsync(type, 0, 0));
-    Promise.all(redisQueries).then(replies => {
-        var redisdata = replies
-            .filter(reply => reply.length > 0)
-            .map(reply => JSON.parse(reply[0]))
-            .filter(data => data.Timestamp != updateTimestamps[data.Type]);
-        var data = redisdata
-            .map(data => convertDataForType(data))
-            .reduce((flat, arr) => flat + arr, '');
-
-        postToInfluxDb(data);
-
-        redisdata.forEach(data => {
-            updateTimestamps[data.Type] = data.Timestamp;
+        request.post({
+            url: config.endpoint,
+            qs: {
+                db: config.db,
+                precision: 'ms'
+            },
+            auth: { 'username': config.username, 'password': config.password },
+            body: data,
+            timeout: 30000
+        }, (error, response, body) => {
+            if (!error && response.statusCode == 204) {
+                const lines = data.split('\n').filter(x => x.length > 0);
+                const names = [...new Set(lines.map(x => x.split(' ')[0]))];
+                logger.info('Sent ' + lines.length + ' lines for ' + names);
+                resolve(true);
+            } else if (!error && response.statusCode == 400) {
+                logger.error('Rejected: ' + JSON.stringify(body) + ' data was ' + data.substring(0, 2000));
+                resolve(true);
+            } else {
+                logger.error('Error: ' + (error ? error.message : response.statusCode + ' ' + JSON.stringify(body)) + '; will retry');
+                resolve(false);
+            }
         });
     });
-    setTimeout(updateTick, 5000);
 }
 
-updateTick();
+function thin(records, sentScore) {
+    // records: [[json, score], ...] oldest first, all newer than sentScore.
+    const out = [];
+    let prev = sentScore;
+    for (const [json, score] of records) {
+        if (prev === null || score - prev >= MIN_SPACING_MS) {
+            out.push([json, score]);
+            prev = score;
+        }
+    }
+    return out;
+}
+
+function pairs(reply) {
+    const out = [];
+    for (let i = 0; i + 1 < reply.length; i += 2) {
+        out.push([reply[i], Number(reply[i + 1])]);
+    }
+    return out;
+}
+
+async function pending(type, sent, now) {
+    // Records to send for one type: [lines, newest score covered] or null.
+    let since = sent[type] !== undefined ? Number(sent[type]) : null;
+    let reply;
+    if (since === null) {
+        // First run for this type: start from the newest record.
+        reply = await redisClient.zrevrangeAsync(type, 0, 0, 'WITHSCORES');
+    } else {
+        since = Math.max(since, now - MAX_BACKLOG_MS);
+        reply = await redisClient.zrangebyscoreAsync(type, '(' + since, '+inf', 'WITHSCORES', 'LIMIT', 0, BATCH_RECORDS);
+    }
+    const records = pairs(reply);
+    if (records.length == 0) {
+        return null;
+    }
+    let lines = '';
+    for (const [json, score] of thin(records, since)) {
+        try {
+            lines += convertDataForType(JSON.parse(json)) || '';
+        } catch (e) {
+            logger.error('Bad record in ' + type + ' at ' + score + ': ' + e.message);
+        }
+    }
+    // Skipped (thinned or bad) records count as covered too.
+    return [lines, records[records.length - 1][1]];
+}
+
+async function updateTick() {
+    try {
+        const now = Date.now();
+        const sent = (await redisClient.hgetallAsync(SENT_KEY)) || {};
+        const batches = [];
+        for (const type of types) {
+            const p = await pending(type, sent, now);
+            if (p) {
+                batches.push([type, p[0], p[1]]);
+            }
+        }
+        if (batches.length > 0) {
+            const ok = await postToInfluxDb(batches.map(b => b[1]).join(''));
+            if (ok) {
+                const args = [];
+                batches.forEach(([type, , score]) => args.push(type, String(score)));
+                await redisClient.hmsetAsync(SENT_KEY, args);
+            }
+        }
+    } catch (e) {
+        logger.error('Tick failed: ' + e.message);
+    }
+    setTimeout(updateTick, TICK_MS);
+}
+
+if (require.main === module) {
+    updateTick();
+}
+
+module.exports = { thin, pairs, convertDataForType };
